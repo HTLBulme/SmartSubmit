@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" /> <!-- ensures German umlauts (ä, ö, ü) display correctly -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- makes page mobile responsive -->
+  <title>SmartSubmit – Login</title>
+
+  <!-- Bootstrap CSS framework for styling -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* BODY — sets background and centers the login card */
+    body {
+      background: linear-gradient(135deg, #e9f2ff, #f9f9ff);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Inter", sans-serif;
+    }
+
+    /* LANGUAGE SWITCH — small language buttons at top-right */
+    .language-switch {
+      position: absolute;
+      top: 1.5rem;
+      right: 2rem;
+    }
+
+    /* LANG BUTTONS — style for DE/EN switch */
+    .lang-btn {
+      background: transparent;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #6c757d;
+      margin-left: 0.3rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn:hover {
+      background-color: rgba(75, 141, 248, 0.08);
+      color: #4b8df8;
+    }
+
+    /* ACTIVE LANGUAGE BUTTON — highlighted */
+    .lang-btn.active {
+      background-color: #4b8df8;
+      color: white;
+      box-shadow: 0 2px 6px rgba(75, 141, 248, 0.3);
+    }
+
+    /* LOGIN CARD — white rounded box containing the form */
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .login-card h2 {
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      color: #4b8df8;
+    }
+
+    /* FORM CONTROL — adds a blue border glow when focused */
+    .form-control:focus {
+      border-color: #4b8df8;
+      box-shadow: 0 0 0 0.2rem rgba(75, 141, 248, 0.25);
+    }
+
+    /* PRIMARY BUTTON — main blue login button */
+    .btn-primary {
+      background-color: #4b8df8;
+      border-color: #4b8df8;
+      border-radius: 0.75rem;
+      font-weight: 500;
+    }
+
+    .btn-primary:hover {
+      background-color: #3a78db;
+    }
+
+    /* SMALL TEXT — used for subtitles and register link */
+    .small-text {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- MAIN LOGIN CARD -->
+  <div class="login-card">
+    <!-- PAGE TITLE -->
+    <h2>👤 Login</h2>
+
+    <!-- LANGUAGE SWITCH -->
+    <div class="language-switch text-end mb-3">
+      <button class="lang-btn active" id="lang-de">🇩🇪 DE</button>
+      <button class="lang-btn" id="lang-en">🇬🇧 EN</button>
+    </div>
+
+    <!-- SUBTITLE -->
+    <p class="small-text mb-4">Bitte melde dich mit deinem Konto an</p>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm">
+      <!-- EMAIL FIELD -->
+      <div class="mb-3 text-start">
+        <label for="email" class="form-label">E-Mail-Adresse</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          placeholder="name@schule.at"
+          required
+        />
+      </div>
+
+      <!-- PASSWORD FIELD -->
+      <div class="mb-3 text-start">
+        <label for="password" class="form-label">Passwort</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <!-- LOGIN BUTTON -->
+      <button type="submit" class="btn btn-primary w-100 mt-2">Einloggen</button>
+
+      <!-- REGISTER LINK -->
+      <p class="small-text mt-3">
+        Noch kein Konto?
+        <a href="register.html">Registrieren</a>
+      </p>
+    </form>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    /* --------------------------------------------------------
+       ① API_URL — backend endpoint (change later for deployment)
+       -------------------------------------------------------- */
+    const API_URL = "http://localhost:5000";
+
+    /* --------------------------------------------------------
+       ② TRANSLATIONS — German & English text dictionary
+       -------------------------------------------------------- */
+    const translations = {
+      de: {
+        title: "👤 Login",
+        subtitle: "Bitte melde dich mit deinem Konto an",
+        email_label: "E-Mail-Adresse",
+        password_label: "Passwort",
+        login_button: "Einloggen",
+        register_text: "Noch kein Konto?",
+        register_link: "Registrieren",
+      },
+      en: {
+        title: "👤 Login",
+        subtitle: "Please sign in with your account",
+        email_label: "Email address",
+        password_label: "Password",
+        login_button: "Log in",
+        register_text: "No account yet?",
+        register_link: "Sign up",
+      },
+    };
+
+    /* --------------------------------------------------------
+       ③ UPDATE LANGUAGE — dynamically update text on page
+       -------------------------------------------------------- */
+    function updateLanguage(lang) {
+      const t = translations[lang];
+      document.querySelector("h2").textContent = t.title;
+      document.querySelector("p.small-text").textContent = t.subtitle;
+      document.querySelector("label[for='email']").textContent = t.email_label;
+      document.querySelector("label[for='password']").textContent = t.password_label;
+      document.querySelector("button[type='submit']").textContent = t.login_button;
+
+      const small = document.querySelector(".small-text.mt-3");
+      small.childNodes[0].textContent = t.register_text + " ";
+      small.querySelector("a").textContent = t.register_link;
+
+      // save selected language
+      localStorage.setItem("lang", lang);
+    }
+
+    /* --------------------------------------------------------
+       ④ SET ACTIVE BUTTON — visually highlight active language
+       -------------------------------------------------------- */
+    function setActiveButton(lang) {
+      document.querySelectorAll(".lang-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.id === `lang-${lang}`);
+      });
+    }
+
+    /* --------------------------------------------------------
+       ⑤ PAGE INITIALIZATION — load saved language
+       -------------------------------------------------------- */
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedLang = localStorage.getItem("lang") || "de";
+      updateLanguage(savedLang);
+      setActiveButton(savedLang);
+
+      // Language switch event listeners
+      document.getElementById("lang-de").addEventListener("click", () => {
+        updateLanguage("de");
+        setActiveButton("de");
+      });
+
+      document.getElementById("lang-en").addEventListener("click", () => {
+        updateLanguage("en");
+        setActiveButton("en");
+      });
+    });
+
+    /* --------------------------------------------------------
+       ⑥ LOGIN HANDLER — send credentials to backend
+       -------------------------------------------------------- */
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault(); // prevent page reload
+
+      // Get user input
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      // Send login request to Flask API
+      const response = await fetch(`${API_URL}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      /* --- Handle server response --- */
+      if (response.ok) {
+        const data = await response.json(); // Parse the server's JSON response (contains user info)
+        
+        // Save the user's email (or name) in localStorage
+        // so we can display it later on the start page
+        localStorage.setItem("userEmail", data.email || email);
+        
+        // Redirect the user to the main start page after successful login
+        window.location.href = "startsite.html";
+      } else {
+        // Show an alert if the login credentials are incorrect
+        alert("Incorrect email or password!");
+      }
+    });
+  </script>
+</body>
+</html>
