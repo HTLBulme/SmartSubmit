@@ -142,9 +142,9 @@ app.get('/api/auth/available-roles', async (req, res) => {
 7.Token und Benutzerinformationen zurückgeben
 */
 
-app.post('/api/auth/register', async (req, res) => {  //!!von Frontend
+app.post('/api/register', async (req, res) => {  //!!von Frontend-------------------------------------'/api/auth/register'
   try {
-    const { vorname, nachname, email, passwort, rolleId = 1 } = req.body; //!!rolleId von Frontend 
+    const { vorname = "song", nachname = "jin", email, passwort = req.body.password, rolleId = 1 } = req.body; //!!rolleId von Frontend -------------------------------------kein name von frontend
 
     // Pflichtfelder validieren
     if (!vorname || !nachname || !email || !passwort || !rolleId) {
@@ -240,7 +240,7 @@ app.post('/api/auth/register', async (req, res) => {  //!!von Frontend
             beschreibung: rolle.beschreibung
           }
         },
-        token: token
+        token: token //dynamisch generiert jedes mal anders-------------------------------------------------es fehlt bei frontend!!!
       }
     });
 }catch (error) {
@@ -269,9 +269,9 @@ app.post('/api/auth/register', async (req, res) => {  //!!von Frontend
 8.Token, Benutzerinformationen und Rolleninformationen zurückgeben
 */
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {//-------------------------------------------------------'/api/auth/login'
   try {
-    const { email, passwort } = req.body;
+    const { email, passwort = req.body.password } = req.body;
 
     if (!email || !passwort) {
       return res.status(400).json({
@@ -307,7 +307,7 @@ app.post('/api/auth/login', async (req, res) => {
       });
     }
 
-    const token = generateToken(user.id);
+    const token = generateToken(user.id);  //dynamisch generiert jedes mal anders-------------------------------------------------es fehlt bei frontend!!!
 
     const roles = user.benutzer_rollen.map(br => ({ //roles array
       id: br.rolle.id,
@@ -327,7 +327,7 @@ app.post('/api/auth/login', async (req, res) => {
           erstellt_am: user.erstellt_am,
           roles: roles
         },
-        token
+        token //-------------------------------------------------------------------------es fehlt bei frontend!!!
       }
     });
 
@@ -405,7 +405,7 @@ app.put('/api/auth/change-password', authenticateToken, async (req, res) => {
 
 // ****************Abmeldung****************
 
-app.post('/api/auth/logout', (req, res) => { // Kein Token-Validierung erforderlich， Frontend kann es selbst entfernen.
+app.post('/api/logout', (req, res) => { // Kein Token-Validierung erforderlich， Frontend kann es selbst entfernen.
   res.json({
     success: true,
     message: 'Abmeldung erfolgreich'
