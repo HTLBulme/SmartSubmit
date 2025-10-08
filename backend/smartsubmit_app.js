@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express'); // Lädt das Express-Framework(Factory Function), um den Webserver zu erstellen
 const cors = require('cors');   //Lädt die CORS-Middleware zur Handhabung von Cross-Origin-Anfragen，const cors ist eine Factory Function
 const dotenv = require('dotenv');   //Zum Laden von Umgebungsvariablen aus .env
@@ -14,6 +15,22 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json()); // Führt JSON-req.body(js-object)-Parser-Middleware aus 
 app.use(express.urlencoded({ extended: true }));  // für traditionelle HTML-Formularübermittlung
+
+// 1. Definition des Pfades zum Frontend-Ordner:
+// '__dirname' ist der aktuelle Ordner ('backend'). '..' geht einen Ordner hoch.
+const FRONTEND_PATH = path.join(__dirname, '..', 'frontend');
+
+// 2. Statische Dateien aus dem 'frontend'-Ordner bereitstellen:
+// Alle Dateien im 'frontend'-Ordner (wie /js/login.js, /register.html, etc.)
+// sind nun direkt unter der Haupt-URL erreichbar.
+app.use(express.static(FRONTEND_PATH));
+
+// 3. Route für die Stamm-URL (/) definieren, um die UI zu laden:
+// Dadurch wird der "Cannot GET /" Fehler behoben, da nun eine Datei geliefert wird.
+app.get('/', (req, res) => {
+    // Schickt die Login-Seite als Einstiegspunkt.
+    res.sendFile(path.join(FRONTEND_PATH, 'login.html')); 
+});
 
 //-----------------------------authenticateToken Middleware definieren-----------------------------
 /*
