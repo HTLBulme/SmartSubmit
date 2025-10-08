@@ -5,13 +5,12 @@ services:
     name: smartsubmit-backend
     env: docker
     plan: free
-    repo: https://github.com/HTL-Bulme/SmartSubmit
-    branch: main
-    dockerfilePath: backend/Dockerfile
+    repo: https://github.com/HTLBulme/SmartSubmit
+    branch: main    
     envVars:
       - key: DATABASE_URL
         value: mysql://admin:secret@your-mysql-host:3306/smartsubmit
       - key: JWT_SECRET
-        value: your_secret_key
+        value: secret_key
       - key: PORT
         value: 3000
