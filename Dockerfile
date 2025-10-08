@@ -4,16 +4,14 @@ FROM node:18
 # Set working directory
 WORKDIR /app
 
+# Copy backend files
+COPY backend/ ./
+
 # Install dependencies
-COPY package*.json ./
 RUN npm install
 
 # Generate Prisma client
-COPY prisma ./prisma
 RUN npx prisma generate
-
-# Copy application code
-COPY . .
 
 # Expose application port
 EXPOSE 3000

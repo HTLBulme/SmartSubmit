@@ -1,9 +1,19 @@
+# Node modules
 node_modules
-# Keep environment variables out of version control
-.env
-/generated/prisma
 
-# Ignore sensitive and unnecessary files
+# Environment variables
+.env
+
+# Prisma generated client (if custom output is used)
+generated/prisma/
+
+# Prisma migrations (optional)
+prisma/migrations/
+
+# Logs and local DB
 *.log
 database.db
-prisma/migrations/
+
+# Git and frontend
+.git
+frontend/
