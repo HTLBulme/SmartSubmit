@@ -266,7 +266,7 @@ app.post('/api/register', async (req, res) => {  //!!von Frontend---------------
    ↓
 6. (Optional) Letzten Login-Zeitpunkt aktualisieren
    ↓
-8.Token, Benutzerinformationen und Rolleninformationen zurückgeben
+7.Token, Benutzerinformationen und Rolleninformationen zurückgeben
 */
 
 app.post('/api/login', async (req, res) => {//-------------------------------------------------------'/api/auth/login'
