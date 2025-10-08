@@ -16,19 +16,19 @@ app.use(cors());
 app.use(express.json()); // Führt JSON-req.body(js-object)-Parser-Middleware aus 
 app.use(express.urlencoded({ extended: true }));  // für traditionelle HTML-Formularübermittlung
 
-// 1. Definition des Pfades zum Frontend-Ordner:
-// '__dirname' ist der aktuelle Ordner ('backend'). '..' geht einen Ordner hoch.
-const FRONTEND_PATH = path.join(__dirname, '..', 'frontend');
+// Im Container:
+// __dirname ist '/app/backend'
+// path.resolve(__dirname, '..') ergibt '/app' (das Projekt-Root)
+const PROJECT_ROOT = path.resolve(__dirname, '..'); 
 
-// 2. Statische Dateien aus dem 'frontend'-Ordner bereitstellen:
-// Alle Dateien im 'frontend'-Ordner (wie /js/login.js, /register.html, etc.)
-// sind nun direkt unter der Haupt-URL erreichbar.
+// FRONTEND_PATH ist '/app/frontend'
+const FRONTEND_PATH = path.join(PROJECT_ROOT, 'frontend');
+
+// 1. Statische Dateien bereitstellen (für CSS, JS, register.html, startsite.html)
 app.use(express.static(FRONTEND_PATH));
 
-// 3. Route für die Stamm-URL (/) definieren, um die UI zu laden:
-// Dadurch wird der "Cannot GET /" Fehler behoben, da nun eine Datei geliefert wird.
+// 2. Route für die Stamm-URL (/) definieren (liefert die Einstiegsseite)
 app.get('/', (req, res) => {
-    // Schickt die Login-Seite als Einstiegspunkt.
     res.sendFile(path.join(FRONTEND_PATH, 'login.html')); 
 });
 
