@@ -16,19 +16,16 @@ app.use(cors());
 app.use(express.json()); // Führt JSON-req.body(js-object)-Parser-Middleware aus 
 app.use(express.urlencoded({ extended: true }));  // für traditionelle HTML-Formularübermittlung
 
-// Im Container:
-// __dirname ist '/app/backend'
-// path.resolve(__dirname, '..') ergibt '/app' (das Projekt-Root)
-const PROJECT_ROOT = path.resolve(__dirname, '..'); 
+// Im Container: __dirname ist '/app', der Ordner, der smartsubmit_app.js enthält
+// Der Frontend-Ordner liegt direkt daneben in '/app/frontend'
+const FRONTEND_PATH = path.join(__dirname, 'frontend'); 
 
-// FRONTEND_PATH ist '/app/frontend'
-const FRONTEND_PATH = path.join(PROJECT_ROOT, 'frontend');
-
-// 1. Statische Dateien bereitstellen (für CSS, JS, register.html, startsite.html)
+// 1. Statische Dateien bereitstellen
 app.use(express.static(FRONTEND_PATH));
 
-// 2. Route für die Stamm-URL (/) definieren (liefert die Einstiegsseite)
+// 2. Route für die Stamm-URL (/) definieren, um den "Cannot GET /" Fehler zu beheben
 app.get('/', (req, res) => {
+    // Liefert /app/frontend/login.html
     res.sendFile(path.join(FRONTEND_PATH, 'login.html')); 
 });
 

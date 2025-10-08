@@ -1,17 +1,14 @@
 # Use Node.js 18 as base image
 FROM node:18
 
-# Set working directory to /app
+# Set working directory
 WORKDIR /app
 
-# 1. Copy dependency files first
-COPY package*.json ./
+# Copy backend files
+COPY backend/ ./
 
-# 2. Copy all required folders into the WORKDIR (/app)
-#    This creates the structure: /app/backend, /app/frontend, /app/prisma
-COPY backend/ ./backend/
-COPY frontend/ ./frontend/
-COPY prisma/ ./prisma/
+# Copy frontend files
+COPY frontend/ ./frontend/ 
 
 # Install dependencies
 RUN npm install
@@ -22,5 +19,5 @@ RUN npx prisma generate
 # Expose application port
 EXPOSE 3000
 
-# Start the server: The script is now located inside the 'backend' folder
-CMD ["node", "backend/smartsubmit_app.js"]
+# Start the server
+CMD ["node", "smartsubmit_app.js"]
