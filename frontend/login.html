@@ -1,267 +1,204 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" /> <!-- ensures German umlauts (ä, ö, ü) display correctly -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- makes page mobile responsive -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SmartSubmit – Login</title>
 
-  <!-- Bootstrap CSS framework for styling -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <!-- ✅ Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
   <style>
-    /* BODY — sets background and centers the login card */
     body {
       background: linear-gradient(135deg, #e9f2ff, #f9f9ff);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: "Inter", sans-serif;
+      font-family: "Inter", system-ui, sans-serif;
+      position: relative;
     }
 
-    /* LANGUAGE SWITCH — small language buttons at top-right */
-    .language-switch {
-      position: absolute;
-      top: 1.5rem;
-      right: 2rem;
+    /* 🔹 Language switch in page corner / Переключатель языка на странице */
+    .lang-switch {
+      position: fixed;
+      top: 1rem;
+      right: 1.5rem;
+      z-index: 1000;
     }
 
-    /* LANG BUTTONS — style for DE/EN switch */
     .lang-btn {
-      background: transparent;
       border: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: #6c757d;
-      margin-left: 0.3rem;
-      padding: 0.3rem 0.6rem;
+      background: transparent;
+      font-weight: 600;
+      color: #4b5a7a;
+      margin-left: 0.25rem;
+      padding: 0.35rem 0.7rem;
       border-radius: 0.6rem;
-      cursor: pointer;
       transition: all 0.2s ease;
     }
 
-    .lang-btn:hover {
-      background-color: rgba(75, 141, 248, 0.08);
-      color: #4b8df8;
-    }
+    .lang-btn:hover { background-color: rgba(75,141,248,0.1); color:#4b8df8; }
+    .lang-btn.active { background-color:#4b8df8; color:#fff; }
 
-    /* ACTIVE LANGUAGE BUTTON — highlighted */
-    .lang-btn.active {
-      background-color: #4b8df8;
-      color: white;
-      box-shadow: 0 2px 6px rgba(75, 141, 248, 0.3);
-    }
-
-    /* LOGIN CARD — white rounded box containing the form */
+    /* 🔹 Login card / Карточка логина */
     .login-card {
       width: 100%;
-      max-width: 420px;
-      background: white;
+      max-width: 460px;
+      background: #fff;
       border-radius: 1.5rem;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
       padding: 2rem;
       text-align: center;
     }
 
-    .login-card h2 {
-      margin-bottom: 1.5rem;
-      font-weight: 600;
-      color: #4b8df8;
-    }
-
-    /* FORM CONTROL — adds a blue border glow when focused */
-    .form-control:focus {
-      border-color: #4b8df8;
-      box-shadow: 0 0 0 0.2rem rgba(75, 141, 248, 0.25);
-    }
-
-    /* PRIMARY BUTTON — main blue login button */
-    .btn-primary {
-      background-color: #4b8df8;
-      border-color: #4b8df8;
-      border-radius: 0.75rem;
-      font-weight: 500;
-    }
-
-    .btn-primary:hover {
-      background-color: #3a78db;
-    }
-
-    /* SMALL TEXT — used for subtitles and register link */
-    .small-text {
-      font-size: 0.9rem;
-      color: #6c757d;
-    }
+    .form-control:focus { border-color:#4b8df8; box-shadow:0 0 0 .2rem rgba(75,141,248,.25); }
+    .btn-primary { background:#4b8df8; border-color:#4b8df8; border-radius:.75rem; }
+    .btn-primary:hover { background:#3a78db; }
   </style>
 </head>
 
 <body>
-  <!-- MAIN LOGIN CARD -->
-  <div class="login-card">
-    <!-- PAGE TITLE -->
-    <h2>👤 Login</h2>
-
-    <!-- LANGUAGE SWITCH -->
-    <div class="language-switch text-end mb-3">
-      <button class="lang-btn active" id="lang-de">🇩🇪 DE</button>
-      <button class="lang-btn" id="lang-en">🇬🇧 EN</button>
-    </div>
-
-    <!-- SUBTITLE -->
-    <p class="small-text mb-4">Bitte melde dich mit deinem Konto an</p>
-
-    <!-- LOGIN FORM -->
-    <form id="loginForm">
-      <!-- EMAIL FIELD -->
-      <div class="mb-3 text-start">
-        <label for="email" class="form-label">E-Mail-Adresse</label>
-        <input
-          type="email"
-          class="form-control"
-          id="email"
-          placeholder="name@schule.at"
-          required
-        />
-      </div>
-
-      <!-- PASSWORD FIELD -->
-      <div class="mb-3 text-start">
-        <label for="password" class="form-label">Passwort</label>
-        <input
-          type="password"
-          class="form-control"
-          id="password"
-          placeholder="••••••••"
-          required
-        />
-      </div>
-
-      <!-- LOGIN BUTTON -->
-      <button type="submit" class="btn btn-primary w-100 mt-2">Einloggen</button>
-
-      <!-- REGISTER LINK -->
-      <p class="small-text mt-3">
-        Noch kein Konto?
-        <a href="register.html">Registrieren</a>
-      </p>
-    </form>
+  <!-- 🔹 Language switch — outside the form -->
+  <!-- EN: Language buttons on top-right corner of page -->
+  <!-- RU: Кнопки языка вынесены в правый верхний угол страницы -->
+  <div class="lang-switch">
+    <button id="lang-de" class="lang-btn active">🇩🇪 DE</button>
+    <button id="lang-en" class="lang-btn">🇬🇧 EN</button>
   </div>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- 🔹 Login form card -->
+  <div class="login-card">
+    <h2 id="t-title" class="mb-1">👤 Login</h2>
+    <p id="t-sub" class="text-muted mb-4">Bitte melde dich mit deinem Konto an</p>
+
+    <form id="loginForm">
+      <div class="mb-3 text-start">
+        <label id="t-email-label" for="email" class="form-label">E-Mail-Adresse</label>
+        <input id="email" type="email" class="form-control" placeholder="name@schule.at" required />
+      </div>
+
+      <div class="mb-3 text-start">
+        <label id="t-pass-label" for="password" class="form-label">Passwort</label>
+        <input id="password" type="password" class="form-control" placeholder="••••••••" required />
+      </div>
+
+      <div class="mb-3 text-start">
+        <label id="t-role-label" for="rolleId" class="form-label">Rolle auswählen</label>
+        <select id="rolleId" class="form-select" required></select>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 mt-2" id="t-login-btn">Einloggen</button>
+    </form>
+
+    <div id="msg" class="text-center small mt-3 text-danger" style="min-height:1.25rem"></div>
+  </div>
 
   <script>
-    /* --------------------------------------------------------
-       ① API_URL — backend endpoint (change later for deployment)
-       -------------------------------------------------------- */
-    const API_URL = "http://localhost:5000";
+    const API_URL = "http://localhost:3000"; 
+    // EN: backend base address
+    // RU: базовый адрес backend-сервера
 
-    /* --------------------------------------------------------
-       ② TRANSLATIONS — German & English text dictionary
-       -------------------------------------------------------- */
-    const translations = {
-      de: {
-        title: "👤 Login",
-        subtitle: "Bitte melde dich mit deinem Konto an",
-        email_label: "E-Mail-Adresse",
-        password_label: "Passwort",
-        login_button: "Einloggen",
-        register_text: "Noch kein Konto?",
-        register_link: "Registrieren",
-      },
-      en: {
-        title: "👤 Login",
-        subtitle: "Please sign in with your account",
-        email_label: "Email address",
-        password_label: "Password",
-        login_button: "Log in",
-        register_text: "No account yet?",
-        register_link: "Sign up",
-      },
+    /* 🌍 Language dictionary / Словарь переводов */
+    const T = {
+      de:{title:"👤 Login",sub:"Bitte melde dich mit deinem Konto an",email:"E-Mail-Adresse",pass:"Passwort",role:"Rolle auswählen",login:"Einloggen",errServer:"Server nicht erreichbar.",errCreds:"E-Mail oder Passwort falsch.",errRole:"Keine Berechtigung für die gewählte Rolle."},
+      en:{title:"👤 Login",sub:"Please sign in with your account",email:"Email address",pass:"Password",role:"Select role",login:"Log in",errServer:"Server unreachable.",errCreds:"Incorrect email or password.",errRole:"You don't have permission for the selected role."}
     };
 
-    /* --------------------------------------------------------
-       ③ UPDATE LANGUAGE — dynamically update text on page
-       -------------------------------------------------------- */
-    function updateLanguage(lang) {
-      const t = translations[lang];
-      document.querySelector("h2").textContent = t.title;
-      document.querySelector("p.small-text").textContent = t.subtitle;
-      document.querySelector("label[for='email']").textContent = t.email_label;
-      document.querySelector("label[for='password']").textContent = t.password_label;
-      document.querySelector("button[type='submit']").textContent = t.login_button;
+    // EN: load saved language or default to German
+    // RU: загружаем сохранённый язык или по умолчанию — немецкий
+    let lang = localStorage.getItem("lang") || "de";
 
-      const small = document.querySelector(".small-text.mt-3");
-      small.childNodes[0].textContent = t.register_text + " ";
-      small.querySelector("a").textContent = t.register_link;
+    // EN: short helpers / RU: короткие помощники
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
 
-      // save selected language
-      localStorage.setItem("lang", lang);
+    /* --------------------------------------------------
+       applyLang()
+       EN: Applies current language texts to UI elements.
+       RU: Применяет выбранный язык ко всем элементам интерфейса.
+    -------------------------------------------------- */
+    function applyLang(){
+      const t=T[lang];
+      $("#t-title").textContent=t.title;
+      $("#t-sub").textContent=t.sub;
+      $("#t-email-label").textContent=t.email;
+      $("#t-pass-label").textContent=t.pass;
+      $("#t-role-label").textContent=t.role;
+      $("#t-login-btn").textContent=t.login;
+      $$(".lang-btn").forEach(btn=>btn.classList.toggle("active",btn.id===`lang-${lang}`));
     }
 
-    /* --------------------------------------------------------
-       ④ SET ACTIVE BUTTON — visually highlight active language
-       -------------------------------------------------------- */
-    function setActiveButton(lang) {
-      document.querySelectorAll(".lang-btn").forEach((btn) => {
-        btn.classList.toggle("active", btn.id === `lang-${lang}`);
-      });
+    /* --------------------------------------------------
+       Language switch events / Переключение языка
+    -------------------------------------------------- */
+    $("#lang-de").addEventListener("click",()=>{lang="de";localStorage.setItem("lang","de");applyLang();loadRoles();});
+    $("#lang-en").addEventListener("click",()=>{lang="en";localStorage.setItem("lang","en");applyLang();loadRoles();});
+
+    /* --------------------------------------------------
+       loadRoles()
+       EN: Fetches role list from backend and fills dropdown.
+       RU: Загружает список ролей с backend и заполняет выпадающий список.
+    -------------------------------------------------- */
+    async function loadRoles(){
+      try{
+        const res=await fetch(`${API_URL}/api/auth/available-roles`);
+        const json=await res.json();
+        const select=$("#rolleId");
+        select.innerHTML="";
+        const labels={de:{Schüler:"Schüler",Lehrer:"Lehrer",Admin:"Admin"},en:{Schüler:"Student",Lehrer:"Teacher",Admin:"Admin"}};
+        (json.data||[]).forEach(r=>{
+          const opt=document.createElement("option");
+          opt.value=r.id;
+          opt.textContent=labels[lang][r.bezeichnung]||r.bezeichnung;
+          select.appendChild(opt);
+        });
+      }catch(e){$("#msg").textContent=T[lang].errServer;}
     }
 
-    /* --------------------------------------------------------
-       ⑤ PAGE INITIALIZATION — load saved language
-       -------------------------------------------------------- */
-    document.addEventListener("DOMContentLoaded", () => {
-      const savedLang = localStorage.getItem("lang") || "de";
-      updateLanguage(savedLang);
-      setActiveButton(savedLang);
+    /* --------------------------------------------------
+       Login form submit / Обработка формы логина
+       EN: Sends credentials to backend, checks chosen role.
+       RU: Отправляет данные логина на backend, проверяет выбранную роль.
+    -------------------------------------------------- */
+    $("#loginForm").addEventListener("submit",async e=>{
+      e.preventDefault();
+      $("#msg").textContent="";
+      const email=$("#email").value.trim();
+      const passwort=$("#password").value.trim();
+      const selectedRoleId=parseInt($("#rolleId").value);
 
-      // Language switch event listeners
-      document.getElementById("lang-de").addEventListener("click", () => {
-        updateLanguage("de");
-        setActiveButton("de");
-      });
+      try{
+        const res=await fetch(`${API_URL}/api/login`,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({email,passwort})
+        });
+        const json=await res.json();
+        if(!json.success){$("#msg").textContent=T[lang].errCreds;return;}
+        const roles=(json.data?.user?.roles||[]).map(r=>r.id);
+        if(!roles.includes(selectedRoleId)){ $("#msg").textContent=T[lang].errRole; return; }
 
-      document.getElementById("lang-en").addEventListener("click", () => {
-        updateLanguage("en");
-        setActiveButton("en");
-      });
+        localStorage.setItem("token",json.data.token);
+        localStorage.setItem("userEmail",json.data.user.email);
+        localStorage.setItem("roleId",String(selectedRoleId));
+
+        const routeByRole={1:"schueler.html",2:"lehrer.html",3:"admin.html"};
+        window.location.href=routeByRole[selectedRoleId]||"startsite.html";
+      }catch(err){
+        console.error(err);
+        $("#msg").textContent=T[lang].errServer;
+      }
     });
 
-    /* --------------------------------------------------------
-       ⑥ LOGIN HANDLER — send credentials to backend
-       -------------------------------------------------------- */
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault(); // prevent page reload
-
-      // Get user input
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-
-      // Send login request to Flask API
-      const response = await fetch(`${API_URL}/api/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      /* --- Handle server response --- */
-      if (response.ok) {
-        const data = await response.json(); // Parse the server's JSON response (contains user info)
-        
-        // Save the user's email (or name) in localStorage
-        // so we can display it later on the start page
-        localStorage.setItem("userEmail", data.email || email);
-        
-        // Redirect the user to the main start page after successful login
-        window.location.href = "startsite.html";
-      } else {
-        // Show an alert if the login credentials are incorrect
-        alert("Incorrect email or password!");
-      }
+    /* --------------------------------------------------
+       Page init / Инициализация страницы
+       EN: On load → apply language + load roles.
+       RU: При загрузке применяет язык и загружает роли.
+    -------------------------------------------------- */
+    document.addEventListener("DOMContentLoaded",async()=>{
+      applyLang();
+      await loadRoles();
     });
   </script>
 </body>
