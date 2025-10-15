@@ -1,59 +1,66 @@
-const path = require('path');
 const express = require('express'); // Lädt das Express-Framework(Factory Function), um den Webserver zu erstellen
 const cors = require('cors');   //Lädt die CORS-Middleware zur Handhabung von Cross-Origin-Anfragen，const cors ist eine Factory Function
 const dotenv = require('dotenv');   //Zum Laden von Umgebungsvariablen aus .env
 const { PrismaClient } = require('@prisma/client'); //Lädt den Prisma-Client, einen ORM (Object-Relational Mapper),als JavaScript-Objekt,für CRUD-Operationen
 const bcrypt = require('bcryptjs'); //Passwort mit bcrypt hashen.
 const jwt = require('jsonwebtoken');
+const multer = require('multer');//Datei-Uploads verarbeiten middleware
+const XLSX = require('xlsx');//Excel-Dateien lesen und schreiben
 
 dotenv.config(); //Führt die config von dotenv aus, um .env-Variablen zu laden.
 
 const app = express();
 const prisma = new PrismaClient();
 
+//-----------------------------Konfiguration Datei-Upload-----------------------------
+
+const upload = multer({ //Instance von multer
+  storage: multer.memoryStorage(), // File in RAM speichern
+  limits: { fileSize: 5 * 1024 * 1024 } //Grösse der File auf 5MB beschränken
+});
+
 //-----------------------------Middleware ausführen-----------------------------
 app.use(cors());
 app.use(express.json()); // Führt JSON-req.body(js-object)-Parser-Middleware aus 
 app.use(express.urlencoded({ extended: true }));  // für traditionelle HTML-Formularübermittlung
 
-// Im Container: __dirname ist '/app', der Ordner, der smartsubmit_app.js enthält
-// Der Frontend-Ordner liegt direkt daneben in '/app/frontend'
-const FRONTEND_PATH = path.join(__dirname, 'frontend'); 
-
-// 1. Statische Dateien bereitstellen
-app.use(express.static(FRONTEND_PATH));
-
-// 2. Route für die Stamm-URL (/) definieren, um den "Cannot GET /" Fehler zu beheben
-app.get('/', (req, res) => {
-    // Liefert /app/frontend/login.html
-    res.sendFile(path.join(FRONTEND_PATH, 'login.html')); 
-});
-
 //-----------------------------authenticateToken Middleware definieren-----------------------------
 /*
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: '未提供认证令牌'
-    });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(403).json({
-        success: false,
-        message: '令牌无效或已过期'
-      });
+fetch(apiEndpoint, {
+    method: 'post', / 'GET', 'PUT', 'DELETE'
+    headers: {
+        'Authorization': `Bearer ${adminToken}`, 
+        'Content-Type': 'application/json' 
     }
-    req.userId = decoded.userId;
-    next();
+    // body: JSON.stringify({ key: 'value' })
+})
+*/
+const authenticateAdmin = async (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'Kein Token' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+       if (err) {
+         return res.status(403).json({ success: false, message: 'Token ungültig' });
+       }
+
+       const userRole = await prisma.benutzerRolle.findFirst({
+         where: { benutzer_id: decoded.userId, rolle_id: 3 }
+       });
+
+       if (!userRole) {
+         return res.status(403).json({ success: false, message: 'Nur für Admins' });
+       } 
+
+       req.userId = decoded.userId;
+       next();
   });
 };
-*/
+
 //-----------------------------Hilfsfunktionen-----------------------------
 
 //JWT Token generator
@@ -74,195 +81,197 @@ const validateEmail = (email) => {
 //------------------------------DB init----------------------------------
 
 const initDatabase = async () => {
-  try {
-    // Bei jedem Starten des Servers die Rolle Tabelle checken, ob es leer ist.
+  try { // Bei jedem Starten des Servers die Rolle Tabelle checken, ob es leer ist.
     const roleCount = await prisma.rolle.count();
     
     if (roleCount === 0) {
-      console.log('Rolle-Daten init...');
-      
-      await prisma.rolle.createMany({ //此处rolleId顺序要和前端一致
+      await prisma.rolle.createMany({//Tabelle Rolle ausfühlen
         data: [
-          { 
-            bezeichnung: 'Schüler', 
-            beschreibung: 'Schüler，kann Aufgaben abgeben' 
-          },
-          { 
-            bezeichnung: 'Lehrer', 
-            beschreibung: 'Lehrer，kann Aufgaben erstellen, bewerten und verwalten' 
-          },
-          { 
-            bezeichnung: 'Admin', 
-            beschreibung: 'Adimin，kann das System Verwalten' 
-          },
+          { bezeichnung: 'Schüler', beschreibung: 'Schüler，kann Aufgaben abgeben' },
+          { bezeichnung: 'Lehrer', beschreibung: 'Lehrer，kann Aufgaben erstellen, bewerten und verwalten' },
+          { bezeichnung: 'Admin', beschreibung: 'Adimin，kann das System Verwalten' }
         ]
       });
+      console.log('Rollen initialisiert');
+    }
+
+    const adminCount = await prisma.benutzerRolle.count({ where: { rolle_id: 3 } });
+
+    if (adminCount === 0) {
+      const hashedPassword = await bcrypt.hash('admin123', 10);
       
-      console.log('Init fertig!');
-    } else {
-      console.log('Rolle-Daten bereits existieren');
-    }
-  } catch (error) {
-    console.error('Es ist schief gegangen beim Init-Prozess', error);
-  }
-}
-
-
-//------------------------------API Routers----------------------------------
-
-//Statuscode: 400 Bad Request，401 Unauthorized， 500 Internal Server Error，201 Created
-
-//die available-roles in DB holen, für Frontend zum Rendern
-//diese abfrage On Page Load automatisch an backend abschicken
-//wenn Frontend mit Hardcode für rolle-rendern, braucht man dies net.
-app.get('/api/auth/available-roles', async (req, res) => {
-  try {
-    const roles = await prisma.rolle.findMany({
-      select: {   //3 felder zuruckgeben
-        id: true,
-        bezeichnung: true,
-        beschreibung: true
-      }
-    });
-
-    res.json({
-      success: true,
-      data: roles
-    });
-
-  } catch (error) {
-    console.error('Fehler beim Abrufen der Rollenliste', error);
-    res.status(500).json({
-      success: false,
-      message: 'Serverfehler, bitte versuchen Sie es später erneut.'
-    });
-  }
-});
-
-//******************Registrierung*******************
-/*
-1. Request-Informationen abrufen
-   ↓
-2. Request-Informationen validieren (Format, Pflichtfelder)
-   ↓
-3. Datenbankabfrage (prüfen, ob E-Mail bereits existiert)
-   ↓
-4. Passwort verschlüsseln (bcrypt)
-   ↓
-5. Benutzer erstellen (in Datenbank einfügen)
-   ↓
-6. Token generieren (JWT Token)
-   ↓
-7.Token und Benutzerinformationen zurückgeben
-*/
-
-app.post('/api/register', async (req, res) => {  //!!von Frontend-------------------------------------'/api/auth/register'
-  try {
-    const { vorname = "song", nachname = "jin", email, passwort = req.body.password, rolleId = 1 } = req.body; //!!rolleId von Frontend -------------------------------------kein name von frontend
-
-    // Pflichtfelder validieren
-    if (!vorname || !nachname || !email || !passwort || !rolleId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Bitte geben Sie alle Pflichtfelder (einschließlich des Rollentyps) an.'
-      });
-    }
-
-    // Rollentyp(nur Student oder Lehrer) validieren 
-    const allowedRoleIds = [1, 2];
-    if (!allowedRoleIds.includes(rolleId)) {
-      return res.status(400).json({
-        success: false,
-        message: 'nur Student oder Lehrer sind zuverlässige Rollentypen.'
-      });
-    }
-
-    // E-Mail-Format validieren
-    if (!validateEmail(email)) { // Definitionsfunktion sieh oberst
-      return res.status(400).json({
-        success: false,
-        message: 'Ungültiges E-Mail-Format.'
-      });
-    }
-
-    // Passwortstärke validieren
-    if (passwort.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'Das Passwort muss mindestens 6 Zeichen lang sein.'
-      });
-    }
-
-    // Prüfen, ob E-Mail-Adresse bereits existiert
-    const existingUser = await prisma.benutzer.findUnique({ //SELECT sytaxen von prisma: obj.obj.methode({where: {email: email }})
-      where: { email: email }
-    });
-
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'E-Mail-Adresse bereits existiert'
-      });
-    };
-
-    const hashedPassword = await bcrypt.hash(passwort, 10);//hashen, Salt Rounds 10 ist momentan genug default
-
-    // ****************Benutzerinformationen erstellen（ACID mit transaction-commit）****************
-
-    const newUser = await prisma.$transaction(async (prisma) => {  //bei prisma auto commit, die zweite prisma ist ein transaction-client，$ steht für Integrierte Methode
-      // Bentzer erstellen
-      const user = await prisma.benutzer.create({  //Zurückgegeben wird ein Datensatz (key:value) aus der Benutzer-Tabelle.
-        data: {     //id und erstellt_am werden automatisch generiert
-          vorname: vorname,
-          nachname: nachname,
-          email: email,
+      const admin = await prisma.benutzer.create({ //wenn laut benutzerRolle keine Admin vorhanden dann neu setzen
+        data: {
+          vorname: 'Admin',
+          nachname: 'System',
+          email: 'admin@smartsubmit.com',
           passwort_hash: hashedPassword
         }
       });
-      //BenutzerRolle tabelle eintragen
-      const benutzerRolle = await prisma.benutzerRolle.create({
-        data: {
-          benutzer_id: user.id,
-          rolle_id: parseInt(rolleId)
-        }
+
+      await prisma.benutzerRolle.create({ //benutzerRolle aktuallisieren
+        data: { benutzer_id: admin.id, rolle_id: 3 }
       });
 
-      return {user: user, benutzerRolle: benutzerRolle}; // return an object
+      console.log('init-Admin erstellt');
+      console.log('Email: admin@smartsubmit.com');
+      console.log('Passwort: admin123');
+    }
+  } catch (error) {
+    console.error('DB-Init Fehler:', error);
+  }
+};
+
+//------------------------------API Routers----------------------------------
+
+//Statuscode: 400 Bad Request，401 Unauthorized，403 Forbidden, 500 Internal Server Error，201 Created
+
+// ******************Admin Login*********************
+
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { email, passwort } = req.body;
+
+    if(!email || !passwort){ //email und passwort dürfen nicht leer sein 
+      return res.status(400).json(
+        {
+          success: false, 
+          message: 'Email oder Passwort fehlen' 
+        }
+      )
+    }
+
+    const user = await prisma.benutzer.findUnique({ //über email den Benutzer abfragen
+      where: { email: email },
+      include: { benutzer_rollen: { include: { rolle: true } } }
     });
 
-    const rolle = await prisma.rolle.findUnique({
-      where:{
-        id:rolleId
-      }
-    })
+    if (!user || !await bcrypt.compare(passwort, user.passwort_hash)) { //keine Benutzer mit dieser email oder ps falsch 
+      return res.status(401).json({ success: false, message: 'Falsche Anmeldedaten' });
+    }
+    
+    const isAdmin = user.benutzer_rollen.some(br => br.rolle_id === 3);
+    if (!isAdmin) {
+      return res.status(403).json({ success: false, message: 'Nur für Admins' });
+    }
 
-    const token = generateToken(newUser.user.id);
+    const token = generateToken(user.id);
 
-    res.status(201).json({  // Rückmeldung zum Frontend
+    res.json({
       success: true,
-      message: 'Registrierung erfolgreich!',
       data: {
         user: {
-          id: newUser.user.id,
-          vorname: newUser.user.vorname,
-          nachname: newUser.user.nachname,
-          email: newUser.user.email,
-          erstellt_am: newUser.user.erstellt_am,
-          rolle: {
-            id: newUser.benutzerRolle.rolle_id,
-            bezeichnung: rolle.bezeichnung,
-            beschreibung: rolle.beschreibung
-          }
+          id: user.id,
+          vorname: user.vorname,
+          nachname: user.nachname,
+          email: user.email
         },
-        token: token //dynamisch generiert jedes mal anders-------------------------------------------------es fehlt bei frontend!!!
+        token
       }
     });
-}catch (error) {
-    console.error('Registrierungsfehler:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Serverfehler, bitte versuchen Sie es später erneut.'
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server Fehler' });
+  }
+});
+
+
+
+// ******************Schüler-Liste importieren*********************
+
+/*
+<form action="/api/admin/import/students" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" /> 
+    <button type="submit">Studenten importieren</button>
+</form>*/
+
+app.post('/api/admin/import/students', authenticateAdmin, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) { /*req.file vom Multer-Middleware erstellt,
+                       enthält filename size MIMEtype und Dateipuffer.*/
+      return res.status(400).json({ success: false, message: 'Keine Datei hochgeladen' });
+    }
+
+    const workbook = XLSX.read(req.file.buffer);
+    const sheetName = workbook.SheetNames[0];
+    const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);//data ist json objekt
+
+    const results = { success: [], failed: [] };
+
+    for (const row of data) {
+      try {
+        const { vorname, nachname, email, klasse, jahrgang } = row; //zb.jahrgang 2025
+
+        if (!vorname || !nachname || !email || !klasse || !jahrgang) {
+          results.failed.push({ row: row, reason: 'Fehlende Pflichtfelder' });
+          continue;
+        }
+
+        if (!validateEmail(email)) {
+          results.failed.push({ row: row, reason: 'Ungültige E-Mail' });
+          continue;
+        }
+
+        const existingUser = await prisma.benutzer.findUnique({ where: { email } });
+        if (existingUser) {
+          results.failed.push({ row: row, reason: 'E-Mail existiert bereits' });
+          continue;
+        }
+
+        const initialPassword = `${vorname}${nachname}`.toLowerCase();
+        const hashedPassword = await bcrypt.hash(initialPassword, 10);
+
+        // Ein Schüler kann mehreren Klassen gehören（im excel mit "," getrennt wie "AKIFT,BKIFT"）
+        const klasseNames = klasse.split(',').map(k => k.trim());
+
+        await prisma.$transaction(async (tx) => {//ACID Transaction
+          // 1. Benutzer ertellen
+          const user = await tx.benutzer.create({
+            data: {
+              vorname: vorname,
+              nachname: nachname,
+              email: email,
+              passwort_hash: hashedPassword
+            }
+          });
+
+          // 2. Benutzer_Rolle (Schüler-Rolle)
+          await tx.benutzerRolle.create({
+            data: { benutzer_id: user.id, rolle_id: 1 }
+          });
+
+          // 3. Klasse + Benutzer_Klasse
+          for (const klasseName of klasseNames) {
+            let klasseRecord = await tx.klasse.findFirst({
+              where: { name: klasseName, jahrgang: parseInt(jahrgang) }
+            });
+
+            if (!klasseRecord) {
+              klasseRecord = await tx.klasse.create({
+                data: { name: klasseName, jahrgang: parseInt(jahrgang) }
+              });
+            }
+
+            await tx.benutzerKlasse.create({
+              data: { benutzer_id: user.id, klasse_id: klasseRecord.id }
+            });
+          }
+        });
+
+        results.success.push({ vorname: vorname, nachname: nachname, email: email, klassen: klasseNames, jahrgang: jahrgang });
+      } catch (err) {
+        results.failed.push({ row: row, reason: err.message });
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `${results.success.length} Schüler importiert, ${results.failed.length} fehlgeschlagen`,
+      data: results
     });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Import Fehler' });
   }
 });
 
@@ -280,7 +289,7 @@ app.post('/api/register', async (req, res) => {  //!!von Frontend---------------
    ↓
 6. (Optional) Letzten Login-Zeitpunkt aktualisieren
    ↓
-8.Token, Benutzerinformationen und Rolleninformationen zurückgeben
+7.Token, Benutzerinformationen und Rolleninformationen zurückgeben
 */
 
 app.post('/api/login', async (req, res) => {//-------------------------------------------------------'/api/auth/login'
