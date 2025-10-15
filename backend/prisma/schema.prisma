@@ -16,20 +16,22 @@ datasource db {
 
 model Benutzer {
   id              Int             @id @default(autoincrement())
-  vorname         String          @db.VarChar(50)
-  nachname        String          @db.VarChar(50)
-  email           String          @unique @db.VarChar(100)
+  vorname         String          @db.VarChar(255)
+  nachname        String          @db.VarChar(255)
+  email           String          @unique @db.VarChar(255)
   passwort_hash   String          @db.VarChar(255)
   erstellt_am     DateTime        @default(now())
-  
-  benutzer_rollen BenutzerRolle[]
+  aktiv           Boolean         @default(true)
 
+  benutzer_rollen   BenutzerRolle[]
+  benutzer_klassen   BenutzerKlasse[]
+  benutzer_faecher  BenutzerFach[]
 }
 
 
 model Rolle {
   id              Int             @id @default(autoincrement())
-  bezeichnung     String          @unique @db.VarChar(50)
+  bezeichnung     String          @unique @db.VarChar(255)
   beschreibung    String?         @db.Text
   
   benutzer_rollen BenutzerRolle[]
@@ -42,8 +44,52 @@ model BenutzerRolle {
   benutzer_id Int
   rolle_id    Int
   
-  benutzer    Benutzer @relation(fields: [benutzer_id], references: [id])
-  rolle       Rolle    @relation(fields: [rolle_id], references: [id])
+  benutzer    Benutzer @relation(fields: [benutzer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  rolle       Rolle    @relation(fields: [rolle_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   
+  @@unique([benutzer_id, rolle_id])
   @@map("Benutzer_Rolle")
+}
+
+model Klasse{
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(50)
+  jahrgang   Int       
+
+  benutzer_klassen BenutzerKlasse[]
+
+  @@unique([name, jahrgang])
+}
+
+model BenutzerKlasse{
+  id          Int      @id @default(autoincrement())
+  benutzer_id Int
+  klasse_id   Int
+
+  klasse      Klasse   @relation(fields: [klasse_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  benutzer    Benutzer @relation(fields: [benutzer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([benutzer_id, klasse_id]) 
+  @@map("Benutzer_Klasse")
+}
+
+model Fach {
+  id      Int    @id @default(autoincrement())
+  name    String @db.VarChar(255)
+  kuerzel String @unique @db.VarChar(255)
+
+  benutzer_faecher BenutzerFach[]
+
+}
+
+model BenutzerFach {
+  id          Int @id @default(autoincrement())
+  benutzer_id Int
+  fach_id     Int
+
+  benutzer Benutzer @relation(fields: [benutzer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  fach     Fach     @relation(fields: [fach_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([benutzer_id, fach_id])
+  @@map("Benutzer_Fach")
 }
