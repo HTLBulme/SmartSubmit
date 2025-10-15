@@ -1,279 +1,159 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" /> <!-- ensures German umlauts (ä, ö, ü) display correctly -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- makes page mobile responsive -->
-  <title>SmartSubmit – Registration</title>
-
-  <!-- Bootstrap CSS framework -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartSubmit – Registrierung</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
   <style>
-    /* BODY — defines background and centers registration card */
     body {
-      background: linear-gradient(135deg, #e9f2ff, #f9f9ff);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: "Inter", sans-serif;
+      background: linear-gradient(135deg,#e9f2ff,#f9f9ff);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-family:"Inter",sans-serif;
+      position:relative;
     }
-
-    /* LANGUAGE SWITCH — small buttons on top right */
-    .language-switch {
-      position: absolute;
-      top: 1.5rem;
-      right: 2rem;
+    .lang-switch{
+      position:fixed;top:1rem;right:1.5rem;z-index:1000;
     }
-
-    .lang-btn {
-      background: transparent;
-      border: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: #6c757d;
-      margin-left: 0.3rem;
-      padding: 0.3rem 0.6rem;
-      border-radius: 0.6rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
+    .lang-btn{
+      border:none;background:transparent;
+      font-weight:600;color:#4b5a7a;
+      margin-left:0.25rem;padding:0.35rem 0.7rem;
+      border-radius:0.6rem;transition:all 0.2s ease;
     }
-
-    .lang-btn:hover {
-      background-color: rgba(75, 141, 248, 0.08);
-      color: #4b8df8;
+    .lang-btn:hover{background:rgba(75,141,248,0.1);color:#4b8df8;}
+    .lang-btn.active{background:#4b8df8;color:#fff;}
+    .register-card{
+      width:100%;max-width:420px;background:#fff;
+      border-radius:1.5rem;box-shadow:0 6px 25px rgba(0,0,0,0.1);
+      padding:2rem;text-align:center;border-top:5px solid #4b8df8;
     }
-
-    /* ACTIVE BUTTON — blue highlight for current language */
-    .lang-btn.active {
-      background-color: #4b8df8;
-      color: white;
-      box-shadow: 0 2px 6px rgba(75, 141, 248, 0.3);
-    }
-
-    /* REGISTER CARD — main container box */
-    .register-card {
-      width: 100%;
-      max-width: 420px;
-      background: #ffffff;
-      border-radius: 1.5rem;
-      box-shadow: 0 6px 25px rgba(75, 141, 248, 0.15);
-      padding: 2rem;
-      text-align: center;
-      border-top: 5px solid #4b8df8;
-    }
-
-    /* TITLE and subtitle text */
-    .register-card h2 {
-      font-weight: 700;
-      color: #4b8df8;
-      margin-bottom: 0.3rem;
-    }
-
-    .subtitle {
-      font-size: 0.9rem;
-      color: #6c757d;
-      margin-bottom: 1.5rem;
-    }
-
-    /* FORM CONTROL — adds blue glow on focus */
-    .form-control:focus {
-      border-color: #4b8df8;
-      box-shadow: 0 0 0 0.2rem rgba(75, 141, 248, 0.25);
-    }
-
-    /* REGISTER BUTTON — green to differentiate from login */
-    .btn-register {
-      background-color: #34a853;
-      border-color: #34a853;
-      border-radius: 0.75rem;
-      font-weight: 500;
-    }
-
-    .btn-register:hover {
-      background-color: #2c8e45;
-    }
-
-    /* SUCCESS BUTTON — appears after successful registration */
-    .btn-success-custom {
-      background-color: #28a745;
-      border-radius: 0.75rem;
-      font-weight: 500;
-      display: none; /* hidden by default */
-    }
-
-    .small-text {
-      font-size: 0.9rem;
-      color: #6c757d;
-    }
+    .register-card h2{color:#4b8df8;font-weight:700;margin-bottom:0.3rem;}
+    .form-control:focus{border-color:#4b8df8;box-shadow:0 0 0 .2rem rgba(75,141,248,.25);}
+    .btn-register{background:#34a853;border:none;border-radius:.75rem;font-weight:500;}
+    .btn-register:hover{background:#2c8e45;}
   </style>
   <script src="js/register.js" defer></script>
 
 </head>
-
 <body>
-  <!-- MAIN REGISTRATION CARD -->
+  <!-- 🌐 language switch / переключатель языка -->
+  <div class="lang-switch">
+    <button id="lang-de" class="lang-btn active">🇩🇪 DE</button>
+    <button id="lang-en" class="lang-btn">🇬🇧 EN</button>
+  </div>
+
+  <!-- 📋 registration card -->
   <div class="register-card">
-    <!-- TITLE and SUBTITLE -->
-    <h2>✳️ Registration</h2>
-    <p class="subtitle">Please create a new account</p>
+    <h2 id="t-title">✳️ Registrierung</h2>
+    <p id="t-sub" class="text-muted mb-4">Bitte erstellen Sie ein neues Konto</p>
 
-    <!-- LANGUAGE SWITCH (top right corner) -->
-    <div class="language-switch text-end mb-3">
-      <button class="lang-btn active" id="lang-de">🇩🇪 DE</button>
-      <button class="lang-btn" id="lang-en">🇬🇧 EN</button>
-    </div>
-
-    <!-- REGISTRATION FORM -->
     <form id="registerForm">
-      <!-- EMAIL INPUT FIELD -->
       <div class="mb-3 text-start">
-        <label for="email" class="form-label">E-Mail-Adresse</label>
-        <input type="email" class="form-control" id="email" placeholder="name@schule.at" required />
+        <label id="t-email" for="email" class="form-label">E-Mail-Adresse</label>
+        <input id="email" type="email" class="form-control" placeholder="name@schule.at" required />
       </div>
 
-      <!-- PASSWORD INPUT FIELD -->
       <div class="mb-3 text-start">
-        <label for="password" class="form-label">Passwort</label>
-        <input type="password" class="form-control" id="password" placeholder="••••••••" required />
+        <label id="t-pass" for="password" class="form-label">Passwort</label>
+        <input id="password" type="password" class="form-control" placeholder="••••••••" required />
       </div>
 
-      <!-- REGISTER BUTTON -->
-      <button type="submit" class="btn btn-register w-100 mt-2">Register</button>
+      <div class="mb-3 text-start">
+        <label id="t-role" for="rolleId" class="form-label">Rolle auswählen</label>
+        <select id="rolleId" class="form-select" required></select>
+      </div>
 
-      <!-- LINK TO LOGIN PAGE -->
-      <p class="small-text mt-3">
-        Already have an account?
-        <a href="login.html">Login</a>
+      <button type="submit" class="btn btn-register w-100 mt-2" id="t-register-btn">Registrieren</button>
+      <p class="small-text mt-3" id="loginLink">
+        Schon ein Konto? <a href="login.html">Einloggen</a>
       </p>
     </form>
 
-    <!-- SUCCESS BUTTON (appears after registration) -->
-    <button id="successBtn" class="btn btn-success-custom w-100 mt-3">
-      ✅ Registration successful! Go to Login →
-    </button>
+    <div id="msg" class="text-danger mt-3 small"></div>
   </div>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
   <script>
-    /* --------------------------------------------------------
-       ① API_URL — backend address (update for deployment)
-       -------------------------------------------------------- */
-    const API_URL = "http://localhost:5000";
+    const API_URL = "http://127.0.0.1:3000"; // backend base URL
 
-    /* --------------------------------------------------------
-       ② TRANSLATIONS — German and English text dictionary
-       -------------------------------------------------------- */
-    const translations = {
-      de: {
-        title: "✳️ Registrierung",
-        subtitle: "Bitte erstellen Sie ein neues Konto",
-        email_label: "E-Mail-Adresse",
-        password_label: "Passwort",
-        register_button: "Registrieren",
-        login_text: "Schon ein Konto?",
-        login_link: "Einloggen",
-        success_button: "✅ Registrierung erfolgreich! Zum Login →",
-      },
-      en: {
-        title: "✳️ Registration",
-        subtitle: "Please create a new account",
-        email_label: "Email address",
-        password_label: "Password",
-        register_button: "Sign up",
-        login_text: "Already have an account?",
-        login_link: "Log in",
-        success_button: "✅ Registration successful! Go to Login →",
-      },
+    /* 🌍 Translation dictionary / словарь переводов */
+    const T={
+      de:{title:"✳️ Registrierung",sub:"Bitte erstellen Sie ein neues Konto",email:"E-Mail-Adresse",pass:"Passwort",role:"Rolle auswählen",register:"Registrieren",loginText:"Schon ein Konto?",loginLink:"Einloggen",errServer:"Server nicht erreichbar",errRole:"Admin existiert bereits"},
+      en:{title:"✳️ Registration",sub:"Please create a new account",email:"Email address",pass:"Password",role:"Select role",register:"Sign up",loginText:"Already have an account?",loginLink:"Log in",errServer:"Server unreachable",errRole:"Admin already exists"}
     };
+    let lang=localStorage.getItem("lang")||"de";
+    const $=s=>document.querySelector(s); const $$=s=>document.querySelectorAll(s);
 
-    /* --------------------------------------------------------
-       ③ UPDATE LANGUAGE — change visible text dynamically
-       -------------------------------------------------------- */
-    function updateLanguage(lang) {
-      const t = translations[lang];
-      document.querySelector("h2").textContent = t.title;
-      document.querySelector(".subtitle").textContent = t.subtitle;
-      document.querySelector("label[for='email']").textContent = t.email_label;
-      document.querySelector("label[for='password']").textContent = t.password_label;
-      document.querySelector("button[type='submit']").textContent = t.register_button;
-      const small = document.querySelector(".small-text");
-      small.childNodes[0].textContent = t.login_text + " ";
-      small.querySelector("a").textContent = t.login_link;
-      document.getElementById("successBtn").textContent = t.success_button;
-      localStorage.setItem("lang", lang);
+    /* ------------------------------------------------
+       applyLang() — EN: update texts / RU: обновить текст
+    ------------------------------------------------ */
+    function applyLang(){
+      const t=T[lang];
+      $("#t-title").textContent=t.title;
+      $("#t-sub").textContent=t.sub;
+      $("#t-email").textContent=t.email;
+      $("#t-pass").textContent=t.pass;
+      $("#t-role").textContent=t.role;
+      $("#t-register-btn").textContent=t.register;
+      $("#loginLink").innerHTML=`${t.loginText} <a href="login.html">${t.loginLink}</a>`;
+      $$(".lang-btn").forEach(b=>b.classList.toggle("active",b.id===`lang-${lang}`));
     }
 
-    /* --------------------------------------------------------
-       ④ SET ACTIVE BUTTON — highlight selected language
-       -------------------------------------------------------- */
-    function setActiveButton(lang) {
-      document.querySelectorAll(".lang-btn").forEach((btn) => {
-        btn.classList.toggle("active", btn.id === `lang-${lang}`);
-      });
-    }
+    $("#lang-de").onclick=()=>{lang="de";localStorage.setItem("lang","de");applyLang();loadRoles();};
+    $("#lang-en").onclick=()=>{lang="en";localStorage.setItem("lang","en");applyLang();loadRoles();};
 
-    /* --------------------------------------------------------
-       ⑤ INITIALIZATION — apply saved language preference
-       -------------------------------------------------------- */
-    document.addEventListener("DOMContentLoaded", () => {
-      const savedLang = localStorage.getItem("lang") || "de";
-      updateLanguage(savedLang);
-      setActiveButton(savedLang);
-
-      document.getElementById("lang-de").addEventListener("click", () => {
-        updateLanguage("de");
-        setActiveButton("de");
-      });
-
-      document.getElementById("lang-en").addEventListener("click", () => {
-        updateLanguage("en");
-        setActiveButton("en");
-      });
-    });
-
-    /* --------------------------------------------------------
-       ⑥ REGISTRATION HANDLER — send form data to backend
-       -------------------------------------------------------- */
-    document.getElementById("registerForm").addEventListener("submit", async (e) => {
-      e.preventDefault(); // stop page reload
-
-      // Get user input
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-
-      // Send POST request to Flask API
-      const response = await fetch(`${API_URL}/api/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const successBtn = document.getElementById("successBtn");
-
-      if (response.ok) {
-        // Hide form after successful registration
-        document.getElementById("registerForm").style.display = "none";
-
-        // Show green confirmation button
-        successBtn.style.display = "block";
-        successBtn.classList.add("btn", "btn-success");
-
-        // Redirect to login when clicked
-        successBtn.addEventListener("click", () => {
-          window.location.href = "login.html";
+    /* ------------------------------------------------
+       loadRoles() — EN: get available roles
+       RU: получить доступные роли с backend
+    ------------------------------------------------ */
+    async function loadRoles(){
+      try{
+        const roleRes=await fetch(`${API_URL}/api/auth/available-roles`);
+        const {data}=await roleRes.json();
+        const adminCheck=await fetch(`${API_URL}/api/admin/check`);
+        const {adminExists}=await adminCheck.json();
+        const select=$("#rolleId");
+        select.innerHTML="";
+        const labels={de:{Schüler:"Schüler",Lehrer:"Lehrer",Admin:"Admin"},en:{Schüler:"Student",Lehrer:"Teacher",Admin:"Admin"}};
+        data.forEach(r=>{
+          if(r.bezeichnung==="Admin" && adminExists) return; // hide admin if exists
+          const opt=document.createElement("option");
+          opt.value=r.id; opt.textContent=labels[lang][r.bezeichnung]||r.bezeichnung;
+          select.appendChild(opt);
         });
-      } else {
-        // Handle error response
-        const data = await response.json();
-        alert("Error: " + data.error);
+      }catch(e){$("#msg").textContent=T[lang].errServer;}
+    }
+
+    /* ------------------------------------------------
+       submit handler / обработка регистрации
+    ------------------------------------------------ */
+    $("#registerForm").addEventListener("submit",async e=>{
+      e.preventDefault(); $("#msg").textContent="";
+      const email=$("#email").value.trim();
+      const passwort=$("#password").value.trim();
+      const rolleId=parseInt($("#rolleId").value);
+
+      try{
+        const res=await fetch(`${API_URL}/api/register`,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({email,passwort,rolleId})
+        });
+        const json=await res.json();
+        if(!json.success){$("#msg").textContent=json.message||T[lang].errRole;return;}
+        alert("✅ Registration successful!");
+        window.location.href="login.html";
+      }catch(err){
+        console.error(err);
+        $("#msg").textContent=T[lang].errServer;
       }
     });
+
+    document.addEventListener("DOMContentLoaded",async()=>{applyLang();await loadRoles();});
   </script>
 </body>
 </html>
