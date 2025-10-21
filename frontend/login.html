@@ -56,7 +56,7 @@
     .btn-primary { background:#4b8df8; border-color:#4b8df8; border-radius:.75rem; }
     .btn-primary:hover { background:#3a78db; }
   </style>
-  <script src="js/login.js" defer></script>
+
 
 </head>
 
@@ -97,7 +97,7 @@
   </div>
 
   <script>
-    const API_URL = "http://localhost:3000"; 
+    const API_URL = window.location.origin;
     // EN: backend base address
     // RU: базовый адрес backend-сервера
 
@@ -144,19 +144,40 @@
     -------------------------------------------------- */
     async function loadRoles(){
       try{
-        const res=await fetch(`${API_URL}/api/auth/available-roles`);
-        const json=await res.json();
-        const select=$("#rolleId");
-        select.innerHTML="";
-        const labels={de:{Schüler:"Schüler",Lehrer:"Lehrer",Admin:"Admin"},en:{Schüler:"Student",Lehrer:"Teacher",Admin:"Admin"}};
-        (json.data||[]).forEach(r=>{
-          const opt=document.createElement("option");
-          opt.value=r.id;
-          opt.textContent=labels[lang][r.bezeichnung]||r.bezeichnung;
+        // Попытка загрузить роли с backend
+        const res = await fetch(`${API_URL}/api/auth/available-roles`);
+        if (!res.ok) throw new Error("no backend roles");
+
+        const json = await res.json();
+        const select = $("#rolleId");
+        select.innerHTML = "";
+        const labels = { de:{Schüler:"Schüler",Lehrer:"Lehrer",Admin:"Admin"}, en:{Schüler:"Student",Lehrer:"Teacher",Admin:"Admin"} };
+
+        (json.data || []).forEach(r => {
+          const opt = document.createElement("option");
+          opt.value = r.id;
+          opt.textContent = labels[lang][r.bezeichnung] || r.bezeichnung;
           select.appendChild(opt);
         });
-      }catch(e){$("#msg").textContent=T[lang].errServer;}
+
+      } catch (e) {
+        // 👉 если backend недоступен — показать роли вручную
+        const fallback = [
+          {id:1, bezeichnung:"Schüler"},
+          {id:2, bezeichnung:"Lehrer"},
+          {id:3, bezeichnung:"Admin"}
+        ];
+        const select = $("#rolleId");
+        select.innerHTML = "";
+        fallback.forEach(r => {
+          const opt = document.createElement("option");
+          opt.value = r.id;
+          opt.textContent = r.bezeichnung;
+          select.appendChild(opt);
+        });
+      }
     }
+
 
     /* --------------------------------------------------
        Login form submit / Обработка формы логина

@@ -40,7 +40,6 @@ app.use(cors());
 app.use(express.json()); // Führt JSON-req.body(js-object)-Parser-Middleware aus 
 app.use(express.urlencoded({ extended: true }));  // für traditionelle HTML-Formularübermittlung
 
-
 //-----------------------------authenticateToken Middleware definieren-----------------------------
 /*
 fetch(apiEndpoint, {
@@ -530,7 +529,9 @@ app.put('/api/auth/change-password', authenticateToken, async (req, res) => {
     });
   }
 });
+
 */
+
 
 // ****************Abmeldung****************
 
@@ -541,6 +542,41 @@ app.post('/api/logout', (req, res) => { // Kein Token-Validierung erforderlich�
   });
 });
 
+// ------------------------------------------------
+// /api/admin/check — EN: check if an admin user already exists
+// RU: проверяет, существует ли уже пользователь с ролью "Admin"
+// EN: returns JSON { adminExists: true/false }
+// RU: возвращает JSON-объект с флагом adminExists (true/false)
+// ------------------------------------------------ 
+app.get('/api/admin/check', async (req, res) => {
+  try {
+    const admin = await prisma.benutzerRolle.findFirst({
+      where: { rolle_id: 3 } // 3 = Admin role ID
+    });
+    res.json({ success: true, adminExists: !!admin });
+  } catch (error) {
+    console.error('Fehler bei /api/admin/check:', error);
+    res.status(500).json({ success: false, message: 'Serverfehler bei Admin-Check' });
+  }
+});
+
+/* ------------------------------------------------
+   /api/auth/available-roles — EN: returns all available roles for login dropdown
+   RU: возвращает все доступные роли для выпадающего списка на странице логина
+   EN: example response → { success: true, data: [ { id: 1, bezeichnung: "Schüler" }, ... ] }
+   RU: пример ответа → { success: true, data: [ { id: 1, bezeichnung: "Schüler" }, ... ] }
+------------------------------------------------ */
+app.get('/api/auth/available-roles', async (req, res) => {
+  try {
+    const roles = await prisma.rolle.findMany({
+      select: { id: true, bezeichnung: true }
+    });
+    res.json({ success: true, data: roles });
+  } catch (error) {
+    console.error('Fehler bei /api/auth/available-roles:', error);
+    res.status(500).json({ success: false, message: 'Serverfehler bei Rollenabruf' });
+  }
+});
 
 // Statische Dateien automatisch bereitstellen
 // Diese Middleware liefert alle Dateien aus dem Frontend-Ordner:
