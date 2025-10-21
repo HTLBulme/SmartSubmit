@@ -1,0 +1,19 @@
+# Node modules
+node_modules
+
+# Environment variables
+.env
+
+# Prisma generated client (if custom output is used)
+generated/prisma/
+
+# Prisma migrations (optional)
+prisma/migrations/
+
+# Logs and local DB
+*.log
+database.db
+
+# Git and frontend
+.git
+frontend/
