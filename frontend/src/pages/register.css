@@ -1,0 +1,136 @@
+:root {
+  --primary: #1b355b;
+  --primary-hover: #152c4b;
+  --border: #d6dae0;
+  --text: #1a1c21;
+  --muted: #6b7280;
+  --bg: #f5f6f8;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg);
+  font-family: "Inter", system-ui, sans-serif;
+  color: var(--text);
+}
+
+/* === Card === */
+.register-card {
+  width: 400px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  padding: 2.5rem 2rem;
+}
+
+.register-card h2 {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 1.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.register-card p {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 1.8rem;
+}
+
+/* === Form === */
+.form-label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+
+.form-control,
+.form-select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  background: #fff;
+  transition: border-color 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.15rem rgba(27, 53, 91, 0.2);
+  outline: none;
+}
+
+/* === Button === */
+.btn-register {
+  width: 100%;
+  background: var(--primary);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 8px;
+  padding: 0.7rem 0;
+  margin-top: 0.8rem;
+  transition: background 0.2s ease;
+}
+
+.btn-register:hover {
+  background: var(--primary-hover);
+}
+
+/* === Language Buttons === */
+.lang-switch {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  gap: 0.3rem;
+}
+
+.lang-btn {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.6rem;
+  color: var(--text);
+  transition: background 0.2s ease;
+}
+
+.lang-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.lang-btn:hover {
+  background: #e6e9f0;
+}
+
+/* === Links === */
+a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.small-text {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 1rem;
+}
+
+.text-danger {
+  color: #d33 !important;
+}

@@ -1,0 +1,101 @@
+/* === Основная панель === */
+.navbar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 2rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  flex-wrap: nowrap; /* 🚫 без переносов */
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+/* === Бренд === */
+.navbar-brand {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1d77e8;
+  letter-spacing: 0.3px;
+  transition: 0.25s;
+  user-select: none;
+}
+
+.navbar-brand span {
+  color: #0c3b82;
+}
+
+.navbar-brand:hover {
+  color: #145ac9;
+  text-shadow: 0 0 8px rgba(29, 119, 232, 0.2);
+}
+
+/* === Правая часть (языки + выход) === */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* === Переключатель языка === */
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #f1f4f8;
+  border-radius: 999px;
+  padding: 3px 5px;
+  flex-shrink: 0;
+}
+
+.lang-switcher button {
+  border: none;
+  background: transparent;
+  color: #555;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-size: 0.9rem;
+}
+
+.lang-switcher button:hover {
+  background: #e5ebf2;
+  color: #222;
+}
+
+.lang-switcher button.active {
+  background: #1d77e8;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(29, 119, 232, 0.4);
+}
+
+/* === Кнопка Logout === */
+.btn-logout {
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-weight: 600;
+  border: 1px solid #f0b4b4;
+  color: #c73535;
+  background: #fff;
+  transition: 0.25s ease;
+  cursor: pointer;
+}
+
+.btn-logout:hover {
+  background: #dc3545;
+  color: #fff;
+  border-color: #dc3545;
+}
+
+/* === Аним*
