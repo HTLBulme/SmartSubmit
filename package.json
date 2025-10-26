@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --watch smartsubmit_app.js"
+    "start": "node --watch backend/smartsubmit_app.js"
   },
   "keywords": [],
   "author": "",
