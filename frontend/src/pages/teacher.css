@@ -1,0 +1,23 @@
+body { background: #f5f7fa; }
+.teacher-card { max-width: 760px; background: #fff; }
+
+.dnd-zone {
+  border: 2px dashed #c7cfe1;
+  border-radius: 12px;
+  padding: 1.2rem;
+  background: #fafbff;
+  transition: all .2s ease;
+}
+.dnd-zone.over {
+  border-color: #1d77e8;
+  background: #eef5ff;
+  box-shadow: 0 0 0 4px rgba(29,119,232,.08) inset;
+}
+.dnd-content {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+.dnd-icon { font-size: 1.6rem; }
+.dnd-text { line-height: 1.2; }

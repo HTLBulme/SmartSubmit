@@ -33,10 +33,15 @@ const upload = multer({ //Instance von multer
 // __dirname = '/app/backend'
 // '..' = eine Ebene höher = '/app'
 // Ergebnis: '/app/frontend'
-const FRONTEND_PATH = path.join(__dirname, '..', 'frontend');//!!!!für frontend-backend gemeinsamen Deploy 
+// const FRONTEND_PATH = path.join(__dirname, '..', 'frontend');//!!!!für frontend-backend gemeinsamen Deploy 
 
 //-----------------------------Middleware ausführen-----------------------------
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}));
+
 app.use(express.json()); // Führt JSON-req.body(js-object)-Parser-Middleware aus 
 app.use(express.urlencoded({ extended: true }));  // für traditionelle HTML-Formularübermittlung
 
@@ -143,6 +148,84 @@ const initDatabase = async () => {
 //Statuscode: 400 Bad Request，401 Unauthorized，403 Forbidden, 500 Internal Server Error，201 Created
 
 // ******************Admin Login*********************
+app.get("/api/admin/check", async (req, res) => {
+  try {
+    const adminCount = await prisma.benutzerRolle.count({
+      where: { rolle_id: 3 } // 3 = Admin
+    });
+
+    res.json({ adminExists: adminCount > 0 });
+  } catch (error) {
+    console.error("Fehler bei /api/admin/check:", error);
+    res.status(500).json({ success: false, message: "Server Fehler" });
+  }
+});
+
+// Registrierung des ersten Administrators
+app.post("/api/register", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Eingabevalidierung – beide Felder müssen vorhanden sein
+    if (!email || !password)
+      return res.status(400).json({
+        success: false,
+        message: "E-Mail und Passwort sind erforderlich",
+      });
+
+    // Prüfen, ob bereits ein Administrator existiert
+    const adminExists = await prisma.benutzerRolle.count({
+      where: { rolle_id: 3 }, // 3 = Admin-Rolle
+    });
+    if (adminExists)
+      return res.status(403).json({
+        success: false,
+        message: "Admin existiert bereits",
+      });
+
+    // Prüfen, ob die angegebene E-Mail bereits existiert
+    const existingUser = await prisma.benutzer.findUnique({ where: { email } });
+    if (existingUser)
+      return res.status(400).json({
+        success: false,
+        message: "Diese E-Mail ist bereits registriert",
+      });
+
+    // Passwort mit bcrypt hashen (10 Runden Salt)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Benutzer mit Admin-Daten erstellen
+    const user = await prisma.benutzer.create({
+      data: {
+        vorname: "Admin",
+        nachname: "System",
+        email,
+        passwort_hash: hashedPassword,
+      },
+    });
+
+    // Rolle 3 (Admin) zuweisen
+    await prisma.benutzerRolle.create({
+      data: {
+        benutzer_id: user.id,
+        rolle_id: 3,
+      },
+    });
+
+    // Erfolgreiche Antwort an den Client senden
+    res.json({
+      success: true,
+      message: "Admin erfolgreich registriert",
+    });
+  } catch (error) {
+    // Fehlerbehandlung bei Datenbank- oder Serverfehlern
+    console.error("Fehler bei /api/register:", error);
+    res.status(500).json({
+      success: false,
+      message: "Serverfehler bei der Registrierung",
+    });
+  }
+});
 
 app.post('/api/admin/login', async (req, res) => {
   try {
@@ -542,41 +625,6 @@ app.post('/api/logout', (req, res) => { // Kein Token-Validierung erforderlich�
   });
 });
 
-// ------------------------------------------------
-// /api/admin/check — EN: check if an admin user already exists
-// RU: проверяет, существует ли уже пользователь с ролью "Admin"
-// EN: returns JSON { adminExists: true/false }
-// RU: возвращает JSON-объект с флагом adminExists (true/false)
-// ------------------------------------------------ 
-app.get('/api/admin/check', async (req, res) => {
-  try {
-    const admin = await prisma.benutzerRolle.findFirst({
-      where: { rolle_id: 3 } // 3 = Admin role ID
-    });
-    res.json({ success: true, adminExists: !!admin });
-  } catch (error) {
-    console.error('Fehler bei /api/admin/check:', error);
-    res.status(500).json({ success: false, message: 'Serverfehler bei Admin-Check' });
-  }
-});
-
-/* ------------------------------------------------
-   /api/auth/available-roles — EN: returns all available roles for login dropdown
-   RU: возвращает все доступные роли для выпадающего списка на странице логина
-   EN: example response → { success: true, data: [ { id: 1, bezeichnung: "Schüler" }, ... ] }
-   RU: пример ответа → { success: true, data: [ { id: 1, bezeichnung: "Schüler" }, ... ] }
------------------------------------------------- */
-app.get('/api/auth/available-roles', async (req, res) => {
-  try {
-    const roles = await prisma.rolle.findMany({
-      select: { id: true, bezeichnung: true }
-    });
-    res.json({ success: true, data: roles });
-  } catch (error) {
-    console.error('Fehler bei /api/auth/available-roles:', error);
-    res.status(500).json({ success: false, message: 'Serverfehler bei Rollenabruf' });
-  }
-});
 
 // Statische Dateien automatisch bereitstellen
 // Diese Middleware liefert alle Dateien aus dem Frontend-Ordner:
@@ -584,17 +632,17 @@ app.get('/api/auth/available-roles', async (req, res) => {
 // - GET /css/style.css     → /app/frontend/css/style.css
 // - GET /js/script.js      → /app/frontend/js/script.js
 // Erspart uns, für jede Datei eine eigene Route zu schreiben!
-app.use(express.static(FRONTEND_PATH));            //!!!!für frontend-backend gemeinsamen Deploy
+// app.use(express.static(FRONTEND_PATH));            //!!!!für frontend-backend gemeinsamen Deploy
  
 // Fängt alle GET-Anfragen ab, die von den vorherigen Routes nicht behandelt wurden
 // Wichtig für:
 // - Frontend-Routing (/dashboard, /profile, etc.)
 // - Seite neu laden (F5) → funktioniert ohne 404-Fehler
 // '*' = alle Pfade
-app.get(/.*/, (req, res) => {                      //!!!!für frontend-backend gemeinsamen Deploy
+// app.get(/.*/, (req, res) => {                      //!!!!für frontend-backend gemeinsamen Deploy
                                     // Liefert /app/frontend/login.html
-      res.sendFile(path.join(FRONTEND_PATH, 'login.html')); 
-});
+//       res.sendFile(path.join(FRONTEND_PATH, 'login.html')); 
+// });
 
 
 
