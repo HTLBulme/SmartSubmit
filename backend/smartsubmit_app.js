@@ -626,7 +626,6 @@ app.post('/api/logout', (req, res) => { // Kein Token-Validierung erforderlichï¼
 });
 
 
-
 // Statische Dateien automatisch bereitstellen
 // Diese Middleware liefert alle Dateien aus dem Frontend-Ordner:
 // - GET /login.html        â†’ /app/frontend/login.html

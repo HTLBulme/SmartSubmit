@@ -1,0 +1,16 @@
+# render.yaml — Deployment configuration for SmartSubmit backend
+
+services:
+  - type: web
+    name: smartsubmit-backend
+    env: docker
+    plan: free
+    repo: https://github.com/HTLBulme/SmartSubmit
+    branch: main    
+    envVars:
+      - key: DATABASE_URL
+        value: mysql://admin:secret@your-mysql-host:3306/smartsubmit
+      - key: JWT_SECRET
+        value: secret_key
+      - key: PORT
+        value: 3000
