@@ -33,17 +33,13 @@ const upload = multer({ //Instance von multer
 // __dirname = '/app/backend'
 // '..' = eine Ebene höher = '/app'
 // Ergebnis: '/app/frontend'
-// const FRONTEND_PATH = path.join(__dirname, '..', 'frontend');//!!!!für frontend-backend gemeinsamen Deploy 
+const FRONTEND_PATH = path.join(__dirname, '..', 'frontend');//!!!!für frontend-backend gemeinsamen Deploy 
 
 //-----------------------------Middleware ausführen-----------------------------
-app.use(cors({
-  origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
-}));
-
+app.use(cors());
 app.use(express.json()); // Führt JSON-req.body(js-object)-Parser-Middleware aus 
 app.use(express.urlencoded({ extended: true }));  // für traditionelle HTML-Formularübermittlung
+
 
 //-----------------------------authenticateToken Middleware definieren-----------------------------
 /*
@@ -147,86 +143,169 @@ const initDatabase = async () => {
 
 //Statuscode: 400 Bad Request，401 Unauthorized，403 Forbidden, 500 Internal Server Error，201 Created
 
-// ******************Admin Login*********************
-app.get("/api/admin/check", async (req, res) => {
+
+// ******************Verfügbare Rollenliste abrufen (für das Dropdown-Menü im Frontend)*********************
+app.get('/api/auth/available-roles', async (req, res) => {
   try {
-    const adminCount = await prisma.benutzerRolle.count({
-      where: { rolle_id: 3 } // 3 = Admin
+    const roles = await prisma.rolle.findMany({
+      select: {
+        id: true,
+        bezeichnung: true,
+        beschreibung: true
+      }
     });
 
-    res.json({ adminExists: adminCount > 0 });
-  } catch (error) {
-    console.error("Fehler bei /api/admin/check:", error);
-    res.status(500).json({ success: false, message: "Server Fehler" });
-  }
-});
-
-// Registrierung des ersten Administrators
-app.post("/api/register", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    // Eingabevalidierung – beide Felder müssen vorhanden sein
-    if (!email || !password)
-      return res.status(400).json({
-        success: false,
-        message: "E-Mail und Passwort sind erforderlich",
-      });
-
-    // Prüfen, ob bereits ein Administrator existiert
-    const adminExists = await prisma.benutzerRolle.count({
-      where: { rolle_id: 3 }, // 3 = Admin-Rolle
-    });
-    if (adminExists)
-      return res.status(403).json({
-        success: false,
-        message: "Admin existiert bereits",
-      });
-
-    // Prüfen, ob die angegebene E-Mail bereits existiert
-    const existingUser = await prisma.benutzer.findUnique({ where: { email } });
-    if (existingUser)
-      return res.status(400).json({
-        success: false,
-        message: "Diese E-Mail ist bereits registriert",
-      });
-
-    // Passwort mit bcrypt hashen (10 Runden Salt)
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Benutzer mit Admin-Daten erstellen
-    const user = await prisma.benutzer.create({
-      data: {
-        vorname: "Admin",
-        nachname: "System",
-        email,
-        passwort_hash: hashedPassword,
-      },
-    });
-
-    // Rolle 3 (Admin) zuweisen
-    await prisma.benutzerRolle.create({
-      data: {
-        benutzer_id: user.id,
-        rolle_id: 3,
-      },
-    });
-
-    // Erfolgreiche Antwort an den Client senden
     res.json({
       success: true,
-      message: "Admin erfolgreich registriert",
+      data: roles
     });
   } catch (error) {
-    // Fehlerbehandlung bei Datenbank- oder Serverfehlern
-    console.error("Fehler bei /api/register:", error);
+    console.error('Fehler beim Abrufen der Rollenliste', error);
     res.status(500).json({
       success: false,
-      message: "Serverfehler bei der Registrierung",
+      message: 'Server Fehler'
     });
   }
 });
 
+// ******************Prüfen, ob bereits ein Administrator existiert*********************
+app.get('/api/admin/check', async (req, res) => {
+  try {
+    const adminCount = await prisma.benutzerRolle.count({
+      where: { rolle_id: 3 }
+    });
+
+    res.json({
+      success: true,
+      adminExists: adminCount > 0
+    });
+  } catch (error) {
+    console.error('Fehler bei der Administratorprüfung', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Fehler'
+    });
+  }
+});
+
+
+// ******************Benutzerregistrierung (nur bei der ersten Admin-Registrierung)*********************
+app.post('/api/register', async (req, res) => {
+  try {
+    const { email, passwort, rolleId } = req.body;
+
+    // 1. Pflichtfelder validieren
+    if (!email || !passwort || !rolleId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, Passwort und Rolle sind erforderlich'
+      });
+    }
+
+    // 2. Prüfen, ob bereits ein Admin existiert
+    const adminCount = await prisma.benutzerRolle.count({
+      where: { rolle_id: 3 }
+    });
+
+    if (adminCount > 0) {
+      return res.status(403).json({
+        success: false,
+        message: 'Registrierung ist deaktiviert. Bitte wenden Sie sich an den Administrator.'
+      });
+    }
+
+    // 3. Nur Admin-Registrierung zulassen (rolle_id muss 3 sein)
+    if (parseInt(rolleId) !== 3) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nur Admin-Registrierung ist erlaubt'
+      });
+    }
+
+    // 4. E-Mail-Format validieren
+    if (!validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Ungültige E-Mail-Adresse'
+      });
+    }
+
+    // 5. Prüfen, ob die E-Mail bereits existiert
+    const existingUser = await prisma.benutzer.findUnique({
+      where: { email: email }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'E-Mail-Adresse bereits registriert'
+      });
+    }
+
+    // 6. Passwortstärke überprüfen
+    if (passwort.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Passwort muss mindestens 6 Zeichen lang sein'
+      });
+    }
+
+    // 7. Passwort verschlüsseln
+    const hashedPassword = await bcrypt.hash(passwort, 10);
+
+    // 8. Benutzer erstellen und Rolle zuweisen (Transaktion verwenden)
+    const newUser = await prisma.$transaction(async (tx) => {
+      // Benutzer erstellen (Standardname: Admin)
+      const user = await tx.benutzer.create({
+        data: {
+          vorname: 'Admin',
+          nachname: 'System',
+          email: email,
+          passwort_hash: hashedPassword
+        }
+      });
+
+      // Admin-Rolle zuweisen
+      await tx.benutzerRolle.create({
+        data: {
+          benutzer_id: user.id,
+          rolle_id: 3
+        }
+      });
+
+      return user;
+    });
+
+    // 9. Token generieren
+    const token = generateToken(newUser.id);
+
+    // 10. Erfolgreiche Antwort zurückgeben
+    res.status(201).json({
+      success: true,
+      message: 'Registrierung erfolgreich',
+      data: {
+        user: {
+          id: newUser.id,
+          vorname: newUser.vorname,
+          nachname: newUser.nachname,
+          email: newUser.email
+        },
+        token: token
+      }
+    });
+
+  } catch (error) {
+    console.error('Registrierung Fehler:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Fehler'
+    });
+  }
+});
+
+
+
+// ******************Admin Login*********************
 app.post('/api/admin/login', async (req, res) => {
   try {
     const { email, passwort } = req.body;
@@ -514,7 +593,16 @@ app.post('/api/admin/import/teachers', authenticateAdmin, upload.single('file'),
 app.post('/api/login', async (req, res) => {
   try {
     const { email, passwort } = req.body;
-
+    
+    if(!email || !passwort){ //email und passwort dürfen nicht leer sein 
+      return res.status(400).json(
+        {
+          success: false, 
+          message: 'Email oder Passwort fehlen' 
+        }
+      )
+    }
+    
     const user = await prisma.benutzer.findUnique({
       where: { email  : email },
       include: {
@@ -612,9 +700,7 @@ app.put('/api/auth/change-password', authenticateToken, async (req, res) => {
     });
   }
 });
-
 */
-
 
 // ****************Abmeldung****************
 
@@ -632,17 +718,17 @@ app.post('/api/logout', (req, res) => { // Kein Token-Validierung erforderlich�
 // - GET /css/style.css     → /app/frontend/css/style.css
 // - GET /js/script.js      → /app/frontend/js/script.js
 // Erspart uns, für jede Datei eine eigene Route zu schreiben!
-// app.use(express.static(FRONTEND_PATH));            //!!!!für frontend-backend gemeinsamen Deploy
+app.use(express.static(FRONTEND_PATH));            //!!!!für frontend-backend gemeinsamen Deploy
  
 // Fängt alle GET-Anfragen ab, die von den vorherigen Routes nicht behandelt wurden
 // Wichtig für:
 // - Frontend-Routing (/dashboard, /profile, etc.)
 // - Seite neu laden (F5) → funktioniert ohne 404-Fehler
 // '*' = alle Pfade
-// app.get(/.*/, (req, res) => {                      //!!!!für frontend-backend gemeinsamen Deploy
+app.get(/.*/, (req, res) => {                      //!!!!für frontend-backend gemeinsamen Deploy
                                     // Liefert /app/frontend/login.html
-//       res.sendFile(path.join(FRONTEND_PATH, 'login.html')); 
-// });
+      res.sendFile(path.join(FRONTEND_PATH, 'login.html')); 
+});
 
 
 
