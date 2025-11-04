@@ -1,20 +1,28 @@
+/* === Seite für Benutzerimport === */
+/* DE: Hauptcontainer / RU: Главный контейнер */
 .upload-page {
   background: #f5f6f8;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", "Segoe UI", sans-serif;
 }
 
+/* DE: Karte (weißer Block) / RU: Карточка */
 .upload-card {
   background: #fff;
   border: 1px solid #d7dae0;
   border-radius: 12px;
   padding: 2.5rem;
   width: 600px;
-  box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
   text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.upload-card:hover {
+  transform: translateY(-2px);
 }
 
 .upload-card h2 {
@@ -28,6 +36,7 @@
   margin-bottom: 1.5rem;
 }
 
+/* === Drop-Zone === */
 .drop-zone {
   border: 2px dashed #aab2c5;
   border-radius: 10px;
@@ -43,6 +52,7 @@
   background: #f0f3f8;
 }
 
+/* === Vorschau-Tabelle === */
 .preview-table {
   width: 100%;
   border-collapse: collapse;
@@ -62,24 +72,64 @@
   padding: 0.5rem;
 }
 
+/* === Rollenwahl === */
+.role-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.role-toggle label {
+  font-weight: 600;
+  color: #1b355b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.role-toggle input[type="radio"] {
+  accent-color: #1b355b; /* DE: Farbe der Radiobuttons / RU: Цвет радиокнопок */
+  transform: scale(1.2);
+}
+
+/* === Upload-Button === */
 .btn-upload {
   margin-top: 1.5rem;
   background: #1b355b;
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 0.7rem 1.4rem;
+  padding: 0.8rem 1.6rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .btn-upload:hover {
   background: #152c4b;
+  transform: translateY(-1px);
 }
 
+/* === Nachricht === */
 .upload-message {
   margin-top: 1rem;
   font-weight: 500;
   color: #1b355b;
+}
+
+/* === Responsive Design === */
+@media (max-width: 640px) {
+  .upload-card {
+    width: 90%;
+    padding: 1.5rem;
+  }
+  .drop-zone {
+    padding: 2rem 1rem;
+  }
+  .role-toggle {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
 }
