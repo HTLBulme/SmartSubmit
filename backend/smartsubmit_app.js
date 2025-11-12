@@ -196,7 +196,9 @@ const initDatabase = async () => {
       console.log('init-Admin erstellt');
       console.log('Email: admin@smartsubmit.com');
       console.log('Passwort: admin123');
+
   }*/
+
   } catch (error) {
     console.error('DB-Init Fehler:', error);
   }
