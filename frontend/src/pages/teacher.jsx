@@ -54,7 +54,7 @@ export default function Teacher() {
       fd.append("dueDate", due);
       files.forEach((f) => fd.append("files", f));
 
-      const token = localStorage.getItem("teacherToken"); // если есть
+      const token = localStorage.getItem("token"); // если есть
       await axios.post(`${API_URL}/api/teacher/assignments`, fd, {
         headers: {
           "Content-Type": "multipart/form-data",
