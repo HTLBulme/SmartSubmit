@@ -1,15 +1,33 @@
-/* === Seite für Benutzerimport === */
+/* DE: Seite für Benutzerimport */
+/* EN: Page for user import */
+/* RU: Страница импорта пользователей */
+
 /* DE: Hauptcontainer / RU: Главный контейнер */
 .upload-page {
-  background: #f5f6f8;
+  position: relative;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: "Inter", "Segoe UI", sans-serif;
+  isolation: isolate; /* DE: Erstellt einen eigenen Stacking-Kontext */ /* EN: Creates its own stacking context */ /* RU: Создает собственный stacking context */
 }
 
-/* DE: Karte (weißer Block) / RU: Карточка */
+/* DE: Vollflächiger Hintergrund-Gradient innerhalb des eigenen Kontexts */
+/* EN: Full-viewport gradient background within its own context */
+/* RU: Фоновый градиент на весь вьюпорт внутри собственного контекста */
+.upload-page::before {
+  content: "";
+  position: fixed;   /* покрываем весь вьюпорт */
+  inset: 0;
+  background: linear-gradient(135deg, #f0f4ff, #fafcff);
+  z-index: -1;        /* фон под контентом */
+  pointer-events: none;
+}
+
+/* DE: Karte (weißer Block) */
+/* EN: Card (white block) */
+/* RU: Карточка (белый блок) */
 .upload-card {
   background: #fff;
   border: 1px solid #d7dae0;
@@ -36,7 +54,9 @@
   margin-bottom: 1.5rem;
 }
 
-/* === Drop-Zone === */
+/* DE: Drop-Zone */
+/* EN: Drop zone */
+/* RU: Зона перетаскивания */
 .drop-zone {
   border: 2px dashed #aab2c5;
   border-radius: 10px;
@@ -52,7 +72,9 @@
   background: #f0f3f8;
 }
 
-/* === Vorschau-Tabelle === */
+/* DE: Vorschau-Tabelle */
+/* EN: Preview table */
+/* RU: Таблица предпросмотра */
 .preview-table {
   width: 100%;
   border-collapse: collapse;
@@ -72,7 +94,9 @@
   padding: 0.5rem;
 }
 
-/* === Rollenwahl === */
+/* DE: Rollenwahl */
+/* EN: Role selection */
+/* RU: Выбор роли */
 .role-toggle {
   display: flex;
   justify-content: center;
@@ -94,7 +118,9 @@
   transform: scale(1.2);
 }
 
-/* === Upload-Button === */
+/* DE: Upload-Button */
+/* EN: Upload button */
+/* RU: Кнопка загрузки */
 .btn-upload {
   margin-top: 1.5rem;
   background: #1b355b;
@@ -112,14 +138,18 @@
   transform: translateY(-1px);
 }
 
-/* === Nachricht === */
+/* DE: Nachricht */
+/* EN: Message */
+/* RU: Сообщение */
 .upload-message {
   margin-top: 1rem;
   font-weight: 500;
   color: #1b355b;
 }
 
-/* === Responsive Design === */
+/* DE: Responsives Design */
+/* EN: Responsive design */
+/* RU: Адаптивный дизайн */
 @media (max-width: 640px) {
   .upload-card {
     width: 90%;

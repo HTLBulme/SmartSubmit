@@ -72,10 +72,11 @@ export default function Teacher() {
   }
 
   return (
-    <div className="container py-4">
+    <div className="teacher-page">
+      <div className="container py-4">
 
-      <div className="card shadow-lg border-0 rounded-4 p-4 mx-auto teacher-card">
-        <div className="card-body">
+        <div className="card shadow-lg border-0 rounded-4 p-4 mx-auto teacher-card">
+          <div className="card-body">
           <h2 className="text-center mb-4 fw-bold">
             {t.teacherPanel}
           </h2>
@@ -198,6 +199,7 @@ export default function Teacher() {
           </form>
 
           {msg && <div className="alert alert-info text-center mt-3">{msg}</div>}
+          </div>
         </div>
       </div>
     </div>

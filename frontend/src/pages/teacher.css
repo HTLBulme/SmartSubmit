@@ -1,4 +1,19 @@
-body { background: #f5f7fa; }
+.teacher-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start; /* allow content to scroll */
+  isolation: isolate;
+}
+
+.teacher-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #f0f4ff, #fafcff);
+  z-index: -1;
+}
+
 .teacher-card { max-width: 760px; background: #fff; }
 
 .dnd-zone {
