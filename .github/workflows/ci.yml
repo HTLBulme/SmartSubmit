@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: 'none'
       
       # Since packages are in subdirectories, we must install both
       - name: Install Backend Dependencies
@@ -34,12 +34,10 @@ jobs:
       #            once you define 'test' scripts in package.json (e.g., npm run test --prefix ./backend).
       # -----------------------------------------------------------
       - name: Run Backend Tests
-        # Example: run: npm run test --prefix ./backend
-        run: echo "Starting Backend Tests..." 
+        run: npm run test --prefix ./backend
         
       - name: Run Frontend Tests (if needed)
-        # Example: run: npm run test --prefix ./frontend
-        run: echo "Starting Frontend Tests..." 
+        run: npm run test --prefix ./frontend
         
   deploy:
     # This job handles the Continuous Deployment (CD) to the Oracle VM

@@ -7,10 +7,10 @@ WORKDIR /app
 
 # 1. Copy package files for backend (server dependencies)
 COPY backend/package*.json ./backend/
-# [CRITICAL FIX]: Copy the local .env file (which contains the DATABASE_URL definition)
+# [CRITICAL]: Copy the local .env file (which contains the DATABASE_URL definition)
 # This is REQUIRED for 'npx prisma generate' to read the data source configuration.
 # This local file is NOT used at runtime in production.
-COPY backend/.env ./backend/.env 
+#COPY backend/.env ./backend/.env 
 
 # 2. Copy package files for frontend (build dependencies)
 COPY frontend/package*.json ./frontend/
