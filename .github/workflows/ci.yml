@@ -52,8 +52,15 @@ jobs:
         with:
           # SSH_PRIVATE_KEY is the secret created on GitHub 
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add OCI VM to known_hosts
+        env:
+          SSH_HOST: 79.76.119.73
+        run: |
+          echo "Adding $SSH_HOST to known_hosts..."
+          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
           
-      # 2. Deploy to OCI VM via SSH
+      # Deploy to OCI VM via SSH
       - name: Execute Deployment Commands on OCI VM
         env:
           SSH_USER: ubuntu
