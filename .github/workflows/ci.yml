@@ -28,11 +28,8 @@ jobs:
       - name: Install Frontend Dependencies
         run: npm install --prefix ./frontend
         
-      # -----------------------------------------------------------
-      # 1. TEST PHASE: Run Backend and Frontend Tests
-      # IMPORTANT: Replace the 'echo' lines with the actual test command 
-      #            once you define 'test' scripts in package.json (e.g., npm run test --prefix ./backend).
-      # -----------------------------------------------------------
+      # TEST PHASE: Run Backend and Frontend Tests
+
       - name: Run Backend Tests
         run: npm run test --prefix ./backend
         
@@ -50,18 +47,18 @@ jobs:
       - name: Checkout repository code
         uses: actions/checkout@v4
       
-      # 1. Setup SSH Access using the Private Key stored as a GitHub Secret
+      # Setup SSH Access using the Private Key stored as a GitHub Secret
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          # SSH_PRIVATE_KEY is the secret you created on GitHub 
+          # SSH_PRIVATE_KEY is the secret created on GitHub 
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           
       # 2. Deploy to OCI VM via SSH
       - name: Execute Deployment Commands on OCI VM
         env:
           SSH_USER: ubuntu
-          # IMPORTANT: Your OCI VM Public IP - REPLACE THIS VALUE WITH THE CORRECT IP
+          # IMPORTANT: OCI VM Public IP - REPLACE THIS VALUE WITH THE CORRECT IP
           SSH_HOST: 79.76.119.73 
           PROJECT_PATH: /home/ubuntu/SmartSubmit
           

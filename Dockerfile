@@ -10,7 +10,7 @@ COPY backend/package*.json ./backend/
 # [CRITICAL]: Copy the local .env file (which contains the DATABASE_URL definition)
 # This is REQUIRED for 'npx prisma generate' to read the data source configuration.
 # This local file is NOT used at runtime in production.
-#COPY backend/.env ./backend/.env 
+COPY backend/.env ./backend/.env 
 
 # 2. Copy package files for frontend (build dependencies)
 COPY frontend/package*.json ./frontend/
@@ -20,7 +20,7 @@ RUN npm install --prefix ./backend
 
 # Install dependencies and run the frontend build process
 RUN npm install --prefix ./frontend
-# NOTE: Replace 'npm run build' if your frontend build script has a different name
+# NOTE: Replace 'npm run build' if frontend build script has a different name
 RUN npm run build --prefix ./frontend
 
 # Copy the rest of the application code
@@ -46,7 +46,7 @@ COPY --from=builder /app/backend/node_modules/.prisma ./backend/node_modules/.pr
 COPY --from=builder /app .
 
 # Copy the built frontend static files
-# IMPORTANT: Adjust the 'frontend/dist' path if your build output directory is different!
+# IMPORTANT: Adjust the 'frontend/dist' path if build output directory is different!
 COPY --from=builder /app/frontend/dist ./frontend/dist 
 
 
