@@ -19,7 +19,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'none'
       
       # Since packages are in subdirectories, we must install both
       - name: Install Backend Dependencies
