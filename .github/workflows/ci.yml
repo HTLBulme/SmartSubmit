@@ -1,37 +1,102 @@
+name: CI/CD Deployment to OCI
+
+# This workflow runs whenever code is pushed to the 'main' branch
 on:
-push:
-branches: [ "main" ]
-pull_request:
-branches: [ "main" ]
+  push:
+    branches:
+      - main 
 
 jobs:
-build-check:
-runs-on: ubuntu-latest
-strategy:
-matrix:
-node-version: [18.x]
+  test:
+    # Run the continuous integration (CI) tests first
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js 20 environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      # Since packages are in subdirectories, we must install both
+      - name: Install Backend Dependencies
+        run: npm install --prefix ./backend
+        
+      - name: Install Frontend Dependencies
+        run: npm install --prefix ./frontend
+        
+      # TEST PHASE: Run Backend and Frontend Tests
 
-steps:
-- uses: actions/checkout@v4
-  
-- name: Set up Node.js ${{ matrix.node-version }}
-  uses: actions/setup-node@v4
-  with:
-    node-version: ${{ matrix.node-version }}
-    cache: 'npm'
-    cache-dependency-path: '**/package-lock.json' 
+      - name: Run Backend Tests
+        run: npm run test --prefix ./backend
+        
+      - name: Run Frontend Tests (if needed)
+        run: npm run test --prefix ./frontend
+        
+  deploy:
+    # This job handles the Continuous Deployment (CD) to the Oracle VM
+    runs-on: ubuntu-latest
+    
+    # IMPORTANT: Only run deployment if the 'test' job succeeded
+    needs: test 
 
-# Install dependencies inside the backend folder
-- name: Install backend dependencies
-  run: npm install
-  working-directory: ./backend
-  
-# Placeholder for running actual tests or linting
-- name: Run build checks
-  run: echo "CI check passed."
-  working-directory: ./backend
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+      
+      # Setup SSH Access using the Private Key stored as a GitHub Secret
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          # SSH_PRIVATE_KEY is the secret created on GitHub 
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-# Generate Prisma client using the backend working directory
-- name: Generate Prisma client
-  run: npx prisma generate
-  working-directory: ./backend
+      - name: Add OCI VM to known_hosts
+        env:
+          SSH_HOST: 79.76.119.73
+        run: |
+          echo "Adding $SSH_HOST to known_hosts..."
+          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+          
+      # Deploy to OCI VM via SSH
+      - name: Execute Deployment Commands on OCI VM
+        env:
+          SSH_USER: ubuntu
+          # IMPORTANT: OCI VM Public IP - REPLACE THIS VALUE WITH THE CORRECT IP
+          SSH_HOST: 79.76.119.73 
+          PROJECT_PATH: /home/ubuntu/SmartSubmit
+          
+        run: |
+          echo "Starting deployment on OCI VM: $SSH_HOST"
+          
+          # SSH command: Execute commands sequentially on the remote machine
+          ssh $SSH_USER@$SSH_HOST "
+            # Navigate to the project directory on the remote VM
+            cd $PROJECT_PATH
+            
+            # Pull the latest changes from GitHub (code, Dockerfile, docker-compose.yml)
+            git pull origin main
+            
+            # 1. Build the Docker image first, so all dependencies and the Prisma client are available
+            echo 'Building new Docker image...'
+            docker compose build backend
+            
+            # 2. Start the database service if it's not running (or recreate it if needed)
+            # We start the DB service first to ensure it's up before migration runs.
+            echo 'Starting database service (if not already running)...'
+            docker compose up -d db
+            
+            # 3. Run Prisma migration inside a temporary container
+            # This container now connects to the 'db' service on the internal Docker network.
+            echo 'Running Prisma database migration...'
+            docker compose run --rm backend npx prisma migrate deploy
+            
+            # 4. Start/Restart ALL application services (db and backend)
+            echo 'Starting application and database containers...'
+            # This ensures both are running and links are refreshed.
+            docker compose up -d --force-recreate
+            
+            echo 'Deployment successful. Application and database are running.'
+          "

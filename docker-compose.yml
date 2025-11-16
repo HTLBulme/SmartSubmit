@@ -1,28 +1,54 @@
-# Local development setup with backend and MySQL
 version: '3.8'
+
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
+  # 1. DATABASE SERVICE (Local MySQL Container on OCI VM)
+  db:
+    image: mysql/mysql-server:8.0
+    container_name: smartsubmit-mysql-db
+    # Read DB configuration secrets from the same .env file
     env_file:
       - ./backend/.env
-    depends_on:
-      - db
-
-  db:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: smartsubmit
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: secret
+    # Map the internal container port to a host port (optional, but useful for debugging)
     ports:
       - "3306:3306"
+    
+    # Store persistent data in a named volume so data survives container restarts/updates
     volumes:
-      - dbdata:/var/lib/mysql
+      - db-data:/var/lib/mysql
+    
+    # Set standard MySQL environment variables (read from .env file)
+    environment:
+      # These variables must be defined in your ./backend/.env file
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      
+    restart: always
 
+  # 2. APPLICATION SERVICE
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    # Use the .env file located inside the backend directory on the OCI VM
+    # This file MUST now contain the DATABASE_URL pointing to the internal 'db' service.
+    env_file:
+      - ./backend/.env
+      
+    # Map the container port 3000 to the host port 3000
+    ports:
+      - "3000:3000"
+      
+    # Ensure the database starts BEFORE the backend application attempts to connect
+    depends_on:
+      - db
+    
+    restart: always
+    
+    container_name: smartsubmit-backend-service
+
+# Define a named volume for persistent database data
 volumes:
-  dbdata:
+  db-data:

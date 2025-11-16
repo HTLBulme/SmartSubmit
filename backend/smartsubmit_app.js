@@ -196,7 +196,9 @@ const initDatabase = async () => {
       console.log('init-Admin erstellt');
       console.log('Email: admin@smartsubmit.com');
       console.log('Passwort: admin123');
+
   }*/
+
   } catch (error) {
     console.error('DB-Init Fehler:', error);
   }
@@ -657,7 +659,7 @@ app.post('/api/admin/import/teachers', authenticateAdmin, uploadMemory.single('f
 //**************************Benutzer Anmeldung*******************
 
 app.post('/api/login', async (req, res) => {
-  try {
+  
     const { email, passwort, role } = req.body;  // ← NEU: Empfange den 'role'-Parameter
 
     // 1. Eingabefelder validieren
@@ -669,6 +671,7 @@ app.post('/api/login', async (req, res) => {
     }
 
     // 2. Benutzer suchen
+  try {
     const user = await prisma.benutzer.findUnique({
       where: { email: email },
       include: {
@@ -1002,18 +1005,23 @@ app.get(/.*/, (req, res) => {                      //!!!!für frontend-backend g
 
 const PORT = process.env.PORT || 3000;
 
-const startServer = async () =>{
-  await initDatabase(); // db init warten
-  app.listen(PORT, () => {
-  console.log(`🚀 SmartSubmit Server betriebt im Port ${PORT}`);
-  console.log(`📍 API-Addresse: http://localhost:${PORT}`);
-});
-};
+  const startServer = async () =>{
+    await initDatabase(); // db init warten
+    app.listen(PORT, () => {
+    console.log(`🚀 SmartSubmit Server betriebt im Port ${PORT}`);
+    console.log(`📍 API-Addresse: http://localhost:${PORT}`);
+    });
+  };
 
-startServer();
+if (require.main === module) { // for testing with Jest/Supertest
+  startServer();
 
-process.on('SIGINT', async () => {  //STOP-Signal von Ctrl + C
-  await prisma.$disconnect();
-  console.log('\nServer abgeschaltet!');
-  process.exit(0);
-});
+  process.on('SIGINT', async () => {  //STOP-Signal von Ctrl + C
+    await prisma.$disconnect();
+    console.log('\nServer abgeschaltet!');
+    process.exit(0);
+  });
+}
+// -----------------------------------Export for Tests------------------------------------------
+// Export the Express App Instance for Supertest
+module.exports = app;
