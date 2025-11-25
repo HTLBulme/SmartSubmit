@@ -7,6 +7,7 @@ const Login = lazy(() => import("./pages/login"));
 const Register = lazy(() => import("./pages/register"));
 const Admin = lazy(() => import("./pages/admin"));
 const Teacher = lazy(() => import("./pages/teacher"));
+const Student = lazy(() => import("./pages/student"));
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/teacher" element={<Teacher />} />
+            <Route path="/student" element={<Student />} />
           </Routes>
         </Suspense>
       </div>
