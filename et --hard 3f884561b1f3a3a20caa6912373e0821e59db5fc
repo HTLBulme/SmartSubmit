@@ -1,0 +1,520 @@
+[33mcommit eec302b2b8a6162914a985bfa81d14a62b10d492[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mbackend-api[m[33m, [m[1;31morigin/nataliia-dev[m[33m, [m[1;32mnataliia-dev[m[33m)[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Tue Nov 25 20:35:01 2025 +0100
+
+    Add new  pages for student
+
+[33mcommit 3f884561b1f3a3a20caa6912373e0821e59db5fc[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Sun Nov 16 16:03:22 2025 +0100
+
+    Passwort-Sichtbarkeitsschalter (Augen-Icon, inline SVG)
+
+[33mcommit 3b2aa18715f31752751025bb38b2f98cf330c994[m
+Merge: 60dcaa2 f23678a
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Sun Nov 16 06:54:08 2025 +0100
+
+    Merge pull request #22 from HTLBulme/main
+    
+    Merge from main
+
+[33mcommit f23678ae665baa83f77814d122aad24d89d6d574[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Sun Nov 16 05:14:23 2025 +0100
+
+    Update CI
+
+[33mcommit ea5e92cff501a63f91a4d66489547ef3489c859d[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Sun Nov 16 05:07:53 2025 +0100
+
+    Update CI
+
+[33mcommit 2ad3eefb886e777b1eefa8094e2f3a5e4bf792cc[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Sun Nov 16 04:57:38 2025 +0100
+
+    Update CI and Dockerfile
+
+[33mcommit 39bcaa937644d7880efcf026290c8a2c54fc9bf8[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Sun Nov 16 04:42:07 2025 +0100
+
+    Update Dockerfile and CI
+
+[33mcommit 4b75c458bbd435ffd446617b43d0dcabe7fb124b[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Sun Nov 16 04:15:52 2025 +0100
+
+    Update Dockerfile, docker-compose, ci and tests for frontend & backend
+
+[33mcommit ca6d5956cc0d48dcec7b7c1d6e79c7e7ac4746d4[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Sun Nov 16 04:09:37 2025 +0100
+
+    Add tests for frontend & backend, update Dockerfile, docker-compose and ci for deployment
+
+[33mcommit c4b1b8550c0216a6d48a5502d57c7cd9435f0758[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Fri Nov 14 13:47:02 2025 +0100
+
+    Run frontend and backend concurrently
+
+[33mcommit e631e9049deb6f4c04117e87b22a86ef1b7689ea[m
+Merge: cd3bf7f 64be2a0
+Author: song2617 <ellayean@gmail.com>
+Date:   Wed Nov 12 11:12:09 2025 +0100
+
+    Merge pull request #20 from HTLBulme/backend-api
+    
+    Merge remote changes and resolve conflicts
+
+[33mcommit 64be2a0e515d79e88faf6b04c51dbf3b65d798cf[m[33m ([m[1;31morigin/backend-api[m[33m)[m
+Author: songjin <ellayean@gmail.com>
+Date:   Wed Nov 12 11:08:08 2025 +0100
+
+    Merge remote changes and resolve conflicts
+
+[33mcommit cd3bf7f377811beb1fbcbad017bdc5a9e5541c25[m
+Merge: ed074e2 60dcaa2
+Author: Nataliia Hrytsun <148551991+Nataponni@users.noreply.github.com>
+Date:   Wed Nov 12 10:51:11 2025 +0100
+
+    Merge pull request #19 from HTLBulme/nataliia-dev
+    
+    Frontened debugin: index.html new add
+
+[33mcommit 60dcaa2fcfabbebfc3c0eb2d73fa42731c3f63bb[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Wed Nov 12 10:46:57 2025 +0100
+
+    Frontened debugin: index.html new add
+
+[33mcommit ed074e28f068fcda4bc3f3412bf0cce8ad3cc13b[m
+Merge: c444802 e5abf0a
+Author: Nataliia Hrytsun <148551991+Nataponni@users.noreply.github.com>
+Date:   Wed Nov 12 09:57:09 2025 +0100
+
+    Merge pull request #18 from HTLBulme/nataliia-dev
+    
+    Nataliia dev
+
+[33mcommit e5abf0a214bf6b65f74aff931af70c647224b449[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Wed Nov 12 09:49:35 2025 +0100
+
+    save progress
+
+[33mcommit d0e0cfc17cda00111fe4d3ba2560c3155ca00102[m
+Author: Nataliia Hrytsun <148551991+Nataponni@users.noreply.github.com>
+Date:   Wed Nov 5 10:52:45 2025 +0100
+
+    Update .gitignore
+
+[33mcommit 9f75e09e48f7c1f25e29496f0a041ee20159d846[m
+Merge: 9d32e35 8aa1f19
+Author: NataPonni <ponni@ukr.net>
+Date:   Wed Nov 5 10:46:22 2025 +0100
+
+    Resolve .gitignore merge conflict
+
+[33mcommit 9d32e35eb790d917959c21304724bef602988259[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Wed Nov 5 10:42:40 2025 +0100
+
+    Untrack node_modules and add to gitignore
+
+[33mcommit 6cf6a2ac04963721e7bf115f1896aa6efe8950c4[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Wed Nov 5 10:29:11 2025 +0100
+
+    Add backend gitignore and prisma config
+
+[33mcommit 8aa1f195beafe0d9e2d87d2b5d0ebdce6442f287[m
+Author: Nataliia Hrytsun <148551991+Nataponni@users.noreply.github.com>
+Date:   Wed Nov 5 10:27:11 2025 +0100
+
+    Update .gitignore
+
+[33mcommit b245faf27ebe5cf9db55445eaa063c2598764aa0[m
+Merge: c9d9467 c444802
+Author: NataPonni <ponni@ukr.net>
+Date:   Wed Nov 5 10:22:38 2025 +0100
+
+    Merge remote-tracking branch 'origin/main' into nataliia-dev
+
+[33mcommit c444802ca6570f3c3f06cc38b5800e6ea4c494bf[m
+Merge: 1f92c4b f145e61
+Author: song2617 <ellayean@gmail.com>
+Date:   Wed Nov 5 09:46:39 2025 +0100
+
+    Merge pull request #17 from HTLBulme/backend-api
+    
+    Stop tracking .env file and rely on .gitignore
+
+[33mcommit f145e61ce3291ae6299a97a774aea9e975b0906c[m
+Author: songjin <ellayean@gmail.com>
+Date:   Wed Nov 5 09:42:48 2025 +0100
+
+    Stop tracking .env file and rely on .gitignore
+
+[33mcommit 1f92c4b6281597263c0aed4733ad5b59b484db56[m
+Merge: 4960f8a 8c5b3f9
+Author: song2617 <ellayean@gmail.com>
+Date:   Wed Nov 5 09:37:14 2025 +0100
+
+    Merge pull request #16 from HTLBulme/backend-api
+    
+    nue
+
+[33mcommit 8c5b3f9bcf02c54f771df1ea403810f3aa571bef[m
+Author: songjin <ellayean@gmail.com>
+Date:   Wed Nov 5 09:36:35 2025 +0100
+
+    nue
+
+[33mcommit c9d9467207175ed02c9b0649aa47d8d4dcf5dd75[m
+Merge: c799339 e79f807
+Author: NataPonni <ponni@ukr.net>
+Date:   Tue Nov 4 13:11:19 2025 +0100
+
+    Merge branch 'nataliia-dev' of https://github.com/HTLBulme/SmartSubmit into nataliia-dev
+
+[33mcommit c7993394c9e22b5e137011f1ef14e7bb38359faa[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Tue Nov 4 13:02:43 2025 +0100
+
+    Frontend: обновление admin.jsx, i18n, teacher.jsx, стили
+
+[33mcommit 4960f8a8fe19830d5893093c53d1f4c2040e9674[m
+Merge: e79f807 6396156
+Author: song2617 <ellayean@gmail.com>
+Date:   Tue Nov 4 10:37:52 2025 +0100
+
+    Merge pull request #15 from HTLBulme/backend-api
+    
+    nue
+
+[33mcommit 6396156d612b447f0f7260afb7d14b8430927f51[m
+Author: songjin <ellayean@gmail.com>
+Date:   Tue Nov 4 10:35:19 2025 +0100
+
+    nue
+
+[33mcommit e79f8074a9b85e4aa1eb456bd76b65384f563a88[m[33m ([m[1;32mmain[m[33m)[m
+Author: songjin <ellayean@gmail.com>
+Date:   Mon Nov 3 14:47:40 2025 +0100
+
+    ältere struktur
+
+[33mcommit 2f0b25adb1bd9efafd9c47b34689ad7bba6dc51a[m
+Merge: d9998e7 1cb59b5
+Author: song2617 <ellayean@gmail.com>
+Date:   Sat Nov 1 22:49:44 2025 +0100
+
+    Merge pull request #14 from HTLBulme/backend-api
+    
+    neuste version
+
+[33mcommit 1cb59b52d71f0ad1cfe71efcc2ff5b8ec433e172[m
+Author: songjin <ellayean@gmail.com>
+Date:   Sat Nov 1 22:49:03 2025 +0100
+
+    neuste version
+
+[33mcommit d9998e7e2ebe2c5346e8cfa8b971cd1661c3fb48[m
+Merge: b7f6e1e b28f48d
+Author: song2617 <ellayean@gmail.com>
+Date:   Fri Oct 31 18:21:24 2025 +0100
+
+    Merge pull request #13 from HTLBulme/backend-api
+    
+    neue version
+
+[33mcommit b28f48da401fb1352c8dd299e59f64c3f3b6a48d[m
+Author: songjin <ellayean@gmail.com>
+Date:   Fri Oct 31 18:13:53 2025 +0100
+
+    neue version
+
+[33mcommit b7f6e1e37e233f89fe9860c4cb8f278adebffbf4[m
+Merge: c357113 41f3656
+Author: Nataliia Hrytsun <148551991+Nataponni@users.noreply.github.com>
+Date:   Sun Oct 26 16:53:02 2025 +0100
+
+    Merge pull request #12 from HTLBulme/nataliia-dev
+    
+    Rewrote entire frontend in React (Vite)
+
+[33mcommit 41f3656aae9e6f8dfba0b62ef79d0d96a1ab76e4[m
+Merge: 08e3f40 c357113
+Author: NataPonni <ponni@ukr.net>
+Date:   Sun Oct 26 16:41:17 2025 +0100
+
+    ✅ Resolved merge conflicts — kept working backend & updated .gitignore
+
+[33mcommit 08e3f401ec6fded4124ead057fa199a9b6aa6a40[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Sun Oct 26 16:25:29 2025 +0100
+
+     Added smartsubmit_app
+
+[33mcommit 9ec21592998758ed94986d091c7987f1c28de98b[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Sun Oct 26 16:16:06 2025 +0100
+
+     Added new React frontend (Vite) and updated .gitignore
+
+[33mcommit c357113a4a6a5bfc45edf06a62ff714019712611[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Sun Oct 26 12:10:26 2025 +0100
+
+    Restructure repo and minor change on package.json
+
+[33mcommit c581247fd4773249937a30caa4362cd4545e7ad3[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Tue Oct 21 21:24:14 2025 +0200
+
+    Save latest login.html changes
+
+[33mcommit 7b11e77ce6e0825859cc6eec406b8c9c5e7d8fff[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Tue Oct 21 21:18:31 2025 +0200
+
+    Update login.html before switching branch
+
+[33mcommit 69c957a573a521eead4c607a9c6309ddeb220779[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Tue Oct 21 21:13:09 2025 +0200
+
+    Update README before switching branch
+
+[33mcommit 8fb68553f5e1d2160d70085adf22be482d47261c[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Tue Oct 21 21:09:28 2025 +0200
+
+    Fix backend route and frontend registration connection
+
+[33mcommit a6762ac6d6eab1cd83740c82ed9cfb8da69c1e00[m
+Merge: 3aa3b74 cf6db50
+Author: song2617 <ellayean@gmail.com>
+Date:   Tue Oct 21 15:51:57 2025 +0200
+
+    Merge pull request #11 from HTLBulme/backend-api
+    
+    schüler&leahr import
+
+[33mcommit cf6db501233f751d9e7ea7e04122c51d862bbf76[m
+Author: songjin <ellayean@gmail.com>
+Date:   Tue Oct 21 15:49:26 2025 +0200
+
+    schüler&leahr import
+
+[33mcommit 3aa3b746abdbc8625ff6dbe7c706cb37c4405f04[m
+Merge: be23d07 3b49b51
+Author: song2617 <ellayean@gmail.com>
+Date:   Wed Oct 15 15:15:31 2025 +0200
+
+    Merge pull request #10 from HTLBulme/backend-api
+    
+     Merge backend-api into main
+
+[33mcommit 3b49b5168f446587a2307ba6261a82a409c2a28c[m
+Merge: bc2ec3c 338358c
+Author: songjin <ellayean@gmail.com>
+Date:   Wed Oct 15 15:11:00 2025 +0200
+
+    Merge branch 'backend-api' of https://github.com/HTLBulme/SmartSubmit into backend-api
+
+[33mcommit bc2ec3cf9248bd5b1c3201043fbc6176e09738da[m
+Author: songjin <ellayean@gmail.com>
+Date:   Wed Oct 15 15:09:51 2025 +0200
+
+    regist weg nur log
+
+[33mcommit cab210c0a3c3308b4dcacc06797450500fb6a46a[m
+Merge: 4b9ed46 be23d07
+Author: songjin <ellayean@gmail.com>
+Date:   Wed Oct 15 15:03:59 2025 +0200
+
+    Merge branch 'main' of https://github.com/HTLBulme/SmartSubmit into backend-api
+
+[33mcommit 4b9ed461c0f3f254c0d20b0d5a685efe66a5b8fc[m
+Merge: cc7f4bb d2b181d
+Author: songjin <ellayean@gmail.com>
+Date:   Wed Oct 15 11:09:20 2025 +0200
+
+    Merge branch 'main' into backend-api
+
+[33mcommit 338358cf2608141f6012ae6464e78eb8981d04a8[m
+Merge: cc7f4bb be23d07
+Author: song2617 <ellayean@gmail.com>
+Date:   Wed Oct 15 11:08:17 2025 +0200
+
+    Merge pull request #9 from HTLBulme/main
+    
+    Merge from main
+
+[33mcommit be23d07d5a7470875b89f306522a4684616f6f75[m
+Merge: d2b181d cc7f4bb
+Author: song2617 <ellayean@gmail.com>
+Date:   Wed Oct 15 11:07:14 2025 +0200
+
+    Merge pull request #8 from HTLBulme/backend-api
+    
+    Test Readme
+
+[33mcommit cc7f4bb6c95ebd60e6d67ca8ff1d5b1dfb822e47[m
+Author: songjin <ellayean@gmail.com>
+Date:   Wed Oct 15 10:52:42 2025 +0200
+
+    Test Readme
+
+[33mcommit d2b181dd56d96c3b450b92681da7f12089c89ee6[m
+Merge: 4104522 f91268c
+Author: NataPonni <ponni@ukr.net>
+Date:   Wed Oct 15 10:45:24 2025 +0200
+
+    Merge nataliia-dev into main  resolved backend conflicts
+
+[33mcommit f91268c967d2df2f6d65b9e89b45ba0428e62b44[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Tue Oct 14 21:37:36 2025 +0200
+
+    Save frontend progress (without node_modules)
+
+[33mcommit 4104522bbac622bda95844d5aedbcd968abd09be[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Wed Oct 8 21:14:54 2025 +0200
+
+    Update CI
+
+[33mcommit e10aed3f66809b37ff5c0df4ffdfac2121e0a364[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Wed Oct 8 20:53:41 2025 +0200
+
+    Update dockerfile and smartsubmit_app
+
+[33mcommit dda45de4d378fa43f3d93699119b6fb63238f694[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Wed Oct 8 19:31:46 2025 +0200
+
+    Update dockerfile and smartsubmit_app
+
+[33mcommit aa5141dcb7837f55486a3779b5c9ed0760188c96[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Wed Oct 8 19:07:25 2025 +0200
+
+    Update smartsubmit_app
+
+[33mcommit 1a2b18eee15d99684a284ea775e988a34a168fcf[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Wed Oct 8 17:28:11 2025 +0200
+
+    Update Dockerfile
+
+[33mcommit 599ce04c8fae590aae769483bcebbbfc6753aa6d[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Wed Oct 8 17:12:58 2025 +0200
+
+    Update dockerfile and render
+
+[33mcommit 8c8783250006287b8e22611d51d05e6f787b43dd[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Wed Oct 8 17:07:23 2025 +0200
+
+    Move Dockerfile to root for Render
+
+[33mcommit 02b94518d7e833308ec0cf3c5abecbbb07f3ae56[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Wed Oct 8 16:11:30 2025 +0200
+
+    Add necessary files for deployment with Render - for UI test purpose
+
+[33mcommit e6cc611c1f1538e5a4aeb9ca5ab2aad3743e5abe[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Wed Oct 8 11:19:02 2025 +0200
+
+    Restructure Repo for deployment
+
+[33mcommit 6ffb3055b47c4db9fc9237b118fb98bcdc1e5545[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Wed Oct 8 11:12:24 2025 +0200
+
+    Restructure Repo for deployment
+
+[33mcommit e09c41232f71218080f941312019b034a259b544[m
+Merge: cba32ad 6d477b5
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Wed Oct 8 09:41:02 2025 +0200
+
+    Merge pull request #4 from HTLBulme/song-dev
+    
+    Song dev
+
+[33mcommit 6d477b55fb221ca6ea9678bc5424a5cd7630e3c6[m
+Author: songjin <ellayean@gmail.com>
+Date:   Tue Oct 7 22:15:13 2025 +0200
+
+    regist&login_v2_anpassung mit nataliia
+
+[33mcommit 11754c48d51af06aafc4abb5754d2466c76422cb[m
+Author: songjin <ellayean@gmail.com>
+Date:   Tue Oct 7 13:38:16 2025 +0200
+
+    添加 package.json
+
+[33mcommit b0c2ebf1d6a5d7579a52eee7068a2bd3c416f9c9[m
+Author: songjin <ellayean@gmail.com>
+Date:   Tue Oct 7 11:15:47 2025 +0200
+
+    regist&login_vision_1
+
+[33mcommit cba32ad737ea3c4371e305f7f9905a6435986324[m
+Merge: 0adf692 7660779
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Mon Oct 6 17:20:54 2025 +0200
+
+    Merge pull request #3 from HTLBulme/nataliia-dev
+    
+    Modify app.py
+
+[33mcommit 766077992db0b6b1a242d0adef74f3a6a4f32a64[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Mon Oct 6 14:01:21 2025 +0200
+
+    Modify app.py
+
+[33mcommit 0adf6923c3d69cb9a9bb0e3531d8b02edc8d70c7[m
+Merge: a2345cb 7292b31
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Mon Oct 6 13:43:16 2025 +0200
+
+    Merge pull request #2 from HTLBulme/nataliia-dev
+    
+    Full local setup: frontend + backend
+
+[33mcommit 6022f0090ef66d8828dacb5dfc545897463181a4[m
+Author: songjin <ellayean@gmail.com>
+Date:   Mon Oct 6 13:18:24 2025 +0200
+
+    Repush package.json
+
+[33mcommit a2345cbdb7647268fb42a72dcb1a9906cc5a428a[m
+Author: songjin <ellayean@gmail.com>
+Date:   Mon Oct 6 13:12:25 2025 +0200
+
+    Add package.json
+
+[33mcommit 7292b315f44e3802747dc43c558344f2db5dcbd4[m
+Author: NataPonni <ponni@ukr.net>
+Date:   Sun Oct 5 17:11:30 2025 +0200
+
+    Full local setup: frontend + backend
+
+[33mcommit d4ec982a6b27fbfba2c302d205e941d9b1092cfa[m
+Author: anhnong90 <nquynhanh.90@gmail.com>
+Date:   Thu Sep 25 10:44:40 2025 +0200
+
+    Initial commit
