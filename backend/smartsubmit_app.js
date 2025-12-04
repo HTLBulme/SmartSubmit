@@ -1007,9 +1007,9 @@ const PORT = process.env.PORT || 3000;
 
   const startServer = async () =>{
     await initDatabase(); // db init warten
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 SmartSubmit Server betriebt im Port ${PORT}`);
-    console.log(`📍 API-Addresse: http://localhost:${PORT}`);
+    console.log(`📍 API-Addresse: http://0.0.0.0:${PORT}`);
     });
   };
 
