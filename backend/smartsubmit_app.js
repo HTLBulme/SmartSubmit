@@ -1004,12 +1004,13 @@ app.get(/.*/, (req, res) => {                      //!!!!für frontend-backend g
 // -----------------------------------Server starten-------------------------------------------
 
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 
   const startServer = async () =>{
     await initDatabase(); // db init warten
-    app.listen(PORT, '0.0.0.0', () => {
+    app.listen(PORT, HOST, () => {
     console.log(`🚀 SmartSubmit Server betriebt im Port ${PORT}`);
-    console.log(`📍 API-Addresse: http://0.0.0.0:${PORT}`);
+    console.log(`📍 API-Addresse: ${HOST}:${PORT}`);
     });
   };
 

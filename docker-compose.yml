@@ -39,7 +39,7 @@ services:
       
     # Map the container port 3000 to the host port 3000
     ports:
-      - "3000:3000"
+      - "8080:3000"
       
     # Ensure the database starts BEFORE the backend application attempts to connect
     depends_on:
