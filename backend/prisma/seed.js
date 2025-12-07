@@ -1,87 +1,129 @@
-// prisma/seed.js
 import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
-const client = new PrismaClient();
+async function main() {
+  console.log("🌱 Seeding SmartSubmit…");
 
-// 1. Чистим таблицы
+  // ==================================
+  // 1. Очистка системных таблиц
+  // ==================================
+  await prisma.benutzerFach.deleteMany({});
+  await prisma.benutzerKlasse.deleteMany({});
+  await prisma.benutzerRolle.deleteMany({});
 
-await client.benutzer.deleteMany({}); //
-await client.rolle.deleteMany({});  //
-await client.klasse.deleteMany({}); //
-await client.fach.deleteMany({}); //
-await client.aufgabe.deleteMany({}); 
-await client.abgabe.deleteMany({}); 
-await client.benutzerRolle.deleteMany({}); 
-await client.benutzerKlasse.deleteMany({}); 
-await client.benutzerFach.deleteMany({});
+  await prisma.rolle.deleteMany({});
+  await prisma.benutzer.deleteMany({});
+  await prisma.klasse.deleteMany({});
+  await prisma.fach.deleteMany({});
 
-const members = {
-data: [{
-  vorname: "Anna",
-  nachname: "Admin",
-  email: "admin@gmail.com",
-  passwort_hash: "$2b$10$h2QpNMTiEETipap8vCdi7uHE1Qf3Z5zrqY5vA2ltsuq6g19VHNtTO"
-},
-{
-  vorname: "Jon",
-  nachname: "Student",
-  email: "jstud@gmail.com",
-  passwort_hash: "$2b$10$sxMql8cjNT2UGbFLErQqteUIk2wOI1ShvnLVtpVSkLFslPj31aum2"
-},
-{
-  vorname: "Song",
-  nachname: "Dev",
-  email: "sdev@gmail.com",
-  passwort_hash: "$2b$10$orZ4PAgK6tbqhGI/qJwBJuIAsvzAMZ6tnlxCb8OzvYoyTgm7GncgW"
-},
-{
-  vorname: "Anh",
-  nachname: "Teacher",
-  email: "ateach@gmail.com",
-  passwort_hash: "$2b$10$FV8o0p37eJtwfnKmy71SuutIjLKRfeOq7FQsmdtpBcJqASqtVyhl."
-},
-{
-  vorname: "Nata",
-  nachname: "Student",
-  email: "nstud@example.com",
-  passwort_hash: "$2b$10$NDHGSlfK6tp3nYtTGoHVKOdGfIeAfpip/H5QoH02y4r9yc5yu5aWm"
+  // ==================================
+  // 2. Роли
+  // ==================================
+  const adminRole = await prisma.rolle.create({
+    data: { bezeichnung: "Admin", beschreibung: "Systemadministrator" }
+  });
+
+  const lehrerRole = await prisma.rolle.create({
+    data: { bezeichnung: "Lehrer", beschreibung: "Lehrperson" }
+  });
+
+  const schuelerRole = await prisma.rolle.create({
+    data: { bezeichnung: "Schueler", beschreibung: "Schüleraccount" }
+  });
+
+  // ==================================
+  // 3. Пользователи
+  // ==================================
+  const admin = await prisma.benutzer.create({
+    data: {
+      vorname: "Anna",
+      nachname: "Admin",
+      email: "admin@gmail.com",
+      passwort_hash: "HASH1"
+    }
+  });
+
+  const lehrer = await prisma.benutzer.create({
+    data: {
+      vorname: "Anh",
+      nachname: "Teacher",
+      email: "teacher@gmail.com",
+      passwort_hash: "HASH2"
+    }
+  });
+
+  const schueler1 = await prisma.benutzer.create({
+    data: {
+      vorname: "Jon",
+      nachname: "Student",
+      email: "jon@student.at",
+      passwort_hash: "HASH3"
+    }
+  });
+
+  const schueler2 = await prisma.benutzer.create({
+    data: {
+      vorname: "Nata",
+      nachname: "Student",
+      email: "nata@student.at",
+      passwort_hash: "HASH4"
+    }
+  });
+
+  // ==================================
+  // 4. Назначение ролей
+  // ==================================
+  await prisma.benutzerRolle.createMany({
+    data: [
+      { benutzer_id: admin.id, rolle_id: adminRole.id },
+      { benutzer_id: lehrer.id, rolle_id: lehrerRole.id },
+      { benutzer_id: schueler1.id, rolle_id: schuelerRole.id },
+      { benutzer_id: schueler2.id, rolle_id: schuelerRole.id }
+    ]
+  });
+
+  // ==================================
+  // 5. Классы
+  // ==================================
+  const klasse = await prisma.klasse.create({
+    data: { name: "3AKIFT", jahrgang: 2024 }
+  });
+
+  // ==================================
+  // 6. Связь Benutzer → Klasse
+  // ==================================
+  await prisma.benutzerKlasse.createMany({
+    data: [
+      { benutzer_id: schueler1.id, klasse_id: klasse.id },
+      { benutzer_id: schueler2.id, klasse_id: klasse.id },
+      { benutzer_id: lehrer.id, klasse_id: klasse.id } // Lehrer преподаёт в этом классе
+    ]
+  });
+
+  // ==================================
+  // 7. Fächer
+  // ==================================
+  const fachMathe = await prisma.fach.create({
+    data: { name: "Mathematik", kuerzel: "MATH" }
+  });
+
+  const fachDB = await prisma.fach.create({
+    data: { name: "Datenbank", kuerzel: "DB" }
+  });
+
+  // ==================================
+  // 8. Связь Lehrer → Fach
+  // ==================================
+  await prisma.benutzerFach.createMany({
+    data: [
+      { benutzer_id: lehrer.id, fach_id: fachMathe.id },
+      { benutzer_id: lehrer.id, fach_id: fachDB.id }
+    ]
+  });
+
+  console.log("✔ Seed completed.");
 }
-]};
 
-await client.benutzer.createMany(members);
-
-const rolles = {
-data: [
-    { bezeichnung: "Admin", beschreibung: "Systemadministrator" },
-    { bezeichnung: "Lehrer", beschreibung: "Lehrperson" },
-    { bezeichnung: "Schueler", beschreibung: "Schüleraccount" }
-  ]
-}
-
-await client.rolle.createMany(rolles);
-
-const klassen = {
-data: [
-    { name: "1AKIFT", jahrgang: 2024 },
-    { name: "2AKIFT", jahrgang: 2023 },
-    { name: "3AKIFT", jahrgang: 2022 },
-    { name: "4AKIFT", jahrgang: 2021 }
-  ]
-}
- 
-await client.klasse.createMany(klassen);
-
-const fachs = {
-data: [
-    { name: "DatenBank", kuerzel: "DB" },
-    { name: "Informatik", kuerzel: "INF" },
-    { name: "Mathematik", kuerzel: "MATH" },
-    { name: "Englisch", kuerzel: "ENG" },
-    { name: "Deutsch", kuerzel: "DEU" },
-    { name: "Ethik", kuerzel: "ETH" }
-  ]
-}
-await client.fach.createMany(fachs);
- 
-
-console.log("✔ Seed completed");
+main()
+  .catch(err => console.error(err))
+  .finally(() => prisma.$disconnect());
