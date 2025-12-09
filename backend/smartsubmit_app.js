@@ -11,7 +11,18 @@ const XLSX = require('xlsx');//Excel-Dateien lesen und schreiben
 dotenv.config(); //Führt die config von dotenv aus, um .env-Variablen zu laden.
 
 const app = express();
-const prisma = new PrismaClient();
+
+const isDocker = process.env.IS_DOCKER === 'true'; // set this in docker-compose env_file
+const databaseUrl = isDocker ? process.env.DATABASE_DOCKER_URL : process.env.DATABASE_URL;
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: databaseUrl,
+    },
+  },
+});
+
+module.exports = prisma;
 
 //-----------------------------Konfiguration Datei-Upload-----------------------------
 
@@ -75,7 +86,7 @@ const uploadDisk = multer({
 // __dirname = '/app/backend'
 // '..' = eine Ebene höher = '/app'
 // Ergebnis: '/app/frontend'
-const FRONTEND_PATH = path.join(__dirname, '..', 'frontend');//!!!!für frontend-backend gemeinsamen Deploy 
+const FRONTEND_PATH = path.join(__dirname, '..', 'frontend/dist');//!!!!für frontend-backend gemeinsamen Deploy 
 
 
 //-----------------------------Middleware ausführen-----------------------------
@@ -996,7 +1007,7 @@ app.use(express.static(FRONTEND_PATH));            //!!!!für frontend-backend g
 // '*' = alle Pfade
 app.get(/.*/, (req, res) => {                      //!!!!für frontend-backend gemeinsamen Deploy
                                     // Liefert /app/frontend/login.html
-      res.sendFile(path.join(FRONTEND_PATH, 'login.html')); 
+      res.sendFile(path.join(FRONTEND_PATH, 'index.html')); 
 });
 
 

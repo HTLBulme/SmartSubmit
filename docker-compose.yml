@@ -1,54 +1,54 @@
 version: '3.8'
 
 services:
-  # 1. DATABASE SERVICE (Local MySQL Container on OCI VM)
   db:
     image: mysql/mysql-server:8.0
     container_name: smartsubmit-mysql-db
-    # Read DB configuration secrets from the same .env file
     env_file:
-      - ./backend/.env
-    # Map the internal container port to a host port (optional, but useful for debugging)
+      - ./backend/.env   
     ports:
       - "3306:3306"
-    
-    # Store persistent data in a named volume so data survives container restarts/updates
     volumes:
-      - db-data:/var/lib/mysql
-    
-    # Set standard MySQL environment variables (read from .env file)
-    environment:
-      # These variables must be defined in your ./backend/.env file
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      
+      - db-data:/var/lib/mysql          
     restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
 
-  # 2. APPLICATION SERVICE
   backend:
     build:
       context: .
       dockerfile: Dockerfile
-    
-    # Use the .env file located inside the backend directory on the OCI VM
-    # This file MUST now contain the DATABASE_URL pointing to the internal 'db' service.
-    env_file:
-      - ./backend/.env
-      
-    # Map the container port 3000 to the host port 3000
+    environment:
+      # Load these from .env on the host
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 3000
+      HOST: "0.0.0.0"
+      # Docker-specific overrides
+      IS_DOCKER: "true"
+      DATABASE_URL: "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}"
+      DATABASE_DOCKER_URL: "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}"
     ports:
       - "8080:3000"
-      
-    # Ensure the database starts BEFORE the backend application attempts to connect
     depends_on:
-      - db
-    
+      db:
+        condition: service_healthy
     restart: always
-    
+    working_dir: /app
+    command: >
+      sh -c "
+      cd backend &&
+      npx prisma generate &&
+      npx prisma migrate deploy &&
+      cd .. &&
+      node backend/smartsubmit_app.js
+      "
     container_name: smartsubmit-backend-service
 
-# Define a named volume for persistent database data
 volumes:
   db-data:
