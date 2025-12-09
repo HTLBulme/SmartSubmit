@@ -110,4 +110,13 @@ jobs:
             # Show recent logs
             echo 'Recent backend logs:'
             docker compose logs --tail=50 backend
+            
+            # Clean up unused Docker resources to save space
+            echo 'Cleaning up unused Docker resources...'
+            docker image prune -a -f
+            docker volume prune -f
+            docker builder prune -f
+            
+            echo 'Final disk usage:'
+            df -h /
           "
