@@ -13,26 +13,26 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // useEffect(() => {
-  //   const fetchStudentData = async () => {
-  //     try {
-  //       const token = localStorage.getItem("token");
-  //       const response = await axios.get(`${API_URL}/api/student/dashboard`, {
-  //         headers: { Authorization: `Bearer ${token}` }
-  //       });
-  //       setUserData(response.data);
-  //     } catch (err) {
-  //       setError(t.fetchError || "Error loading student data");
-  //       console.error("Error fetching student data:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(`${API_URL}/api/student/dashboard`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUserData(response.data);
+      } catch (err) {
+        setError(t.fetchError || "Error loading student data");
+        console.error("Error fetching student data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   fetchStudentData();
-  // }, [t]);
+    fetchStudentData();
+  }, [t]);
 
-  // Local-backend
+  /* Local-backend
   useEffect(() => {
     // Mockdaten
     const mockData = {
@@ -64,7 +64,7 @@ export default function StudentDashboard() {
     setUserData(mockData);
     setLoading(false);
   }, []); // Пустой массив зависимостей, чтобы эффект сработал только при монтировании
-
+*/
   if (loading) {
     return <div className="loading">{t.loading || "Loading..."}</div>;
   }

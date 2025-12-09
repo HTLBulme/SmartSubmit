@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./teacher.css";
@@ -24,6 +24,10 @@ export default function Teacher() {
   const [files, setFiles] = useState([]);      // File[]
   const [isOver, setIsOver] = useState(false); // dnd highlight
   const [msg, setMsg] = useState("");
+
+  // classes 
+  const [classes, setClasses] = useState([]);
+  const [subjects, setSubjects] = useState([]);
 
   function addFiles(fileList) {
     // превращаем FileList в массив и добавляем уникальные по имени+size
@@ -71,6 +75,30 @@ export default function Teacher() {
     }
   }
 
+  useEffect(() => {
+  async function loadData() {
+    try {
+      const token = localStorage.getItem("token");
+
+      const [classRes, subjectRes] = await Promise.all([
+        axios.get(`${API_URL}/api/classes`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${API_URL}/api/subjects`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+
+      setClasses(classRes.data.data);
+      setSubjects(subjectRes.data.data);
+    } catch (err) {
+      console.error("Fehler beim Laden der Daten:", err);
+    }
+  }
+
+  loadData();
+}, []);
+
   return (
     <div className="teacher-page">
       <div className="container py-4">
@@ -87,10 +115,11 @@ export default function Teacher() {
               <label className="form-label fw-semibold">{t.classLbl}</label>
               <select className="form-select" value={klass} onChange={(e)=>setKlass(e.target.value)} required>
                 <option value="">{t.selectPlaceholder}</option>
-                <option value="AKIFT2025">AKIFT2025</option>
-                <option value="2025AKIFT">2025AKIFT</option>
-                <option value="1A">1A</option>
-                <option value="2B">2B</option>
+                {classes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -99,10 +128,11 @@ export default function Teacher() {
               <label className="form-label fw-semibold">{t.subjectLbl}</label>
               <select className="form-select" value={subject} onChange={(e)=>setSubject(e.target.value)} required>
                 <option value="">{t.selectPlaceholder}</option>
-                <option value="Deutsch">Deutsch</option>
-                <option value="Englisch">Englisch</option>
-                <option value="Mathematik">Mathematik</option>
-                <option value="Informatik">Informatik</option>
+                {subjects.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
               </select>
             </div>
 
