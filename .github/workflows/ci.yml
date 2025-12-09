@@ -67,25 +67,31 @@ jobs:
             git pull origin main
             
             echo '=== Stopping containers ==='
-            docker-compose down
+            docker compose down
             
-            echo '=== Building with cache (faster) ==='
-            docker-compose build backend
+            echo '=== Freeing up memory ==='
+            docker system prune -f
+            sync && echo 3 | sudo tee /proc/sys/vm/drop_caches
+            
+            echo '=== Building with cache and retry ==='
+            # Only rebuild if package files changed, otherwise use cache
+            docker compose build backend || docker compose build backend --no-cache
             
             echo '=== Starting database ==='
-            docker-compose up -d db
+            docker compose up -d db
             sleep 8
             
             echo '=== Running migrations ==='
-            docker-compose run --rm backend sh -c 'cd backend && npx prisma migrate deploy'
+            docker compose run --rm backend sh -c 'cd backend && npx prisma migrate deploy'
             
             echo '=== Starting all services ==='
-            docker-compose up -d
+            docker compose up -d
             
             echo '=== Cleaning up old images ==='
             docker image prune -f
             
             echo '=== Deployment complete ==='
-            docker-compose ps
-            df -h / | grep -E 'Filesystem|/$'
+            docker compose ps
+            df -h / | grep -E 'Filesystem|/
+
           "
