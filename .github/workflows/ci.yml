@@ -1,6 +1,5 @@
 name: CI/CD Deployment to OCI
 
-# This workflow runs whenever code is pushed to the 'main' branch
 on:
   push:
     branches:
@@ -8,7 +7,6 @@ on:
 
 jobs:
   test:
-    # Run the continuous integration (CI) tests first
     runs-on: ubuntu-latest
     
     steps:
@@ -20,15 +18,12 @@ jobs:
         with:
           node-version: 20
       
-      # Since packages are in subdirectories, we must install both
       - name: Install Backend Dependencies
         run: npm install --prefix ./backend
         
       - name: Install Frontend Dependencies
         run: npm install --prefix ./frontend
         
-      # TEST PHASE: Run Backend and Frontend Tests
-
       - name: Run Backend Tests
         run: npm run test --prefix ./backend
         
@@ -36,21 +31,16 @@ jobs:
         run: npm run test --prefix ./frontend
         
   deploy:
-    # This job handles the Continuous Deployment (CD) to the Oracle VM
     runs-on: ubuntu-latest
-    
-    # IMPORTANT: Only run deployment if the 'test' job succeeded
     needs: test 
 
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v4
       
-      # Setup SSH Access using the Private Key stored as a GitHub Secret
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          # SSH_PRIVATE_KEY is the secret created on GitHub 
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Add OCI VM to known_hosts
@@ -60,63 +50,42 @@ jobs:
           echo "Adding $SSH_HOST to known_hosts..."
           ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
           
-      # Deploy to OCI VM via SSH
       - name: Execute Deployment Commands on OCI VM
         env:
           SSH_USER: ubuntu
-          # IMPORTANT: OCI VM Public IP - REPLACE THIS VALUE WITH THE CORRECT IP
           SSH_HOST: 79.76.119.73 
           PROJECT_PATH: /home/ubuntu/SmartSubmit
           
         run: |
           echo "Starting deployment on OCI VM: $SSH_HOST"
           
-          # SSH command: Execute commands sequentially on the remote machine
-          ssh $SSH_USER@$SSH_HOST "
-            # Navigate to the project directory on the remote VM
+          ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=10 $SSH_USER@$SSH_HOST "
+            set -e
             cd $PROJECT_PATH
             
-            # Pull the latest changes from GitHub (code, Dockerfile, docker-compose.yml)
+            echo '=== Pulling latest code ==='
             git pull origin main
             
-            # Stop running containers to avoid conflicts
-            echo 'Stopping existing containers...'
-            docker compose down
+            echo '=== Stopping containers ==='
+            docker-compose down
             
-            # Build the Docker image with no cache to ensure latest changes
-            echo 'Building new Docker image...'
-            docker compose build --no-cache backend
+            echo '=== Building with cache (faster) ==='
+            docker-compose build backend
             
-            # Start the database service first and wait for it to be ready
-            echo 'Starting database service...'
-            docker compose up -d db
+            echo '=== Starting database ==='
+            docker-compose up -d db
+            sleep 8
             
-            # Wait for database to be fully ready (healthcheck)
-            echo 'Waiting for database to be ready...'
-            sleep 10
+            echo '=== Running migrations ==='
+            docker-compose run --rm backend sh -c 'cd backend && npx prisma migrate deploy'
             
-            # Run migrations explicitly before starting services
-            echo 'Running database migrations...'
-            docker compose run --rm backend sh -c 'cd backend && npx prisma migrate deploy'
+            echo '=== Starting all services ==='
+            docker-compose up -d
             
-            # Start all services
-            echo 'Starting all services...'
-            docker compose up -d
+            echo '=== Cleaning up old images ==='
+            docker image prune -f
             
-            # Show container status
-            echo 'Deployment complete. Container status:'
-            docker compose ps
-            
-            # Show recent logs
-            echo 'Recent backend logs:'
-            docker compose logs --tail=50 backend
-            
-            # Clean up unused Docker resources to save space
-            echo 'Cleaning up unused Docker resources...'
-            docker image prune -a -f
-            docker volume prune -f
-            docker builder prune -f
-            
-            echo 'Final disk usage:'
-            df -h /
+            echo '=== Deployment complete ==='
+            docker-compose ps
+            df -h / | grep -E 'Filesystem|/$'
           "

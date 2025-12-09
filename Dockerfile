@@ -6,9 +6,9 @@ WORKDIR /app
 COPY backend/package*.json ./backend/
 COPY frontend/package*.json ./frontend/
 
-# Install dependencies
-RUN npm ci --prefix ./backend
-RUN npm ci --prefix ./frontend
+# Install dependencies with fewer logs and cleanup
+RUN npm ci --prefix ./backend --quiet --no-progress
+RUN npm ci --prefix ./frontend --quiet --no-progress
 
 # Copy all source files
 COPY backend ./backend
