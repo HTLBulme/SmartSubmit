@@ -3,7 +3,11 @@ name: CI/CD Deployment to OCI
 on:
   push:
     branches:
-      - main 
+      - main
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   test:
@@ -77,11 +81,13 @@ jobs:
 
       - name: Add OCI VM to known_hosts
         run: |
-          ssh-keyscan -H 79.76.119.73 >> ~/.ssh/known_hosts
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 79.76.119.73 >> ~/.ssh/known_hosts 2>&1 || true
+          chmod 644 ~/.ssh/known_hosts
           
       - name: Deploy to OCI VM
         run: |
-          ssh -o ServerAliveInterval=30 ubuntu@79.76.119.73 "
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 ubuntu@79.76.119.73 "
             cd /home/ubuntu/SmartSubmit
             
             echo '=== Pulling latest code ==='
