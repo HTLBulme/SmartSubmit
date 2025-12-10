@@ -16,9 +16,13 @@ services:
       interval: 5s
 
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # For production deployment (pulls pre-built image from GitHub)
+    image: ghcr.io/htlbulme/smartsubmit-backend:latest
+    
+    # For local development (builds from Dockerfile)    
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     environment:
       # Load these from .env on the host
       MYSQL_USER: ${MYSQL_USER}
