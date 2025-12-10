@@ -74,7 +74,7 @@ jobs:
         id: repo_name
         run: echo "lowercase=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
         
-      - name: Setup SSH
+      - name: Setup SSH with timeout and retry
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -85,9 +85,14 @@ jobs:
           ssh-keyscan -H 79.76.119.73 >> ~/.ssh/known_hosts 2>&1 || true
           chmod 644 ~/.ssh/known_hosts
           
-      - name: Deploy to OCI VM
+      - name: Test SSH connection
         run: |
-          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 ubuntu@79.76.119.73 "
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=10 ubuntu@79.76.119.73 "echo 'SSH connection successful'"
+          
+      - name: Deploy to OCI VM
+        timeout-minutes: 10
+        run: |
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=10 ubuntu@79.76.119.73 "
             cd /home/ubuntu/SmartSubmit
             
             echo '=== Pulling latest code ==='
