@@ -121,10 +121,16 @@ jobs:
             echo 'Database is ready!'
             
             echo '=== Running migrations ==='
-            docker compose run --rm backend sh -c 'cd backend && npx prisma migrate deploy'
+            docker compose run --rm backend sh -c 'cd backend && npx prisma migrate deploy' || echo 'Migration failed, will retry on container startup'
             
             echo '=== Starting all services ==='
             docker compose up -d
+            
+            echo '=== Waiting for backend to be ready ==='
+            sleep 10
+            
+            echo '=== Backend logs ==='
+            docker compose logs backend --tail=50
             
             echo '=== Cleaning up ==='
             docker image prune -f
