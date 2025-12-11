@@ -7,7 +7,7 @@ import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 export default function Teacher() {
   const [lang] = useLang();

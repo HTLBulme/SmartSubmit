@@ -2,8 +2,12 @@
   "name": "smartsubmit-backend",
   "version": "1.0.0",
   "main": "index.js",
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "scripts": {
     "start": "node --watch smartsubmit_app.js",
+    "seed": "prisma db seed",
     "test": "jest --detectOpenHandles --forceExit"
   },
   "keywords": [],

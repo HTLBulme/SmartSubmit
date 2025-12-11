@@ -47,6 +47,7 @@ services:
       cd backend &&
       npx prisma generate &&
       npx prisma migrate deploy &&
+      npx prisma db seed &&
       cd .. &&
       node backend/smartsubmit_app.js
       "

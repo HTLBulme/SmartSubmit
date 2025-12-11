@@ -5,7 +5,7 @@ import axios from "axios"; // DE: HTTP-Anfragen / RU: HTTP-запросы
 import * as XLSX from "xlsx"; // DE: Excel-Dateien verarbeiten / RU: Работа с Excel-файлами
 import "./admin.css"; // DE: Styles / RU: Стили
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"; // DE: Basis-URL des Backends / RU: Базовый адрес backend-сервера
+const API_URL = import.meta.env.VITE_API_URL || ""; // DE: Basis-URL des Backends / RU: Базовый адрес backend-сервера
 
 export default function UploadUsers() {
   const [lang] = useLang(); // DE: Aktuelle Sprache / RU: Текущий язык
