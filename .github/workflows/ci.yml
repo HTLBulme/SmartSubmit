@@ -109,7 +109,16 @@ jobs:
             
             echo '=== Starting database ==='
             docker compose up -d db
-            sleep 8
+            
+            echo '=== Waiting for database to be ready ==='
+            sleep 15
+            
+            # Wait until MySQL is actually accepting connections
+            until docker compose exec db mysqladmin ping -h localhost --silent; do
+              echo 'Waiting for database connection...'
+              sleep 2
+            done
+            echo 'Database is ready!'
             
             echo '=== Running migrations ==='
             docker compose run --rm backend sh -c 'cd backend && npx prisma migrate deploy'
