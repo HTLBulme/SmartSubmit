@@ -17,12 +17,12 @@ services:
 
   backend:
     # For production deployment (pulls pre-built image from GitHub)
-    # image: ghcr.io/htlbulme/smartsubmit-backend:latest
+    image: ghcr.io/htlbulme/smartsubmit-backend:latest
     
     # For local development (builds from Dockerfile)    
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     environment:
       # Load these from .env on the host
       MYSQL_USER: ${MYSQL_USER}
