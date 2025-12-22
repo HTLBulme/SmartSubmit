@@ -32,4 +32,4 @@ COPY --from=builder /app/frontend/dist ./frontend/dist
 
 EXPOSE 3000
 
-CMD ["node", "backend/smartsubmit_app.js"]
+CMD ["node", "backend/src/main.js"]

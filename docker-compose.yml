@@ -49,7 +49,7 @@ services:
       npx prisma migrate deploy &&
       npx prisma db seed &&
       cd .. &&
-      node backend/smartsubmit_app.js
+      node backend/src/main.js
       "
     container_name: smartsubmit-backend-service
 
