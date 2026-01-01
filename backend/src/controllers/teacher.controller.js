@@ -32,47 +32,17 @@ const createAssignment = async (req, res) => {
       });
     }
 
-    // 3. Parse class name and year
-    let klasseName, jahrgang;
-    
-    const match1 = className.match(/^([A-Za-z]+)(\d{4})$/);
-    const match2 = className.match(/^(\d{4})([A-Za-z]+)$/);
-    const match3 = className.match(/^(\d+)([A-Z])$/);
-    
-    if (match1) {
-      klasseName = match1[1];
-      jahrgang = parseInt(match1[2]);
-    } else if (match2) {
-      jahrgang = parseInt(match2[1]);
-      klasseName = match2[2];
-    } else if (match3) {
-      klasseName = className;
-      jahrgang = new Date().getFullYear();
-    } else {
-      klasseName = className;
-      jahrgang = new Date().getFullYear();
-    }
-
-    // 4. Find or create class
-    let klasse = await prisma.klasse.findFirst({
-      where: { name: klasseName, jahrgang: jahrgang }
-    });
-
+    // 3. Find class by name
+    let klasse = await prisma.klasse.findFirst({ where: { name: className } });
     if (!klasse) {
-      klasse = await prisma.klasse.create({
-        data: { name: klasseName, jahrgang: jahrgang }
-      });
+      // Если не найдено — создать с текущим годом
+      klasse = await prisma.klasse.create({ data: { name: className, jahrgang: new Date().getFullYear() } });
     }
 
-    // 5. Find or create subject
-    let fach = await prisma.fach.findUnique({
-      where: { kuerzel: subject }
-    });
-
+    // 4. Find subject by name
+    let fach = await prisma.fach.findFirst({ where: { name: subject } });
     if (!fach) {
-      fach = await prisma.fach.create({
-        data: { name: subject, kuerzel: subject }
-      });
+      fach = await prisma.fach.create({ data: { name: subject, kuerzel: subject } });
     }
 
     // 6. Auto-link teacher to subject
@@ -168,6 +138,63 @@ const createAssignment = async (req, res) => {
   }
 };
 
+const getClasses = async (req, res) => {
+  try {
+    const classes = await prisma.klasse.findMany();
+    res.json({ data: classes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Fehler beim Laden der Klassen' });
+  }
+};
+
+const getSubjects = async (req, res) => {
+  try {
+    const subjects = await prisma.fach.findMany();
+    res.json({ data: subjects });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Fehler beim Laden der Fächer' });
+  }
+};
+
+/**
+ * Get all assignments created by the current teacher
+ */
+const getTeacherAssignments = async (req, res) => {
+  try {
+    const teacherId = req.userId;
+    const assignments = await prisma.aufgabe.findMany({
+      where: { lehrer_id: teacherId },
+      include: {
+        klasse: true,
+        fach: true,
+        abgaben: true
+      },
+      orderBy: { termin: 'desc' }
+    });
+
+    // Формируем статус дедлайна и количество сдач
+    const now = new Date();
+    const data = assignments.map(a => ({
+      id: a.id,
+      titel: a.titel,
+      beschreibung: a.beschreibung,
+      termin: a.termin,
+      klasse: a.klasse ? a.klasse.name : '',
+      fach: a.fach ? a.fach.name : '',
+      status: a.termin > now ? 'active' : 'expired',
+      abgabenCount: Array.isArray(a.abgaben) ? a.abgaben.length : 0
+    }));
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Fehler beim Laden der Aufgaben des Lehrers:', error);
+    res.status(500).json({ success: false, message: 'Server Fehler' });
+  }
+};
+
 module.exports = {
-  createAssignment
+  createAssignment,
+  getClasses,
+  getSubjects,
+  getTeacherAssignments
 };

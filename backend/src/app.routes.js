@@ -28,10 +28,15 @@ router.post('/admin/import/teachers', authenticateAdmin, uploadMemory.single('fi
 
 // ================================ TEACHER PAGE (authenticated) ================================
 router.post('/teacher/assignments', authenticateToken, uploadDisk.array('files', 10), teacherController.createAssignment);
+router.get('/teacher/assignments', authenticateToken, teacherController.getTeacherAssignments);
 
 // ================================ STUDENT PAGE (authenticated) ================================
 router.get('/student/assignments', authenticateToken, studentController.getAssignments);
 router.post('/student/submit', authenticateToken, studentController.submitAssignment);
 router.get('/student/submissions', authenticateToken, studentController.getMySubmissions);
+
+// ================================ CLASSES & SUBJECTS (authenticated) ================================
+router.get('/classes', authenticateToken, teacherController.getClasses);
+router.get('/subjects', authenticateToken, teacherController.getSubjects);
 
 module.exports = router;

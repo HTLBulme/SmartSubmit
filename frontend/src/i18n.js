@@ -76,8 +76,13 @@ const T = {
     submitWork: "Abgabe einreichen",
     logout: "Abmelden",
     fetchError: "Fehler beim Laden der Daten",
-    loading: "Wird geladen..."
+    loading: "Wird geladen...",
+    linkLbl: "Aufgaben-Link (URL)",
+    linkPh: "https://...",
+    abgabenBtn: "Abgabenliste",
+    assignmentBtn: "Aufgabenliste"
   },
+  
   en: {
     title: "Login",
     subtitle: "Please sign in to your account",
@@ -158,7 +163,11 @@ const T = {
     loading: "Wird geladen...",
     logout: "Logout",
     fetchError: "Error loading data",
-    loading: "Loading..."
+    loading: "Loading...",
+    linkLbl: "Assignment link (URL)",
+    linkPh: "https://...",
+    abgabenBtn: "Submissions list",
+    assignmentBtn: "Assignments list"
   },
 };
 
