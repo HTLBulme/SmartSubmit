@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../smartsubmit_app'); 
+const app = require('../src/main'); 
 
 // --- NEW: Mock bcryptjs to control password comparison ---
 jest.mock('bcryptjs', () => ({

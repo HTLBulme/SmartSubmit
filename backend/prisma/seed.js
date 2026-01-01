@@ -1,151 +1,279 @@
-// prisma/seed.js
-import { PrismaClient } from '@prisma/client';
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
 
-const client = new PrismaClient();
+const prisma = new PrismaClient();
 
-// 1. Чистим таблицы
-// СНАЧАЛА связи и зависимые таблицы:
-// await client.benutzerRolle.deleteMany({});
-// await client.benutzerKlasse.deleteMany({});
-// await client.benutzerFach.deleteMany({});
-// await client.abgabe.deleteMany({});
-// await client.aufgabe.deleteMany({});
+async function main() {
+  console.log('🌱 Starting database seeding...');
 
-// ПОТОМ базовые сущности:
-// await client.benutzer.deleteMany({});
-// await client.klasse.deleteMany({});
-// await client.fach.deleteMany({});
+  // Check if data already exists (to avoid duplicate seeding)
+  const existingUsers = await prisma.benutzer.count();
+  if (existingUsers > 0) {
+    console.log('Database already seeded. Skipping...');
+    return;
+  }
 
-// 2. Базовые данные
+  console.log('Creating seed data...');
 
-const members = {
-  data: [
-    {
-      vorname: "Anna",
-      nachname: "Admin",
-      email: "admin@gmail.com", //admin123
-      passwort_hash: "$2a$10$AfOaXj3/GK59f/4NCMiP1..RtzoIGOMnfkp0eN/82XPdHeJq72t4e"
+  // Create Roles
+  console.log('Creating roles...');
+  const adminRole = await prisma.rolle.create({
+    data: {
+      bezeichnung: 'Admin',
+      beschreibung: 'System Administrator mit vollen Rechten',
     },
-    {
-      vorname: "Jon",
-      nachname: "Student",
-      email: "jstud@gmail.com", // js123
-      passwort_hash: "$2a$10$DKRgqJPmPX5gd2JbBjJvjOVk/qP2YiUrkmtGvJeCeRqFf4IpFpl0C"
+  });
+
+  const lehrerRole = await prisma.rolle.create({
+    data: {
+      bezeichnung: 'Lehrer',
+      beschreibung: 'Lehrkräfte können Aufgaben erstellen und bewerten',
     },
-    {
-      vorname: "Song",
-      nachname: "Dev",
-      email: "sdev@gmail.com", // sd123
-      passwort_hash: "$2a$10$kTr1FHDTzrtu4sQQYi2T/ePs/GcTRSm42XCWk6J/J427zJuPLajia"
+  });
+
+  const schuelerRole = await prisma.rolle.create({
+    data: {
+      bezeichnung: 'Schüler',
+      beschreibung: 'Schüler können Aufgaben ansehen und abgeben',
     },
-    {
-      vorname: "Anh",
-      nachname: "Teacher",
-      email: "ateach@gmail.com", // at123
-      passwort_hash: "$2a$10$gAcir0yYpbr2/j0.jFUbG.WI9dgyisYqPeE38KtjPcnAtzaj4OJtK"
+  });
+
+  // Create Subjects (Fächer)
+  console.log('Creating subjects...');
+  const mathematik = await prisma.fach.create({
+    data: { name: 'Mathematik', kuerzel: 'MATH' },
+  });
+
+  const deutsch = await prisma.fach.create({
+    data: { name: 'Deutsch', kuerzel: 'DE' },
+  });
+
+  const englisch = await prisma.fach.create({
+    data: { name: 'Englisch', kuerzel: 'EN' },
+  });
+
+  const informatik = await prisma.fach.create({
+    data: { name: 'Informatik', kuerzel: 'INF' },
+  });
+
+  const physik = await prisma.fach.create({
+    data: { name: 'Physik', kuerzel: 'PHY' },
+  });
+
+  // Create Classes (Klassen)
+  console.log('Creating classes...');
+  const klasse5a = await prisma.klasse.create({
+    data: { name: '5A', jahrgang: 2024 },
+  });
+
+  const klasse5b = await prisma.klasse.create({
+    data: { name: '5B', jahrgang: 2024 },
+  });
+
+  const klasse4a = await prisma.klasse.create({
+    data: { name: '4A', jahrgang: 2025 },
+  });
+
+  // Create Admin User
+  console.log('Creating admin user...');
+  const hashedPasswordAdmin = await bcrypt.hash('admin123', 10);
+  const admin = await prisma.benutzer.create({
+    data: {
+      vorname: 'Admin',
+      nachname: 'System',
+      email: 'admin@smartsubmit.com',
+      passwort_hash: hashedPasswordAdmin,
+      aktiv: true,
     },
-    {
-      vorname: "Nata",
-      nachname: "Student",
-      email: "nstud@example.com", // ns123
-      passwort_hash: "$2a$10$91.fEk/jF.x9jGpvSX0iPe6Re1iwvtpw9WKh211WGLBfIDxy.UQUm"
+  });
+
+  await prisma.benutzerRolle.create({
+    data: {
+      benutzer_id: admin.id,
+      rolle_id: adminRole.id,
+    },
+  });
+
+  // Create Teachers (Lehrer)
+  console.log('Creating teachers...');
+  const hashedPasswordTeacher = await bcrypt.hash('lehrer123', 10);
+
+  const lehrer1 = await prisma.benutzer.create({
+    data: {
+      vorname: 'Maria',
+      nachname: 'Müller',
+      email: 'maria.mueller@smartsubmit.com',
+      passwort_hash: hashedPasswordTeacher,
+      aktiv: true,
+    },
+  });
+
+  await prisma.benutzerRolle.create({
+    data: {
+      benutzer_id: lehrer1.id,
+      rolle_id: lehrerRole.id,
+    },
+  });
+
+  // Assign subjects to teacher
+  await prisma.benutzerFach.createMany({
+    data: [
+      { benutzer_id: lehrer1.id, fach_id: mathematik.id },
+      { benutzer_id: lehrer1.id, fach_id: informatik.id },
+    ],
+  });
+
+  const lehrer2 = await prisma.benutzer.create({
+    data: {
+      vorname: 'Thomas',
+      nachname: 'Schmidt',
+      email: 'thomas.schmidt@smartsubmit.com',
+      passwort_hash: hashedPasswordTeacher,
+      aktiv: true,
+    },
+  });
+
+  await prisma.benutzerRolle.create({
+    data: {
+      benutzer_id: lehrer2.id,
+      rolle_id: lehrerRole.id,
+    },
+  });
+
+  await prisma.benutzerFach.createMany({
+    data: [
+      { benutzer_id: lehrer2.id, fach_id: deutsch.id },
+      { benutzer_id: lehrer2.id, fach_id: englisch.id },
+    ],
+  });
+
+  // Create Students (Schüler)
+  console.log('Creating students...');
+  const hashedPasswordStudent = await bcrypt.hash('schueler123', 10);
+
+  const studenten = [
+    { vorname: 'Max', nachname: 'Mustermann', email: 'max.mustermann@student.com', klasse: klasse5a },
+    { vorname: 'Anna', nachname: 'Weber', email: 'anna.weber@student.com', klasse: klasse5a },
+    { vorname: 'Leon', nachname: 'Fischer', email: 'leon.fischer@student.com', klasse: klasse5a },
+    { vorname: 'Sophie', nachname: 'Wagner', email: 'sophie.wagner@student.com', klasse: klasse5b },
+    { vorname: 'Felix', nachname: 'Becker', email: 'felix.becker@student.com', klasse: klasse5b },
+    { vorname: 'Laura', nachname: 'Hoffmann', email: 'laura.hoffmann@student.com', klasse: klasse4a },
+  ];
+
+  for (const student of studenten) {
+    const schueler = await prisma.benutzer.create({
+      data: {
+        vorname: student.vorname,
+        nachname: student.nachname,
+        email: student.email,
+        passwort_hash: hashedPasswordStudent,
+        aktiv: true,
+      },
+    });
+
+    // Assign student role
+    await prisma.benutzerRolle.create({
+      data: {
+        benutzer_id: schueler.id,
+        rolle_id: schuelerRole.id,
+      },
+    });
+
+    // Assign to class
+    await prisma.benutzerKlasse.create({
+      data: {
+        benutzer_id: schueler.id,
+        klasse_id: student.klasse.id,
+      },
+    });
+  }
+
+  // Create Assignments (Aufgaben)
+  console.log('Creating assignments...');
+  
+  const aufgabe1 = await prisma.aufgabe.create({
+    data: {
+      titel: 'Quadratische Gleichungen lösen',
+      beschreibung: 'Lösen Sie die Aufgaben auf Seite 45-47 im Mathematikbuch. Zeigen Sie alle Rechenschritte.',
+      anhaenge: JSON.stringify(['/uploads/mathe_aufgaben.pdf']),
+      termin: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      klasse_id: klasse5a.id,
+      fach_id: mathematik.id,
+      lehrer_id: lehrer1.id,
+    },
+  });
+
+  const aufgabe2 = await prisma.aufgabe.create({
+    data: {
+      titel: 'Einführung in Python',
+      beschreibung: 'Schreiben Sie ein Python-Programm, das die Fibonacci-Folge bis zur 10. Zahl berechnet.',
+      anhaenge: null,
+      termin: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+      klasse_id: klasse5a.id,
+      fach_id: informatik.id,
+      lehrer_id: lehrer1.id,
+    },
+  });
+
+  const aufgabe3 = await prisma.aufgabe.create({
+    data: {
+      titel: 'Gedichtanalyse: Goethe',
+      beschreibung: 'Analysieren Sie das Gedicht "Erlkönig" von Johann Wolfgang von Goethe. Mindestens 2 Seiten.',
+      anhaenge: JSON.stringify(['/uploads/erlkoenig.pdf']),
+      termin: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
+      klasse_id: klasse5b.id,
+      fach_id: deutsch.id,
+      lehrer_id: lehrer2.id,
+    },
+  });
+
+  // Create Sample Submissions (Abgaben)
+  console.log('Creating sample submissions...');
+  
+  // Get a student from class 5A
+  const schuelerInKlasse5a = await prisma.benutzer.findFirst({
+    where: {
+      benutzer_klassen: {
+        some: { klasse_id: klasse5a.id }
+      },
+      benutzer_rollen: {
+        some: { rolle_id: schuelerRole.id }
+      }
     }
-  ]
-};
+  });
 
-// await client.benutzer.createMany(members);
+  if (schuelerInKlasse5a) {
+    await prisma.abgabe.create({
+      data: {
+        aufgabe_id: aufgabe1.id,
+        schueler_id: schuelerInKlasse5a.id,
+        dateien: JSON.stringify(['/uploads/max_mathe_loesung.pdf']),
+        abgabe_zeitpunkt: new Date(),
+        bewertung: 85,
+        feedback: 'Sehr gute Arbeit! Die Rechenschritte sind klar dargestellt.',
+      },
+    });
+  }
 
-const klassen = {
-  data: [
-    { name: "1AKIFT", jahrgang: 2024 },
-    { name: "2AKIFT", jahrgang: 2023 },
-    { name: "3AKIFT", jahrgang: 2022 },
-    { name: "4AKIFT", jahrgang: 2021 }
-  ]
-};
+  console.log('Seeding completed successfully!');
+  console.log('\nSummary:');
+  console.log(`   - ${await prisma.rolle.count()} Roles`);
+  console.log(`   - ${await prisma.fach.count()} Subjects`);
+  console.log(`   - ${await prisma.klasse.count()} Classes`);
+  console.log(`   - ${await prisma.benutzer.count()} Users`);
+  console.log(`   - ${await prisma.aufgabe.count()} Assignments`);
+  console.log(`   - ${await prisma.abgabe.count()} Submissions`);
+  console.log('\nTest Credentials:');
+  console.log('   Admin: admin@smartsubmit.com / admin123');
+  console.log('   Teacher: maria.mueller@smartsubmit.com / lehrer123');
+  console.log('   Student: max.mustermann@student.com / schueler123');
+}
 
-// await client.klasse.createMany(klassen);
-
-const fachs = {
-  data: [
-    { name: "DatenBank",  kuerzel: "DB" },
-    { name: "Informatik", kuerzel: "INF" },
-    { name: "Mathematik", kuerzel: "MATH" },
-    { name: "Englisch",   kuerzel: "ENG" },
-    { name: "Deutsch",    kuerzel: "DEU" },
-    { name: "Ethik",      kuerzel: "ETH" }
-  ]
-};
-
-// await client.fach.createMany(fachs);
-
-// Функции связок остаются как есть
-// async function connectBenutzerRolle(userEmail, rollenName) {
-//   const user = await client.benutzer.findFirst({ where: { email: userEmail } });
-//   const rolle = await client.rolle.findFirst({ where: { bezeichnung: rollenName } });
-
-//   if (!user || !rolle) {
-//     console.warn('❗Kein Benutzer oder Rolle:', userEmail, rollenName);
-//     return;
-//   }
-
-//   await client.benutzerRolle.create({
-//     data: {
-//       benutzer_id: user.id,
-//       rolle_id: rolle.id,
-//     },
-//   });
-// }
-
-// async function connectBenutzerKlasse(userEmail, klassenName) {
-//   const user = await client.benutzer.findFirst({ where: { email: userEmail } });
-//   const klasse = await client.klasse.findFirst({ where: { name: klassenName } });
-
-//   if (!user || !klasse) {
-//     console.warn('❗Kein Benutzer oder Klasse:', userEmail, klassenName);
-//     return;
-//   }
-
-//   await client.benutzerKlasse.create({
-//     data: {
-//       benutzer_id: user.id,
-//       klasse_id: klasse.id,
-//     },
-//   });
-// }
-
-// async function connectBenutzerFach(userEmail, fachKuerzel) {
-//   const user = await client.benutzer.findFirst({ where: { email: userEmail } });
-//   const fach = await client.fach.findFirst({ where: { kuerzel: fachKuerzel } });
-
-//   if (!user || !fach) {
-//     console.warn('❗Kein Benutzer oder Fach:', userEmail, fachKuerzel);
-//     return;
-//   }
-
-//   await client.benutzerFach.create({
-//     data: {
-//       benutzer_id: user.id,
-//       fach_id: fach.id,
-//     },
-//   });
-// }
-
-// 2. Связи Benutzer <-> Rolle
-// await connectBenutzerRolle('admin@gmail.com', 'Admin');
-// await connectBenutzerRolle('ateach@gmail.com', 'Lehrer');
-// await connectBenutzerRolle('jstud@gmail.com', 'Schüler');
-// await connectBenutzerRolle('nstud@example.com', 'Schüler');
-
-// 3. Связи Benutzer <-> Klasse
-// await connectBenutzerKlasse('jstud@gmail.com', '3AKIFT');
-// await connectBenutzerKlasse('nstud@example.com', '3AKIFT');
-// await connectBenutzerKlasse('ateach@gmail.com', '3AKIFT');
-
-// 4. Связи Benutzer <-> Fach
-// await connectBenutzerFach('ateach@gmail.com', 'DB');
-// await connectBenutzerFach('ateach@gmail.com', 'INF');
-// await connectBenutzerFach('jstud@gmail.com', 'MATH');
-
-console.log("✔ Seed completed");
-await client.$disconnect();
+main()
+  .catch((e) => {
+    console.error('Seeding failed:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

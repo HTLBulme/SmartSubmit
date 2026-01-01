@@ -1,14 +1,16 @@
 name: CI/CD Deployment to OCI
 
-# This workflow runs whenever code is pushed to the 'main' branch
 on:
   push:
     branches:
-      - main 
+      - main
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   test:
-    # Run the continuous integration (CI) tests first
     runs-on: ubuntu-latest
     
     steps:
@@ -20,83 +22,116 @@ jobs:
         with:
           node-version: 20
       
-      # Since packages are in subdirectories, we must install both
       - name: Install Backend Dependencies
         run: npm install --prefix ./backend
         
       - name: Install Frontend Dependencies
         run: npm install --prefix ./frontend
         
-      # TEST PHASE: Run Backend and Frontend Tests
-
       - name: Run Backend Tests
         run: npm run test --prefix ./backend
         
-      - name: Run Frontend Tests (if needed)
+      - name: Run Frontend Tests
         run: npm run test --prefix ./frontend
-        
-  deploy:
-    # This job handles the Continuous Deployment (CD) to the Oracle VM
+  
+  build-and-push:
     runs-on: ubuntu-latest
+    needs: test
     
-    # IMPORTANT: Only run deployment if the 'test' job succeeded
-    needs: test 
-
     steps:
-      - name: Checkout repository code
+      - name: Checkout code
         uses: actions/checkout@v4
       
-      # Setup SSH Access using the Private Key stored as a GitHub Secret
-      - name: Setup SSH
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Convert repository name to lowercase
+        id: repo_name
+        run: echo "lowercase=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ steps.repo_name.outputs.lowercase }}-backend:latest
+          cache-from: type=registry,ref=ghcr.io/${{ steps.repo_name.outputs.lowercase }}-backend:buildcache
+          cache-to: type=registry,ref=ghcr.io/${{ steps.repo_name.outputs.lowercase }}-backend:buildcache,mode=max
+        
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Convert repository name to lowercase
+        id: repo_name
+        run: echo "lowercase=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
+        
+      - name: Setup SSH with timeout and retry
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          # SSH_PRIVATE_KEY is the secret created on GitHub 
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Add OCI VM to known_hosts
-        env:
-          SSH_HOST: 79.76.119.73
         run: |
-          echo "Adding $SSH_HOST to known_hosts..."
-          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 79.76.119.73 >> ~/.ssh/known_hosts 2>&1 || true
+          chmod 644 ~/.ssh/known_hosts
           
-      # Deploy to OCI VM via SSH
-      - name: Execute Deployment Commands on OCI VM
-        env:
-          SSH_USER: ubuntu
-          # IMPORTANT: OCI VM Public IP - REPLACE THIS VALUE WITH THE CORRECT IP
-          SSH_HOST: 79.76.119.73 
-          PROJECT_PATH: /home/ubuntu/SmartSubmit
-          
+      - name: Test SSH connection
         run: |
-          echo "Starting deployment on OCI VM: $SSH_HOST"
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=10 ubuntu@79.76.119.73 "echo 'SSH connection successful'"
           
-          # SSH command: Execute commands sequentially on the remote machine
-          ssh $SSH_USER@$SSH_HOST "
-            # Navigate to the project directory on the remote VM
-            cd $PROJECT_PATH
+      - name: Deploy to OCI VM
+        timeout-minutes: 10
+        run: |
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=10 ubuntu@79.76.119.73 "
+            cd /home/ubuntu/SmartSubmit
             
-            # Pull the latest changes from GitHub (code, Dockerfile, docker-compose.yml)
+            echo '=== Pulling latest code ==='
             git pull origin main
             
-            # 1. Build the Docker image first, so all dependencies and the Prisma client are available
-            echo 'Building new Docker image...'
-            docker compose build backend
+            echo '=== Login to GitHub Container Registry ==='
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # 2. Start the database service if it's not running (or recreate it if needed)
-            # We start the DB service first to ensure it's up before migration runs.
-            echo 'Starting database service (if not already running)...'
+            echo '=== Pulling Docker image ==='
+            docker pull ghcr.io/${{ steps.repo_name.outputs.lowercase }}-backend:latest
+            
+            echo '=== Stopping containers ==='
+            docker compose down
+            
+            echo '=== Starting database ==='
             docker compose up -d db
             
-            # 3. Run Prisma migration inside a temporary container
-            # This container now connects to the 'db' service on the internal Docker network.
-            echo 'Running Prisma database migration...'
-            docker compose run --rm backend npx prisma migrate deploy
+            echo '=== Waiting for database to be ready ==='
+            sleep 15
             
-            # 4. Start/Restart ALL application services (db and backend)
-            echo 'Starting application and database containers...'
-            # This ensures both are running and links are refreshed.
-            docker compose up -d --force-recreate
+            # Wait until MySQL is actually accepting connections
+            until docker compose exec db mysqladmin ping -h localhost --silent; do
+              echo 'Waiting for database connection...'
+              sleep 2
+            done
+            echo 'Database is ready!'
             
-            echo 'Deployment successful. Application and database are running.'
+            echo '=== Starting backend (migrations will run automatically) ==='
+            docker compose up -d backend
+            
+            echo '=== Waiting for backend to complete startup ==='
+            sleep 15
+            
+            echo '=== Backend logs ==='
+            docker compose logs backend --tail=100
+            
+            echo '=== Cleaning up ==='
+            docker image prune -f
+            
+            echo '=== Deployment complete ==='
+            docker compose ps
           "
