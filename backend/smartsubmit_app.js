@@ -167,7 +167,7 @@ const initDatabase = async () => {
     if (roleCount === 0) {
       await prisma.rolle.createMany({//Tabelle Rolle ausfühlen
         data: [
-          { bezeichnung: 'Schüler', beschreibung: 'Schüler，kann Aufgaben abgeben' },
+          { bezeichnung: 'Schueler', beschreibung: 'Schüler，kann Aufgaben abgeben' },
           { bezeichnung: 'Lehrer', beschreibung: 'Lehrer，kann Aufgaben erstellen, bewerten und verwalten' },
           { bezeichnung: 'Admin', beschreibung: 'Adimin，kann das System Verwalten' }
         ]
