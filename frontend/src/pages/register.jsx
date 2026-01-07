@@ -1,6 +1,5 @@
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
-import LanguageSwitcher from "../components/LanguageSwitcher";
 import "./register.css";
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
