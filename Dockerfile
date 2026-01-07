@@ -18,7 +18,7 @@ COPY frontend ./frontend
 RUN npm run build --prefix ./frontend
 
 # Generate Prisma Client
-RUN cd backend && npx prisma generate
+# RUN cd backend && npx prisma generate
 
 # STAGE 2: Production
 FROM node:20-alpine
