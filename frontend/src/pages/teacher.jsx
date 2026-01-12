@@ -6,7 +6,7 @@ import "./teacher.css";
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+const API_URL = import.meta.env.VITE_API_URL || "";   // verbindung mit backend http://localhost:3000
 
 // Lehrer-Seite / Teacher page / Страница учителя
 export default function Teacher() {

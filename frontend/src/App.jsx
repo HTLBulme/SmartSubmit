@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import Navbar from "./components/Navbar";
 
@@ -9,6 +9,18 @@ const Admin = lazy(() => import("./pages/admin"));
 const Teacher = lazy(() => import("./pages/teacher"));
 const Student = lazy(() => import("./pages/student"));
 
+function RequireAuth({ children, allowedRoles }) {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
+  if (!token) return <Navigate to="/" replace />;
+  if (Array.isArray(allowedRoles) && allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
+
 export default function App() {
   return (
     <Router>
@@ -18,9 +30,30 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/teacher" element={<Teacher />} />
-            <Route path="/student" element={<Student />} />
+            <Route
+              path="/admin"
+              element={
+                <RequireAuth allowedRoles={["Admin"]}>
+                  <Admin />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/teacher"
+              element={
+                <RequireAuth allowedRoles={["Lehrer"]}>
+                  <Teacher />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/student"
+              element={
+                <RequireAuth allowedRoles={["Schüler"]}>
+                  <Student />
+                </RequireAuth>
+              }
+            />
           </Routes>
         </Suspense>
       </div>

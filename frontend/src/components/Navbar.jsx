@@ -1,10 +1,13 @@
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
+import { useNavigate } from "react-router-dom";
 import "./Navbar.css";
 
 export default function Navbar() {
   const [lang, setLang] = useLang();
   const t = T[lang];
+
+  const navigate = useNavigate();
 
   function toggleLang(newLang) {
     setLang(newLang);
@@ -13,7 +16,7 @@ export default function Navbar() {
 
   function handleLogout() {
     localStorage.clear();
-    window.location.href = "/";
+    navigate("/");
   }
 
   return (

@@ -1,6 +1,7 @@
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./student.css";
 
@@ -9,6 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL || "";
 export default function StudentDashboard() {
   const [lang] = useLang();
   const t = T[lang] || T.en;
+  const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -82,7 +84,7 @@ export default function StudentDashboard() {
           <button 
             onClick={() => {
               localStorage.removeItem("token");
-              window.location.href = "/login";
+              navigate("/");
             }}
             className="logout-btn"
           >

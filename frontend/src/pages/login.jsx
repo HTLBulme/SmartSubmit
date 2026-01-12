@@ -1,6 +1,7 @@
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./login.css";
 
@@ -10,6 +11,8 @@ export default function Login() {
   // 🔹 берём язык из контекста (а не из localStorage напрямую)
   const [lang] = useLang();
   const t = T[lang] || T.en;
+
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +28,7 @@ async function handleLogin(e) {
     const res = await axios.post(`${API_URL}/api/login`, {
       email,
       passwort: password,
-      requestedRole,
+      role: requestedRole,
     });
 
     const { token } = res.data.data;
@@ -33,9 +36,9 @@ async function handleLogin(e) {
     localStorage.setItem("token", token);
     localStorage.setItem("role", requestedRole);
 
-    if (requestedRole === "Admin") window.location.href = "/admin";
-    else if (requestedRole === "Lehrer") window.location.href = "/teacher";
-    else if (requestedRole === "Schüler") window.location.href = "/student";
+    if (requestedRole === "Admin") navigate("/admin");
+    else if (requestedRole === "Lehrer") navigate("/teacher");
+    else if (requestedRole === "Schüler") navigate("/student");
 
   } catch (err) {
     console.error("Login Fehler:", err);

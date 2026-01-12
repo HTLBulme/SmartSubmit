@@ -8,8 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || "";
 
 export default function Register() {
   const [lang] = useLang();
-  if (!lang) return null;
-  const t = T[lang];
+  const t = T[lang] || T.en;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
