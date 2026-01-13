@@ -1,16 +1,53 @@
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./student.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
+function titleCaseWords(value) {
+  if (typeof value !== "string") return "";
+  return value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => {
+      const [first, ...rest] = word;
+      if (!first) return "";
+      return first.toLocaleUpperCase() + rest.join("").toLocaleLowerCase();
+    })
+    .join(" ");
+}
+
+function getFriendlyName(userData) {
+  const raw = localStorage.getItem("user");
+  let storedUser = null;
+  try {
+    storedUser = raw ? JSON.parse(raw) : null;
+  } catch {
+    storedUser = null;
+  }
+
+  const vorname = storedUser?.vorname ?? userData?.vorname;
+  const nachname = storedUser?.nachname ?? userData?.nachname;
+  const email = storedUser?.email ?? userData?.email;
+
+  const fullName = [vorname, nachname].filter(Boolean).join(" ");
+  if (fullName.trim()) return titleCaseWords(fullName);
+
+  if (userData?.name) return titleCaseWords(userData.name);
+
+  if (typeof email === "string" && email.includes("@")) {
+    return titleCaseWords(email.split("@")[0].replace(/[._-]+/g, " "));
+  }
+
+  return "Student";
+}
+
 export default function StudentDashboard() {
   const [lang] = useLang();
   const t = T[lang] || T.en;
-  const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -78,42 +115,37 @@ export default function StudentDashboard() {
   return (
     <div className="student-dashboard">
       <header className="dashboard-header">
-        <h1>{t.welcome || "Student Dashboard"}</h1>
-        <div className="user-info">
-          <span>{userData?.name || "Student"}</span>
-          <button 
-            onClick={() => {
-              localStorage.removeItem("token");
-              navigate("/");
-            }}
-            className="logout-btn"
-          >
-            {t.logout || "Logout"}
-          </button>
-        </div>
+        <h1>
+          {(t.welcome || "Welcome").trim()} {getFriendlyName(userData)}
+        </h1>
       </header>
 
-      <div className="assignments">
-        <h2>{t.myAssignments}</h2>
-        <div className="assignments-list">
-          {userData?.assignments?.map((assignment) => (
-            <div key={assignment.id} className="assignment-item">
-              <div className="assignment-info">
-                <div className="assignment-title">{assignment.title}</div>
-                <div className="assignment-due">
-                  {t.dueDate}: {new Date(assignment.dueDate).toLocaleDateString()}
+      <div className="dashboard-content">
+        <div className="assignments">
+          <h2>{t.myAssignments}</h2>
+          <div className="assignments-list">
+            {userData?.assignments?.map((assignment) => (
+              <div key={assignment.id} className="assignment-item">
+                <div className="assignment-info">
+                  <div className="assignment-title">{assignment.title}</div>
+                  <div className="assignment-due">
+                    {t.dueDate}: {new Date(assignment.dueDate).toLocaleDateString()}
+                  </div>
                 </div>
+                <span
+                  className={`assignment-status ${
+                    assignment.submitted
+                      ? "status-submitted"
+                      : "status-not-submitted"
+                  }`}
+                >
+                  {assignment.submitted ? t.submitted : t.notSubmitted}
+                </span>
+                <button className="view-details-btn">{t.viewDetails}</button>
               </div>
-              <span className={`assignment-status ${assignment.submitted ? 'status-submitted' : 'status-not-submitted'}`}>
-                {assignment.submitted ? t.submitted : t.notSubmitted}
-              </span>
-              <button className="view-details-btn">
-                {t.viewDetails}
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
         <section className="grades">
           <h2>{t.myGrades || "My Grades"}</h2>
@@ -137,5 +169,6 @@ export default function StudentDashboard() {
             <p>{t.noGrades}</p>
           )}
         </section>
+      </div>
         </div>
         )}

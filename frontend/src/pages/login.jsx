@@ -31,18 +31,24 @@ async function handleLogin(e) {
       role: requestedRole,
     });
 
-    const { token } = res.data.data;
+    const { token, user } = res.data.data;
 
     localStorage.setItem("token", token);
     localStorage.setItem("role", requestedRole);
+    if (user) localStorage.setItem("user", JSON.stringify(user));
 
     if (requestedRole === "Admin") navigate("/admin");
     else if (requestedRole === "Lehrer") navigate("/teacher");
     else if (requestedRole === "Schüler") navigate("/student");
 
   } catch (err) {
-    console.error("Login Fehler:", err);
-    setMessage("❌ E-Mail, Passwort oder Rolle stimmen nicht überein");
+    const status = err?.response?.status;
+    const backendMessage = err?.response?.data?.message;
+    console.error("Login Fehler:", status, backendMessage, err);
+    setMessage(
+      backendMessage ||
+        "❌ E-Mail, Passwort oder Rolle stimmen nicht überein"
+    );
   }
 }
 

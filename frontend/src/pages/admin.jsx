@@ -7,6 +7,19 @@ import "./admin.css"; // DE: Styles / RU: Стили
 
 const API_URL = import.meta.env.VITE_API_URL || ""; // DE: Basis-URL des Backends / RU: Базовый адрес backend-сервера
 
+function getPreviewHeaderLabel(key, t) {
+  const map = {
+    vorname: t.firstName,
+    nachname: t.lastName,
+    email: t.email,
+    klasse: t.classLbl,
+    jahrgang: t.gradeLevel,
+    fach_kuerzel: t.subjectAbbrev,
+  };
+
+  return map[key] || key;
+}
+
 export default function UploadUsers() {
   const [lang] = useLang(); // DE: Aktuelle Sprache / RU: Текущий язык
   const t = T[lang] || T.en; // DE: Übersetzungstabellen / RU: Таблица переводов
@@ -42,6 +55,12 @@ export default function UploadUsers() {
   async function handleUpload() {
     if (!file) return setMessage(t.noFile);
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setMessage(t.serverError);
+      return;
+    }
+
     const formData = new FormData(); // DE: FormData für Dateiübertragung / RU: Объект для передачи файла
     formData.append("file", file);
 
@@ -54,8 +73,8 @@ export default function UploadUsers() {
     try {
       const res = await axios.post(endpoint, formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // DE: Authentifizierung / RU: Авторизация
+          // Let axios/browser set the correct multipart boundary automatically
+          Authorization: `Bearer ${token}`, // DE: Authentifizierung / RU: Авторизация
         },
       });
 
@@ -125,11 +144,13 @@ export default function UploadUsers() {
 
         {/* DE: Vorschau der ersten Zeilen / RU: Предпросмотр первых строк */}
         {preview.length > 0 && (
-          <table className="preview-table">
+          <>
+            <p className="preview-title">{t.previewTitle || "Preview (first 5 rows)"}</p>
+            <table className="preview-table">
             <thead>
               <tr>
                 {Object.keys(preview[0]).map((key) => (
-                  <th key={key}>{key}</th>
+                  <th key={key}>{getPreviewHeaderLabel(key, t)}</th>
                 ))}
               </tr>
             </thead>
@@ -142,7 +163,8 @@ export default function UploadUsers() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </>
         )}
 
         {/* DE: Upload-Button / RU: Кнопка загрузки */}

@@ -84,25 +84,37 @@ body {
   gap: 1.5rem;
 }
 
+@media (min-width: 900px) {
+  .dashboard-content {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .assignments, .grades {
   background: var(--card-bg);
   padding: 1.5rem;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   transition: var(--transition);
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
 }
 
 .assignments:hover, .grades:hover {
   box-shadow: var(--shadow-hover);
 }
 
-h2 {
+.student-dashboard h2 {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--text);
   margin-bottom: 1.25rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border);
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
 }
 
 /* Cards */

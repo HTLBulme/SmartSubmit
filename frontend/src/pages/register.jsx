@@ -14,7 +14,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [adminExists, setAdminExists] = useState(false);
   const [message, setMessage] = useState("");
-  const hasChecked = useRef(false); // ✅ флаг
+  const hasChecked = useRef(false); // To avoid multiple checks
 
   useEffect(() => {
     if (hasChecked.current) return;
@@ -39,7 +39,7 @@ export default function Register() {
     try {
       const res = await axios.post(`${API_URL}/api/register`, {
         email,
-        password, // ✅ исправлено
+        password,
         roleId: 3,
       });
 

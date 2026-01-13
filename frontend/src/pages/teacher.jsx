@@ -18,7 +18,7 @@ export default function Teacher() {
   const [subject, setSubject] = useState("");
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
-  const [due, setDue] = useState("");
+  const [due, setDue] = useState(""); // Fälligkeitsdatum / Due date / Срок сдачи
   const [link, setLink] = useState("");
 
   // Dateien (Drag & Drop + Dateiauswahl) / Files (drag & drop + file input) / Файлы (drag & drop и выбор)
@@ -63,13 +63,14 @@ export default function Teacher() {
       fd.append("subject", subject);
       fd.append("title", title);
       fd.append("text", text);
+      fd.append("link", link);
       fd.append("dueDate", due);
       files.forEach((f) => fd.append("files", f));
 
       const token = localStorage.getItem("token"); // DE: falls vorhanden / EN: if exists / RU: если есть
       await axios.post(`${API_URL}/api/teacher/assignments`, fd, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          // Let axios/browser set the correct multipart boundary automatically
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
@@ -272,9 +273,6 @@ export default function Teacher() {
               {t.saveAssgn}
             </button>
           </form>
-
-          {/* Aufgabenlisten-Knopf / Assignments list button / Кнопка для списка заданий */}
-          {/* ...удалено... */}
 
           {/* Aufgabenliste des Lehrers / Teacher's assignments list / Список заданий учителя */}
           {showAssignments && (
