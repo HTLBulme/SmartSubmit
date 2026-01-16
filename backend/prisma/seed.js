@@ -19,6 +19,7 @@ async function main() {
   console.log('Creating roles...');
   const adminRole = await prisma.rolle.create({
     data: {
+      id: 3,
       bezeichnung: 'Admin',
       beschreibung: 'System Administrator mit vollen Rechten',
     },
@@ -26,6 +27,7 @@ async function main() {
 
   const lehrerRole = await prisma.rolle.create({
     data: {
+      id: 2,
       bezeichnung: 'Lehrer',
       beschreibung: 'Lehrkräfte können Aufgaben erstellen und bewerten',
     },
@@ -33,6 +35,7 @@ async function main() {
 
   const schuelerRole = await prisma.rolle.create({
     data: {
+      id: 1,
       bezeichnung: 'Schüler',
       beschreibung: 'Schüler können Aufgaben ansehen und abgeben',
     },
