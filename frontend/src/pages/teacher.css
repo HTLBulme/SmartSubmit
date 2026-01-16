@@ -17,7 +17,7 @@
 .teacher-card { max-width: 1000px; background: #fff; }
 
 .dnd-zone {
-  border: 2px dashed #c7cfe1; //   пунктирная рамка
+  border: 2px dashed #c7cfe1; /*   пунктирная рамка */
   border-radius: 12px;
   padding: 1.2rem;
   background: #fafbff;
