@@ -1084,7 +1084,7 @@ Beinhalten:
 - Lehrer-Aufgabenerstellung
 - Schüler-Aufgabenanzeige
 - Datei-Upload-Unterstützung
-- Mehrsprachige Oberfläche (DE, EN, RU)
+- Mehrsprachige Oberfläche (DE, EN)
 - Docker-Bereitstellung
 - Responsive Design
 
