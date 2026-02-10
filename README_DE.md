@@ -1,5 +1,7 @@
 # SmartSubmit - Aufgabenverwaltungssystem
 
+**Live-Demo:** http://79.76.119.73:8080
+
 ## Inhaltsverzeichnis
 
 1. [Projektübersicht](#projektübersicht)
@@ -19,7 +21,7 @@
 
 ## Projektübersicht
 
-**SmartSubmit** ist ein modernes webbasiertes Aufgabenverwaltungssystem für Bildungseinrichtungen. Es ermöglicht Lehrern, Aufgaben zu erstellen und zu verwalten, Schülern, ihre Arbeiten einzureichen, und Administratoren, das gesamte System zu verwalten.
+SmartSubmit ist ein modernes webbasiertes Aufgabenverwaltungssystem für Bildungseinrichtungen. Es ermöglicht Lehrern, Aufgaben zu erstellen und zu verwalten, Schülern, ihre Arbeiten einzureichen, und Administratoren, das gesamte System zu verwalten.
 
 ### Hauptziele
 
@@ -201,11 +203,11 @@ SmartSubmit/
 
 ### Voraussetzungen
 
-- **Node.js:** 20.x oder höher
-- **MySQL:** 8.0 oder höher
-- **npm:** 10.x oder höher
-- **Docker:** 24.x oder höher (für containerisierte Bereitstellung)
-- **Git:** Für Versionskontrolle
+- Node.js 20.x oder höher
+- MySQL 8.0 oder höher
+- npm 10.x oder höher
+- Docker 24.x oder höher (für containerisierte Bereitstellung)
+- Git für Versionskontrolle
 
 ### Lokale Entwicklungsumgebung
 
@@ -225,23 +227,16 @@ cd backend
 npm install
 
 # .env-Datei erstellen
-cat > .env << 'EOF'
-DATABASE_URL="mysql://smartsubmit:smartsubmit123@localhost:3306/smartsubmit"
-JWT_SECRET=ihr-geheimer-schluessel-hier-aendern
-PORT=3000
-HOST=0.0.0.0
-IS_DOCKER=false
-DEFAULT_ADMIN_EMAIL=admin@smartsubmit.com
-DEFAULT_ADMIN_PASSWORD=admin123
-EOF
+cp .env.example .env
+# .env mit Ihren Datenbank-Zugangsdaten bearbeiten
 
 # MySQL-Datenbank erstellen
-mysql -u root -p << 'SQL'
-CREATE DATABASE smartsubmit;
-CREATE USER 'smartsubmit'@'localhost' IDENTIFIED BY 'smartsubmit123';
-GRANT ALL PRIVILEGES ON smartsubmit.* TO 'smartsubmit'@'localhost';
+mysql -u root -p
+CREATE DATABASE your_database_name;
+CREATE USER 'your_username'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON your_database_name.* TO 'your_username'@'localhost';
 FLUSH PRIVILEGES;
-SQL
+EXIT;
 
 # Prisma-Migrationen ausführen
 npx prisma generate
@@ -265,9 +260,7 @@ cd ../frontend
 npm install
 
 # .env-Datei für Entwicklung erstellen
-cat > .env.development << 'EOF'
-VITE_API_URL=http://localhost:3000
-EOF
+echo "VITE_API_URL=http://localhost:3000" > .env.development
 
 # Entwicklungsserver starten
 npm run dev
@@ -285,7 +278,7 @@ Frontend läuft auf `http://localhost:5173`
 - E-Mail: `admin@smartsubmit.com`
 - Passwort: `admin123`
 
-**Ändern Sie das Standardpasswort sofort nach der ersten Anmeldung!**
+Wichtig: Ändern Sie das Standardpasswort sofort nach der ersten Anmeldung.
 
 ---
 
@@ -342,7 +335,7 @@ npx prisma generate
 ```bash
 cd backend
 
-# Warnung: Dies löscht alle Daten!
+# Warnung: Dies löscht alle Daten
 npx prisma migrate reset
 ```
 
@@ -425,20 +418,7 @@ import Beispiel from './pages/beispiel';
 
 #### 1. Umgebung vorbereiten
 
-**.env-Datei für Produktion erstellen:**
-
-```bash
-cat > backend/.env << 'EOF'
-DATABASE_URL="mysql://smartsubmit:smartsubmit123@db:3306/smartsubmit"
-MYSQL_USER=smartsubmit
-MYSQL_PASSWORD=SicheresPasswort123!
-MYSQL_DATABASE=smartsubmit
-MYSQL_ROOT_PASSWORD=RootPasswort123!
-JWT_SECRET=produktions-geheimer-schluessel-aendern
-DEFAULT_ADMIN_EMAIL=admin@ihre-domain.com
-DEFAULT_ADMIN_PASSWORD=SicheresAdminPasswort123!
-EOF
-```
+.env-Datei im Backend-Verzeichnis mit Ihren Produktionszugangsdaten erstellen.
 
 #### 2. Erstellen und Bereitstellen
 
@@ -463,13 +443,13 @@ docker compose logs -f backend
 
 1. Anwendung aufrufen
 2. Mit Standard-Admin-Zugangsdaten anmelden
-3. **Admin-Passwort sofort ändern!**
+3. Admin-Passwort sofort ändern
 4. Firewall konfigurieren, um Port 8080 zuzulassen:
    ```bash
    sudo ufw allow 8080/tcp
    ```
 
-### Produktionsserver-Einrichtung (Oracle Cloud Beispiel)
+### Produktionsserver-Einrichtung
 
 #### 1. Server-Vorbereitung
 
@@ -498,16 +478,11 @@ sudo usermod -aG docker $USER
 git clone https://github.com/htlbulme/smartsubmit.git
 cd SmartSubmit
 
-# Produktions-.env erstellen
-nano backend/.env
-# Produktionszugangsdaten hinzufügen
+# Produktions-.env mit Ihren Zugangsdaten erstellen
 
 # Bereitstellen
 docker compose build --no-cache
 docker compose up -d
-
-# Automatischen Neustart nach Neustart aktivieren
-# (Bereits mit restart: always in docker-compose.yml konfiguriert)
 ```
 
 #### 3. Firewall konfigurieren
@@ -523,18 +498,6 @@ sudo ufw enable
 sudo ufw status
 ```
 
-#### 4. Automatischen Neustart einrichten (Optional)
-
-```bash
-# Crontab bearbeiten
-sudo crontab -e
-
-# Täglichen Neustart um 3 Uhr hinzufügen
-0 3 * * * /sbin/reboot
-
-# Docker startet Container nach Neustart automatisch neu
-```
-
 ### Umgebungsspezifische Konfiguration
 
 #### Entwicklung (.env.development)
@@ -547,8 +510,9 @@ VITE_API_URL=http://localhost:3000
 
 ```env
 VITE_API_URL=
-# Leer = verwendet denselben Ursprung (relative URLs)
 ```
+
+Hinweis: Leerer Wert verwendet denselben Ursprung (relative URLs)
 
 ---
 
@@ -560,52 +524,46 @@ VITE_API_URL=
 
 1. Zur Anwendungs-URL navigieren
 2. Auf "Login" klicken
-3. Admin-Zugangsdaten eingeben:
-   - E-Mail: `admin@smartsubmit.com`
-   - Passwort: `admin123`
-4. **Passwort sofort ändern!**
+3. Admin-Zugangsdaten eingeben
+4. Passwort sofort ändern
 
 #### 2. Schüler importieren
 
-1. Excel-Datei mit Spalten vorbereiten:
-   - `vorname` (Vorname)
-   - `nachname` (Nachname)
-   - `email` (E-Mail)
-   - `klasse` (Klasse, z.B. "5A" oder mehrere: "5A,5B")
-   - `jahrgang` (Jahr, z.B. 2025)
+Excel-Datei mit Spalten vorbereiten:
+- vorname (Vorname)
+- nachname (Nachname)
+- email (E-Mail)
+- klasse (Klasse, z.B. "5A" oder mehrere: "5A,5B")
+- jahrgang (Jahr, z.B. 2025)
 
-2. Zum Admin-Panel gehen
-3. "Schüler" auswählen
-4. Auf "Datei auswählen" klicken und Excel auswählen
-5. Auf "Daten hochladen" klicken
-
-**Beispiel-Excel:**
+**Beispiel:**
 
 | vorname | nachname | email | klasse | jahrgang |
 |---------|----------|-------|--------|----------|
 | Max | Mustermann | max@schule.com | 5A | 2025 |
 | Anna | Schmidt | anna@schule.com | 5B | 2025 |
 
+Schritte:
+1. Zum Admin-Panel gehen
+2. "Schüler" auswählen
+3. Auf "Datei auswählen" klicken und Excel auswählen
+4. Auf "Daten hochladen" klicken
+
 #### 3. Lehrer importieren
 
-1. Excel-Datei mit Spalten vorbereiten:
-   - `vorname` (Vorname)
-   - `nachname` (Nachname)
-   - `email` (E-Mail)
-   - `klasse` (Klasse, optional)
-   - `jahrgang` (Jahr, optional)
-   - `fach_kuerzel` (Fachkürzel, z.B. "MATH,DE")
+Excel-Datei mit Spalten vorbereiten:
+- vorname (Vorname)
+- nachname (Nachname)
+- email (E-Mail)
+- klasse (Klasse, optional)
+- jahrgang (Jahr, optional)
+- fach_kuerzel (Fachkürzel, z.B. "MATH,DE")
 
-2. Zum Admin-Panel gehen
-3. "Lehrer" auswählen
-4. Auf "Datei auswählen" klicken und Excel auswählen
-5. Auf "Daten hochladen" klicken
+Anfangspasswörter: `vorname nachname` (kleingeschrieben)
 
-**Anfangspasswörter:** `vorname nachname` (kleingeschrieben)
+Beispiel: Max Mustermann hat Passwort `maxmustermann`
 
-Beispiel: Max Mustermann → Passwort: `maxmustermann`
-
-**Benutzer müssen Passwort bei erster Anmeldung ändern!**
+Benutzer müssen Passwort bei erster Anmeldung ändern.
 
 ### Für Lehrer
 
@@ -616,7 +574,7 @@ Beispiel: Max Mustermann → Passwort: `maxmustermann`
 3. Fach auswählen
 4. Aufgabentitel eingeben
 5. Aufgabenbeschreibung schreiben
-6. (Optional) Dateien hochladen (PDF, DOCX, etc.)
+6. Dateien hochladen, falls erforderlich (PDF, DOCX, etc.)
 7. Frist festlegen
 8. Auf "Aufgabe speichern" klicken
 
@@ -678,7 +636,7 @@ Authorization: Bearer <token>
 GET /api/admin/check
 ```
 
-**Antwort:**
+Antwort:
 ```json
 {
   "success": true,
@@ -699,18 +657,6 @@ Content-Type: application/json
 }
 ```
 
-**Antwort:**
-```json
-{
-  "success": true,
-  "message": "Registrierung erfolgreich",
-  "data": {
-    "user": {...},
-    "token": "eyJhbGc..."
-  }
-}
-```
-
 #### Anmelden
 
 ```http
@@ -724,23 +670,6 @@ Content-Type: application/json
 }
 ```
 
-**Antwort:**
-```json
-{
-  "success": true,
-  "data": {
-    "user": {
-      "id": 1,
-      "vorname": "Admin",
-      "nachname": "System",
-      "email": "admin@beispiel.com",
-      "roles": [...]
-    },
-    "token": "eyJhbGc..."
-  }
-}
-```
-
 ### Admin-Endpunkte
 
 #### Schüler importieren
@@ -751,18 +680,6 @@ Authorization: Bearer <admin-token>
 Content-Type: multipart/form-data
 
 file: <excel-datei>
-```
-
-**Antwort:**
-```json
-{
-  "success": true,
-  "message": "5 Schüler importiert, 0 fehlgeschlagen",
-  "data": {
-    "success": [...],
-    "failed": []
-  }
-}
 ```
 
 #### Lehrer importieren
@@ -792,42 +709,11 @@ dueDate: "2025-12-31"
 files: <datei1>, <datei2>
 ```
 
-**Antwort:**
-```json
-{
-  "success": true,
-  "message": "Aufgabe erfolgreich erstellt",
-  "data": {
-    "id": 1,
-    "titel": "Hausaufgabe 1",
-    ...
-  }
-}
-```
-
 #### Lehrer-Aufgaben abrufen
 
 ```http
 GET /api/teacher/assignments
 Authorization: Bearer <lehrer-token>
-```
-
-**Antwort:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "titel": "Hausaufgabe 1",
-      "klasse": "5A",
-      "fach": "Mathematik",
-      "termin": "2025-12-31",
-      "status": "active",
-      "abgabenCount": 3
-    }
-  ]
-}
 ```
 
 ### Schüler-Endpunkte
@@ -837,24 +723,6 @@ Authorization: Bearer <lehrer-token>
 ```http
 GET /api/student/assignments
 Authorization: Bearer <schueler-token>
-```
-
-**Antwort:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "titel": "Hausaufgabe 1",
-      "beschreibung": "Übungen 1-10 ausfüllen",
-      "termin": "2025-12-31",
-      "klasse": {...},
-      "fach": {...},
-      "lehrer": {...}
-    }
-  ]
-}
 ```
 
 #### Aufgabe einreichen
@@ -878,37 +746,11 @@ GET /api/classes
 Authorization: Bearer <token>
 ```
 
-**Antwort:**
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "name": "5A",
-      "jahrgang": 2025
-    }
-  ]
-}
-```
-
 #### Fächer abrufen
 
 ```http
 GET /api/subjects
 Authorization: Bearer <token>
-```
-
-**Antwort:**
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "name": "Mathematik",
-      "kuerzel": "MATH"
-    }
-  ]
-}
 ```
 
 ---
@@ -1000,7 +842,7 @@ Speichert Schulklassen.
 | name | VARCHAR(50) | Klassenname (z.B. "5A") |
 | jahrgang | INT | Jahr (z.B. 2025) |
 
-**Eindeutige Einschränkung:** (name, jahrgang)
+Eindeutige Einschränkung: (name, jahrgang)
 
 #### Fach
 
@@ -1042,7 +884,7 @@ Speichert Schülerabgaben.
 | bewertung | INT | Note (0-100) |
 | feedback | TEXT | Lehrer-Feedback |
 
-**Eindeutige Einschränkung:** (aufgabe_id, schueler_id)
+Eindeutige Einschränkung: (aufgabe_id, schueler_id)
 
 ---
 
@@ -1052,7 +894,7 @@ Speichert Schülerabgaben.
 
 #### 1. Port-Konflikte
 
-**Problem:** "Port 3306 bereits in Verwendung"
+**Problem:** Port 3306 bereits in Verwendung
 
 **Lösung:**
 ```bash
@@ -1064,7 +906,7 @@ ports:
 
 #### 2. Prisma Client nicht generiert
 
-**Problem:** "Modul '@prisma/client' kann nicht gefunden werden"
+**Problem:** Modul '@prisma/client' kann nicht gefunden werden
 
 **Lösung:**
 ```bash
@@ -1075,7 +917,7 @@ npm start
 
 #### 3. Upload schlägt in Docker fehl
 
-**Problem:** "Serverfehler" beim Hochladen von Dateien
+**Problem:** Serverfehler beim Hochladen von Dateien
 
 **Lösungen:**
 - Frontend-API-URL prüfen (leer für Docker)
@@ -1085,7 +927,7 @@ npm start
 
 #### 4. Datenbankverbindung fehlgeschlagen
 
-**Problem:** "Kann Datenbankserver nicht erreichen"
+**Problem:** Kann Datenbankserver nicht erreichen
 
 **Lösung:**
 ```bash
@@ -1101,34 +943,30 @@ docker compose restart db
 
 #### 5. 403 Forbidden auf Admin-Routen
 
-**Problem:** "Nur für Admins"-Fehler
+**Problem:** Nur für Admins-Fehler
 
 **Lösung:**
 - Admin-Benutzer in Docker-Datenbank erstellen
 - Erneut anmelden, um neues Token zu erhalten
-- Admin-Rolle in Datenbank prüfen:
-  ```bash
-  docker compose exec backend npx prisma studio
-  # BenutzerRolle-Tabelle für rolle_id: 3 prüfen
-  ```
+- Admin-Rolle in Datenbank prüfen
 
 ### Docker-Probleme
 
 #### Container wird ständig neu gestartet
 
-**Logs prüfen:**
+Logs prüfen:
 ```bash
 docker compose logs backend --tail 100
 ```
 
-**Häufige Ursachen:**
-- Datenbankverbindung fehlgeschlagen → DATABASE_URL prüfen
-- Prisma Client nicht generiert → Build-Logs prüfen
-- Port bereits in Verwendung → Port in docker-compose.yml ändern
+Häufige Ursachen:
+- Datenbankverbindung fehlgeschlagen
+- Prisma Client nicht generiert
+- Port bereits in Verwendung
 
 #### Build schlägt fehl
 
-**Docker-Cache löschen:**
+Docker-Cache löschen:
 ```bash
 docker compose down
 docker system prune -af
@@ -1136,59 +974,24 @@ docker compose build --no-cache
 docker compose up -d
 ```
 
-#### Volume-Berechtigungsprobleme
-
-**Berechtigungen korrigieren:**
-```bash
-docker compose exec backend chown -R node:node /app/backend/uploads
-docker compose restart backend
-```
-
 ### Frontend-Probleme
 
 #### Leere Seite nach Build
 
-**Konsole auf Fehler prüfen:**
+Konsole auf Fehler prüfen:
 1. Browser-DevTools öffnen (F12)
 2. Konsolen-Tab auf Fehler prüfen
 3. Häufige Probleme:
-   - Fehlende API_URL → .env-Datei prüfen
-   - CORS-Fehler → Backend-CORS-Einstellungen prüfen
-   - Build-Fehler → `npm run build`-Ausgabe prüfen
+   - Fehlende API_URL
+   - CORS-Fehler
+   - Build-Fehler
 
 #### API-Anfragen schlagen fehl
 
-**Netzwerk-Tab prüfen:**
+Netzwerk-Tab prüfen:
 1. DevTools öffnen (F12) → Netzwerk-Tab
 2. Aktion ausführen, die fehlschlägt
-3. Prüfen:
-   - Anfrage-URL (sollte Backend entsprechen)
-   - Status-Code (401, 403, 500, etc.)
-   - Antwortinhalt (Fehlermeldung)
-
-### Datenbankprobleme
-
-#### Migration fehlgeschlagen
-
-**Datenbank zurücksetzen:**
-```bash
-cd backend
-npx prisma migrate reset
-# Dies löscht alle Daten!
-```
-
-#### Seed fehlgeschlagen
-
-**Manueller Seed:**
-```bash
-cd backend
-npm run seed
-```
-
-**Seed-Logs prüfen:**
-```bash
-docker compose logs backend | grep -i seed
-```
+3. Anfrage-URL, Status-Code und Antwort prüfen
 
 ---
 
@@ -1196,36 +999,24 @@ docker compose logs backend | grep -i seed
 
 ### Entwicklungsablauf
 
-1. **Repository forken**
-2. **Feature-Branch erstellen:**
-   ```bash
-   git checkout -b feature/ihr-feature-name
-   ```
-3. **Änderungen vornehmen**
-4. **Gründlich testen:**
-   - Lokal testen (`npm run dev`)
-   - In Docker testen (`docker compose up -d --build`)
-5. **Änderungen committen:**
-   ```bash
-   git add .
-   git commit -m "Add: Ihre Feature-Beschreibung"
-   ```
-6. **Zu Ihrem Fork pushen:**
-   ```bash
-   git push origin feature/ihr-feature-name
-   ```
-7. **Pull Request erstellen**
+1. Repository forken
+2. Feature-Branch erstellen: `git checkout -b feature/ihr-feature-name`
+3. Änderungen vornehmen
+4. Gründlich in Entwicklung und Docker testen
+5. Änderungen committen: `git commit -m "Add: Ihre Feature-Beschreibung"`
+6. Zu Ihrem Fork pushen: `git push origin feature/ihr-feature-name`
+7. Pull Request erstellen
 
 ### Code-Review-Checkliste
 
-- [ ] Code folgt Projekt-Stil-Richtlinien
-- [ ] Alle Tests bestanden
-- [ ] Keine console.log im Produktionscode
-- [ ] Fehlerbehandlung implementiert
-- [ ] Kommentare für komplexe Logik hinzugefügt
-- [ ] Dokumentation aktualisiert
-- [ ] Keine sensiblen Daten im Code
-- [ ] Funktioniert sowohl in Entwicklung als auch in Docker
+- Code folgt Projekt-Stil-Richtlinien
+- Alle Tests bestanden
+- Keine console.log im Produktionscode
+- Fehlerbehandlung implementiert
+- Kommentare für komplexe Logik hinzugefügt
+- Dokumentation aktualisiert
+- Keine sensiblen Daten im Code
+- Funktioniert sowohl in Entwicklung als auch in Docker
 
 ### Testen
 
@@ -1252,7 +1043,7 @@ docker compose logs backend
 
 Dieses Projekt wird als Diplomarbeit für Bildungszwecke an der HTL Bulme entwickelt.
 
-**Nur für Bildungszwecke.** Kommerzielle Nutzung ist ohne Genehmigung nicht gestattet.
+Nur für Bildungszwecke. Kommerzielle Nutzung ist ohne Genehmigung nicht gestattet.
 
 ---
 
@@ -1266,17 +1057,13 @@ Dieses Projekt wird als Diplomarbeit für Bildungszwecke an der HTL Bulme entwic
 
 ### Hilfe erhalten
 
-1. **Dokumentation prüfen:** Dieses README und Fehlerbehebungsabschnitt lesen
-2. **Issues prüfen:** Bestehende GitHub-Issues durchsuchen
-3. **Issue erstellen:** Bei anhaltendem Problem neues Issue erstellen mit:
-   - Detaillierter Beschreibung
-   - Schritten zur Reproduktion
-   - Fehlermeldungen/Logs
-   - Umgebungsdetails (OS, Node-Version, etc.)
+1. Dokumentation prüfen: Dieses README und Fehlerbehebungsabschnitt lesen
+2. Issues prüfen: Bestehende GitHub-Issues durchsuchen
+3. Issue erstellen: Bei anhaltendem Problem neues Issue erstellen mit detaillierter Beschreibung, Schritten zur Reproduktion, Fehlermeldungen und Umgebungsdetails
 
 ### Fehler melden
 
-**Beinhalten:**
+Beinhalten:
 - Erwartetes Verhalten
 - Tatsächliches Verhalten
 - Schritte zur Reproduktion
@@ -1311,10 +1098,10 @@ Dieses Projekt wird als Diplomarbeit für Bildungszwecke an der HTL Bulme entwic
 
 ## Danksagungen
 
-- **HTL Bulme** für Projektunterstützung
-- **Prisma** für ausgezeichnetes ORM
-- **React** und **Vite** Teams
-- **Express.js** Community
+- HTL Bulme für Projektunterstützung
+- Prisma für ausgezeichnetes ORM
+- React und Vite Teams
+- Express.js Community
 - Alle Mitwirkenden und Tester
 
 ---

@@ -1,5 +1,7 @@
 # SmartSubmit - Assignment Management System
 
+**Live Demo:** http://79.76.119.73:8080
+
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
@@ -19,7 +21,7 @@
 
 ## Project Overview
 
-**SmartSubmit** is a modern web-based assignment management system designed for educational institutions. It enables teachers to create and manage assignments, students to submit their work, and administrators to manage the entire system.
+SmartSubmit is a modern web-based assignment management system designed for educational institutions. It enables teachers to create and manage assignments, students to submit their work, and administrators to manage the entire system.
 
 ### Key Goals
 
@@ -201,11 +203,11 @@ SmartSubmit/
 
 ### Prerequisites
 
-- **Node.js:** 20.x or higher
-- **MySQL:** 8.0 or higher
-- **npm:** 10.x or higher
-- **Docker:** 24.x or higher (for containerized deployment)
-- **Git:** For version control
+- Node.js 20.x or higher
+- MySQL 8.0 or higher
+- npm 10.x or higher
+- Docker 24.x or higher (for containerized deployment)
+- Git for version control
 
 ### Local Development Setup
 
@@ -225,23 +227,16 @@ cd backend
 npm install
 
 # Create .env file
-cat > .env << 'EOF'
-DATABASE_URL="mysql://smartsubmit:smartsubmit123@localhost:3306/smartsubmit"
-JWT_SECRET=your-secret-key-change-this
-PORT=3000
-HOST=0.0.0.0
-IS_DOCKER=false
-DEFAULT_ADMIN_EMAIL=admin@smartsubmit.com
-DEFAULT_ADMIN_PASSWORD=admin123
-EOF
+cp .env.example .env
+# Edit .env with your database credentials
 
 # Create MySQL database
-mysql -u root -p << 'SQL'
+mysql -u root -p
 CREATE DATABASE smartsubmit;
-CREATE USER 'smartsubmit'@'localhost' IDENTIFIED BY 'smartsubmit123';
-GRANT ALL PRIVILEGES ON smartsubmit.* TO 'smartsubmit'@'localhost';
+CREATE USER 'your_user'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON smartsubmit.* TO 'your_user'@'localhost';
 FLUSH PRIVILEGES;
-SQL
+EXIT;
 
 # Run Prisma migrations
 npx prisma generate
@@ -265,9 +260,7 @@ cd ../frontend
 npm install
 
 # Create .env file for development
-cat > .env.development << 'EOF'
-VITE_API_URL=http://localhost:3000
-EOF
+echo "VITE_API_URL=http://localhost:3000" > .env.development
 
 # Start development server
 npm run dev
@@ -285,7 +278,7 @@ Open your browser and navigate to:
 - Email: `admin@smartsubmit.com`
 - Password: `admin123`
 
-**Change the default password immediately after first login!**
+**Important:** Change the default password immediately after first login.
 
 ---
 
@@ -342,7 +335,7 @@ npx prisma generate
 ```bash
 cd backend
 
-# Warning: This deletes all data!
+# Warning: This deletes all data
 npx prisma migrate reset
 ```
 
@@ -425,20 +418,7 @@ import Example from './pages/example';
 
 #### 1. Prepare Environment
 
-**Create `.env` file for production:**
-
-```bash
-cat > backend/.env << 'EOF'
-DATABASE_URL="mysql://smartsubmit:smartsubmit123@db:3306/smartsubmit"
-MYSQL_USER=smartsubmit
-MYSQL_PASSWORD=SecurePassword123!
-MYSQL_DATABASE=smartsubmit
-MYSQL_ROOT_PASSWORD=RootPassword123!
-JWT_SECRET=production-secret-key-change-this
-DEFAULT_ADMIN_EMAIL=admin@yourdomain.com
-DEFAULT_ADMIN_PASSWORD=SecureAdminPassword123!
-EOF
-```
+Create `.env` file in the backend directory with your production credentials.
 
 #### 2. Build and Deploy
 
@@ -463,13 +443,13 @@ docker compose logs -f backend
 
 1. Access the application
 2. Login with default admin credentials
-3. **Change admin password immediately!**
+3. Change admin password immediately
 4. Configure firewall to allow port 8080:
    ```bash
    sudo ufw allow 8080/tcp
    ```
 
-### Production Server Setup (Oracle Cloud Example)
+### Production Server Setup
 
 #### 1. Server Preparation
 
@@ -498,16 +478,11 @@ sudo usermod -aG docker $USER
 git clone https://github.com/htlbulme/smartsubmit.git
 cd SmartSubmit
 
-# Create production .env
-nano backend/.env
-# Add production credentials
+# Create production .env with your credentials
 
 # Deploy
 docker compose build --no-cache
 docker compose up -d
-
-# Enable auto-restart after reboot
-# (Already configured with restart: always in docker-compose.yml)
 ```
 
 #### 3. Configure Firewall
@@ -523,18 +498,6 @@ sudo ufw enable
 sudo ufw status
 ```
 
-#### 4. Setup Auto-Reboot (Optional)
-
-```bash
-# Edit crontab
-sudo crontab -e
-
-# Add daily reboot at 3 AM
-0 3 * * * /sbin/reboot
-
-# Docker will auto-restart containers after reboot
-```
-
 ### Environment-Specific Configuration
 
 #### Development (.env.development)
@@ -547,8 +510,9 @@ VITE_API_URL=http://localhost:3000
 
 ```env
 VITE_API_URL=
-# Empty = uses same origin (relative URLs)
 ```
+
+Note: Empty value uses same origin (relative URLs)
 
 ---
 
@@ -560,52 +524,46 @@ VITE_API_URL=
 
 1. Navigate to application URL
 2. Click "Login"
-3. Enter admin credentials:
-   - Email: `admin@smartsubmit.com`
-   - Password: `admin123`
-4. **Change password immediately!**
+3. Enter admin credentials
+4. Change password immediately
 
 #### 2. Import Students
 
-1. Prepare Excel file with columns:
-   - `vorname` (First Name)
-   - `nachname` (Last Name)
-   - `email` (Email)
-   - `klasse` (Class, e.g., "5A" or multiple: "5A,5B")
-   - `jahrgang` (Year, e.g., 2025)
+Prepare Excel file with columns:
+- vorname (First Name)
+- nachname (Last Name)
+- email (Email)
+- klasse (Class, e.g., "5A" or multiple: "5A,5B")
+- jahrgang (Year, e.g., 2025)
 
-2. Go to Admin panel
-3. Select "Schüler" (Students)
-4. Click "Choose File" and select Excel
-5. Click "Daten hochladen" (Upload Data)
-
-**Example Excel:**
+**Example:**
 
 | vorname | nachname | email | klasse | jahrgang |
 |---------|----------|-------|--------|----------|
 | Max | Mustermann | max@school.com | 5A | 2025 |
 | Anna | Schmidt | anna@school.com | 5B | 2025 |
 
+Steps:
+1. Go to Admin panel
+2. Select "Schüler" (Students)
+3. Click "Choose File" and select Excel
+4. Click "Daten hochladen" (Upload Data)
+
 #### 3. Import Teachers
 
-1. Prepare Excel file with columns:
-   - `vorname` (First Name)
-   - `nachname` (Last Name)
-   - `email` (Email)
-   - `klasse` (Class, optional)
-   - `jahrgang` (Year, optional)
-   - `fach_kuerzel` (Subject code, e.g., "MATH,DE")
+Prepare Excel file with columns:
+- vorname (First Name)
+- nachname (Last Name)
+- email (Email)
+- klasse (Class, optional)
+- jahrgang (Year, optional)
+- fach_kuerzel (Subject code, e.g., "MATH,DE")
 
-2. Go to Admin panel
-3. Select "Lehrer" (Teachers)
-4. Click "Choose File" and select Excel
-5. Click "Daten hochladen" (Upload Data)
+Initial passwords: `firstnamelastname` (lowercase)
 
-**Initial passwords:** `firstnamelastname` (lowercase)
+Example: Max Mustermann has password `maxmustermann`
 
-Example: Max Mustermann → password: `maxmustermann`
-
-**Users must change password on first login!**
+Users must change password on first login.
 
 ### For Teachers
 
@@ -616,7 +574,7 @@ Example: Max Mustermann → password: `maxmustermann`
 3. Select subject
 4. Enter assignment title
 5. Write assignment description
-6. (Optional) Upload files (PDF, DOCX, etc.)
+6. Upload files if needed (PDF, DOCX, etc.)
 7. Set deadline
 8. Click "Aufgabe speichern" (Save Assignment)
 
@@ -678,7 +636,7 @@ Authorization: Bearer <token>
 GET /api/admin/check
 ```
 
-**Response:**
+Response:
 ```json
 {
   "success": true,
@@ -699,18 +657,6 @@ Content-Type: application/json
 }
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Registrierung erfolgreich",
-  "data": {
-    "user": {...},
-    "token": "eyJhbGc..."
-  }
-}
-```
-
 #### Login
 
 ```http
@@ -724,23 +670,6 @@ Content-Type: application/json
 }
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "user": {
-      "id": 1,
-      "vorname": "Admin",
-      "nachname": "System",
-      "email": "admin@example.com",
-      "roles": [...]
-    },
-    "token": "eyJhbGc..."
-  }
-}
-```
-
 ### Admin Endpoints
 
 #### Import Students
@@ -751,18 +680,6 @@ Authorization: Bearer <admin-token>
 Content-Type: multipart/form-data
 
 file: <excel-file>
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "5 Schüler importiert, 0 fehlgeschlagen",
-  "data": {
-    "success": [...],
-    "failed": []
-  }
-}
 ```
 
 #### Import Teachers
@@ -792,42 +709,11 @@ dueDate: "2025-12-31"
 files: <file1>, <file2>
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Aufgabe erfolgreich erstellt",
-  "data": {
-    "id": 1,
-    "titel": "Homework 1",
-    ...
-  }
-}
-```
-
 #### Get Teacher's Assignments
 
 ```http
 GET /api/teacher/assignments
 Authorization: Bearer <teacher-token>
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "titel": "Homework 1",
-      "klasse": "5A",
-      "fach": "Mathematik",
-      "termin": "2025-12-31",
-      "status": "active",
-      "abgabenCount": 3
-    }
-  ]
-}
 ```
 
 ### Student Endpoints
@@ -837,24 +723,6 @@ Authorization: Bearer <teacher-token>
 ```http
 GET /api/student/assignments
 Authorization: Bearer <student-token>
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "titel": "Homework 1",
-      "beschreibung": "Complete exercises 1-10",
-      "termin": "2025-12-31",
-      "klasse": {...},
-      "fach": {...},
-      "lehrer": {...}
-    }
-  ]
-}
 ```
 
 #### Submit Assignment
@@ -878,37 +746,11 @@ GET /api/classes
 Authorization: Bearer <token>
 ```
 
-**Response:**
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "name": "5A",
-      "jahrgang": 2025
-    }
-  ]
-}
-```
-
 #### Get Subjects
 
 ```http
 GET /api/subjects
 Authorization: Bearer <token>
-```
-
-**Response:**
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "name": "Mathematik",
-      "kuerzel": "MATH"
-    }
-  ]
-}
 ```
 
 ---
@@ -1000,7 +842,7 @@ Stores school classes.
 | name | VARCHAR(50) | Class name (e.g., "5A") |
 | jahrgang | INT | Year (e.g., 2025) |
 
-**Unique constraint:** (name, jahrgang)
+Unique constraint: (name, jahrgang)
 
 #### Fach (Subjects)
 
@@ -1042,7 +884,7 @@ Stores student submissions.
 | bewertung | INT | Grade (0-100) |
 | feedback | TEXT | Teacher feedback |
 
-**Unique constraint:** (aufgabe_id, schueler_id)
+Unique constraint: (aufgabe_id, schueler_id)
 
 ---
 
@@ -1052,7 +894,7 @@ Stores student submissions.
 
 #### 1. Port Conflicts
 
-**Problem:** "Port 3306 already in use"
+**Problem:** Port 3306 already in use
 
 **Solution:**
 ```bash
@@ -1064,7 +906,7 @@ ports:
 
 #### 2. Prisma Client Not Generated
 
-**Problem:** "Cannot find module '@prisma/client'"
+**Problem:** Cannot find module '@prisma/client'
 
 **Solution:**
 ```bash
@@ -1075,7 +917,7 @@ npm start
 
 #### 3. Upload Fails in Docker
 
-**Problem:** "Serverfehler" when uploading files
+**Problem:** Serverfehler when uploading files
 
 **Solutions:**
 - Check frontend API URL is correct (empty for Docker)
@@ -1085,7 +927,7 @@ npm start
 
 #### 4. Database Connection Failed
 
-**Problem:** "Can't reach database server"
+**Problem:** Can't reach database server
 
 **Solution:**
 ```bash
@@ -1101,34 +943,30 @@ docker compose restart db
 
 #### 5. 403 Forbidden on Admin Routes
 
-**Problem:** "Nur für Admins" error
+**Problem:** Nur für Admins error
 
 **Solution:**
 - Create admin user in Docker database
 - Login again to get fresh token
-- Check admin role exists in database:
-  ```bash
-  docker compose exec backend npx prisma studio
-  # Check BenutzerRolle table for rolle_id: 3
-  ```
+- Check admin role exists in database
 
 ### Docker Issues
 
 #### Container Keeps Restarting
 
-**Check logs:**
+Check logs:
 ```bash
 docker compose logs backend --tail 100
 ```
 
-**Common causes:**
-- Database connection failed → Check DATABASE_URL
-- Prisma Client not generated → Check build logs
-- Port already in use → Change port in docker-compose.yml
+Common causes:
+- Database connection failed
+- Prisma Client not generated
+- Port already in use
 
 #### Build Fails
 
-**Clear Docker cache:**
+Clear Docker cache:
 ```bash
 docker compose down
 docker system prune -af
@@ -1136,59 +974,24 @@ docker compose build --no-cache
 docker compose up -d
 ```
 
-#### Volume Permission Issues
-
-**Fix permissions:**
-```bash
-docker compose exec backend chown -R node:node /app/backend/uploads
-docker compose restart backend
-```
-
 ### Frontend Issues
 
 #### Blank Page After Build
 
-**Check console for errors:**
+Check console for errors:
 1. Open browser DevTools (F12)
 2. Check Console tab for errors
 3. Common issues:
-   - Missing API_URL → Check .env file
-   - CORS errors → Check backend CORS settings
-   - Build errors → Check `npm run build` output
+   - Missing API_URL
+   - CORS errors
+   - Build errors
 
 #### API Requests Fail
 
-**Check Network tab:**
+Check Network tab:
 1. Open DevTools (F12) → Network tab
 2. Try the action that fails
-3. Check:
-   - Request URL (should match backend)
-   - Status code (401, 403, 500, etc.)
-   - Response body (error message)
-
-### Database Issues
-
-#### Migration Failed
-
-**Reset database:**
-```bash
-cd backend
-npx prisma migrate reset
-# This deletes all data!
-```
-
-#### Seed Failed
-
-**Manual seed:**
-```bash
-cd backend
-npm run seed
-```
-
-**Check seed logs:**
-```bash
-docker compose logs backend | grep -i seed
-```
+3. Check request URL, status code, and response
 
 ---
 
@@ -1196,36 +999,24 @@ docker compose logs backend | grep -i seed
 
 ### Development Workflow
 
-1. **Fork the repository**
-2. **Create feature branch:**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-3. **Make changes**
-4. **Test thoroughly:**
-   - Test locally (`npm run dev`)
-   - Test in Docker (`docker compose up -d --build`)
-5. **Commit changes:**
-   ```bash
-   git add .
-   git commit -m "Add: your feature description"
-   ```
-6. **Push to your fork:**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-7. **Create Pull Request**
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/your-feature-name`
+3. Make changes
+4. Test thoroughly in both development and Docker
+5. Commit changes: `git commit -m "Add: your feature description"`
+6. Push to your fork: `git push origin feature/your-feature-name`
+7. Create Pull Request
 
 ### Code Review Checklist
 
-- [ ] Code follows project style guidelines
-- [ ] All tests pass
-- [ ] No console.log in production code
-- [ ] Error handling implemented
-- [ ] Comments added for complex logic
-- [ ] Documentation updated
-- [ ] No sensitive data in code
-- [ ] Works in both development and Docker
+- Code follows project style guidelines
+- All tests pass
+- No console.log in production code
+- Error handling implemented
+- Comments added for complex logic
+- Documentation updated
+- No sensitive data in code
+- Works in both development and Docker
 
 ### Testing
 
@@ -1252,7 +1043,7 @@ docker compose logs backend
 
 This project is developed as a diploma thesis for educational purposes at HTL Bulme.
 
-**For educational use only.** Commercial use is not permitted without permission.
+For educational use only. Commercial use is not permitted without permission.
 
 ---
 
@@ -1266,17 +1057,13 @@ This project is developed as a diploma thesis for educational purposes at HTL Bu
 
 ### Getting Help
 
-1. **Check Documentation:** Read this README and troubleshooting section
-2. **Check Issues:** Search existing GitHub issues
-3. **Create Issue:** If problem persists, create new issue with:
-   - Detailed description
-   - Steps to reproduce
-   - Error messages/logs
-   - Environment details (OS, Node version, etc.)
+1. Check Documentation: Read this README and troubleshooting section
+2. Check Issues: Search existing GitHub issues
+3. Create Issue: If problem persists, create new issue with detailed description, steps to reproduce, error messages, and environment details
 
 ### Reporting Bugs
 
-**Include:**
+Include:
 - Expected behavior
 - Actual behavior
 - Steps to reproduce
@@ -1311,10 +1098,10 @@ This project is developed as a diploma thesis for educational purposes at HTL Bu
 
 ## Acknowledgments
 
-- **HTL Bulme** for project support
-- **Prisma** for excellent ORM
-- **React** and **Vite** teams
-- **Express.js** community
+- HTL Bulme for project support
+- Prisma for excellent ORM
+- React and Vite teams
+- Express.js community
 - All contributors and testers
 
 ---
