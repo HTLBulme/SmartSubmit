@@ -1084,7 +1084,7 @@ Include:
 - Teacher assignment creation
 - Student assignment viewing
 - File upload support
-- Multilingual interface (DE, EN, RU)
+- Multilingual interface (DE, EN)
 - Docker deployment
 - Responsive design
 
