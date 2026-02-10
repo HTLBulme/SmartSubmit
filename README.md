@@ -112,15 +112,15 @@ SmartSubmit ist ein modernes webbasiertes Aufgabenverwaltungssystem für Bildung
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  Client-Browser                      │
+│                  Client-Browser                     │
 │              (React SPA auf Port 5173/8080)         │
 └─────────────────────────────────────────────────────┘
                           │
                           │ HTTP/HTTPS
                           ▼
 ┌─────────────────────────────────────────────────────┐
-│                  Express.js Backend                  │
-│                    (Port 3000/8080)                  │
+│                  Express.js Backend                 │
+│                    (Port 3000/8080)                 │
 │  ┌────────────────────────────────────────────────┐ │
 │  │  Routen (Login, Register, Admin, Lehrer,       │ │
 │  │          Schüler, Klassen, Fächer)             │ │
@@ -139,10 +139,10 @@ SmartSubmit ist ein modernes webbasiertes Aufgabenverwaltungssystem für Bildung
                           │ MySQL-Protokoll
                           ▼
 ┌─────────────────────────────────────────────────────┐
-│                  MySQL-Datenbank                     │
-│                    (Port 3306/3307)                  │
+│                  MySQL-Datenbank                    │
+│                    (Port 3306/3307)                 │
 │  ┌────────────────────────────────────────────────┐ │
-│  │  Tabellen: Benutzer, Rolle, Klasse, Fach,     │ │
+│  │  Tabellen: Benutzer, Rolle, Klasse, Fach,      │ │
 │  │            Aufgabe, Abgabe                     │ │
 │  └────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────┘
