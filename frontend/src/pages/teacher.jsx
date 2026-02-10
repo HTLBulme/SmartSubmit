@@ -8,35 +8,34 @@ import T from "../i18n";
 
 const API_URL = import.meta.env.VITE_API_URL || "";   // verbindung mit backend http://localhost:3000
 
-// Lehrer-Seite / Teacher page / Страница учителя
+// Lehrer-Seite / Teacher page /
 export default function Teacher() {
   const [lang] = useLang();
   const t = T[lang] || T.en;
 
-  // Formularstatus / Form state / Состояние формы
+  // Formularstatus / Form state /
   const [klass, setKlass] = useState("");
   const [subject, setSubject] = useState("");
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
-  const [due, setDue] = useState(""); // Fälligkeitsdatum / Due date / Срок сдачи
+  const [due, setDue] = useState(""); // Fälligkeitsdatum / Due date /
   const [link, setLink] = useState("");
 
-  // Dateien (Drag & Drop + Dateiauswahl) / Files (drag & drop + file input) / Файлы (drag & drop и выбор)
+  // Dateien (Drag & Drop + Dateiauswahl) / Files (drag & drop + file input) /
   const [files, setFiles] = useState([]);      // File[]
   const [isOver, setIsOver] = useState(false); // dnd highlight
   const [msg, setMsg] = useState("");
 
-  // Klassen, Fächer, Aufgaben / Classes, subjects, assignments / Классы, предметы, задания
+  // Klassen, Fächer, Aufgaben / Classes, subjects, assignments / 
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [showAssignments, setShowAssignments] = useState(false);
 
-  // Dateien zur Liste hinzufügen / Add files to list / Добавить файлы в список
+  // Dateien zur Liste hinzufügen / Add files to list / 
   function addFiles(fileList) {
     // DE: FileList in Array umwandeln und nur einzigartige (Name+Größe) hinzufügen
     // EN: Convert FileList to array and add only unique (name+size)
-    // RU: Преобразуем FileList в массив и добавляем только уникальные (имя+размер)
     const incoming = Array.from(fileList || []);
     setFiles(prev => {
       const map = new Map(prev.map(f => [f.name + "_" + f.size, f]));
@@ -45,14 +44,14 @@ export default function Teacher() {
     });
   }
 
-  // Drag & Drop-Handler / Drag & drop handler / Обработчик drag & drop
+  // Drag & Drop-Handler / Drag & drop handler /
   function onDrop(e) {
     e.preventDefault();
     setIsOver(false);
     if (e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files);
   }
 
-  // Formular absenden / Submit form / Отправка формы
+  // Formular absenden / Submit form /
   async function onSubmit(e) {
     e.preventDefault();
     setMsg("");
@@ -67,7 +66,7 @@ export default function Teacher() {
       fd.append("dueDate", due);
       files.forEach((f) => fd.append("files", f));
 
-      const token = localStorage.getItem("token"); // DE: falls vorhanden / EN: if exists / RU: если есть
+      const token = localStorage.getItem("token"); // DE: falls vorhanden / EN: if exists
       await axios.post(`${API_URL}/api/teacher/assignments`, fd, {
         headers: {
           // Let axios/browser set the correct multipart boundary automatically
@@ -83,7 +82,7 @@ export default function Teacher() {
       setMsg(t.assgnError);
     }
   }
-  // Aufgaben vom Server laden / Fetch assignments from server / Загрузить задания с сервера
+  // Aufgaben vom Server laden / Fetch assignments from server / 
   async function fetchAssignments() {
       try {
         const token = localStorage.getItem("token");
@@ -92,11 +91,11 @@ export default function Teacher() {
         });
         setAssignments(res.data.data || []);
       } catch (err) {
-        console.error("Ошибка загрузки заданий:", err);
+        console.error("Fehler beim Laden der Aufgaben:", err);
       }
     }
 
-  // Initiales Laden der Daten / Initial data load / Первичная загрузка данных
+  // Initiales Laden der Daten / Initial data load /
   useEffect(() => {
   async function loadData() {
     try {
@@ -122,16 +121,16 @@ export default function Teacher() {
   loadData();
 }, []);
 
-  // Handler für Abgabenliste / Handler for submissions list / Обработчик списка сдач
+  // Handler für Abgabenliste / Handler for submissions list /
   function handleAbgabenClick() {
     alert(t.abgabenBtn);
   }
-  // Handler für Aufgabenliste / Handler for assignments list / Обработчик списка заданий
+  // Handler für Aufgabenliste / Handler for assignments list /
   function handleAssignmentClick() {
     setShowAssignments((prev) => !prev);
   }
 
-  // Render / Rendering / Отрисовка
+  // Render / Rendering /
   return (
     <div className="teacher-page">
 
@@ -274,7 +273,7 @@ export default function Teacher() {
             </button>
           </form>
 
-          {/* Aufgabenliste des Lehrers / Teacher's assignments list / Список заданий учителя */}
+          {/* Aufgabenliste des Lehrers / Teacher's assignments list  */}
           {showAssignments && (
             <div className="mb-4">
               <h5 className="fw-bold mb-3">{t.assignmentBtn}</h5>
@@ -324,7 +323,7 @@ export default function Teacher() {
               )}
             </div>
           )}
-          {/* Statusmeldung / Status message / Сообщение о состоянии */}  
+          {/* Statusmeldung / Status message  */}  
 
           {msg && <div className="alert alert-info text-center mt-3">{msg}</div>}
           {/* 'Aufgabenliste' */}

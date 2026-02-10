@@ -102,7 +102,7 @@ export default function StudentDashboard() {
 
     setUserData(mockData);
     setLoading(false);
-  }, []); // Пустой массив зависимостей, чтобы эффект сработал только при монтировании
+  }, []); // Einmalig beim Laden, da es sich um Mockdaten handelt
 */
   if (loading) {
     return <div className="loading">{t.loading || "Loading..."}</div>;
