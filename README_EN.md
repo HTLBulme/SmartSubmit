@@ -28,7 +28,7 @@ SmartSubmit is a modern web-based assignment management system designed for educ
 - Streamline assignment distribution and submission
 - Provide role-based access control (Admin, Teacher, Student)
 - Enable efficient file management and tracking
-- Offer a multilingual interface (German, English, Russian)
+- Offer a multilingual interface (German and English)
 
 ### Project Information
 
@@ -67,7 +67,7 @@ SmartSubmit is a modern web-based assignment management system designed for educ
 
 ### General Features
 
-- Multilingual support (DE, EN, RU)
+- Multilingual support (DE and EN)
 - Responsive design (mobile-friendly)
 - Secure authentication with JWT
 - File upload support (multiple formats)

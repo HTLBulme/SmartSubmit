@@ -28,7 +28,7 @@ SmartSubmit ist ein modernes webbasiertes Aufgabenverwaltungssystem für Bildung
 - Vereinfachung der Aufgabenverteilung und -abgabe
 - Rollenbasierte Zugriffskontrolle (Admin, Lehrer, Schüler)
 - Effiziente Dateiverwaltung und Nachverfolgung
-- Mehrsprachige Benutzeroberfläche (Deutsch, Englisch, Russisch)
+- Mehrsprachige Benutzeroberfläche (Deutsch und Englisch)
 
 ### Projektinformationen
 
@@ -67,7 +67,7 @@ SmartSubmit ist ein modernes webbasiertes Aufgabenverwaltungssystem für Bildung
 
 ### Allgemeine Funktionen
 
-- Mehrsprachige Unterstützung (DE, EN, RU)
+- Mehrsprachige Unterstützung (DE und EN)
 - Responsive Design (mobil-freundlich)
 - Sichere Authentifizierung mit JWT
 - Datei-Upload-Unterstützung (mehrere Formate)
