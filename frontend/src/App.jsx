@@ -8,6 +8,7 @@ const Register = lazy(() => import("./pages/register"));
 const Admin = lazy(() => import("./pages/admin"));
 const Teacher = lazy(() => import("./pages/teacher"));
 const Student = lazy(() => import("./pages/student"));
+const Help = lazy(() => import("./pages/help"));
 
 function RequireAuth({ children, allowedRoles }) {
   const token = localStorage.getItem("token");
@@ -54,6 +55,9 @@ export default function App() {
                 </RequireAuth>
               }
             />
+
+            <Route path="/help" element={<Help />} />
+            
           </Routes>
         </Suspense>
       </div>
