@@ -3,6 +3,7 @@ import T from "../i18n";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Link } from 'react-router-dom'; 
 import "./login.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
@@ -117,8 +118,16 @@ async function handleLogin(e) {
           {t.forgot}
         </a>
 
+        {/* Help Link */}
+        <div className="text-center mt-3">
+          <Link to="/help" className="text-muted">
+            {t.helpBtn || "Hilfe"} | {t.helpTitle || "Anleitung"}
+          </Link>
+        </div>
+
         {message && <p className="error-text">{message}</p>}
       </form>
+
     </div>
   );
 }
