@@ -10,12 +10,12 @@ const studentController = require('./controllers/student.controller');
 
 // Import middleware
 const { authenticateToken, authenticateAdmin } = require('./app.middleware');
-const { uploadMemory, uploadDisk } = require('./app.config');
+const { uploadMemory, uploadDisk, uploadSubmissionsDisk } = require('./app.config');
 
 // ================================ ADMIN CHECK (public) ================================
 router.get('/admin/check', adminController.checkAdminExists);
 
-// ================================ REGISTER PAGE (first admin only) ================================
+// ================================ REGISTER PAGE (first admin only) ==========================
 router.post('/register', registerController.register);
 
 // ================================ LOGIN PAGE ================================
@@ -29,10 +29,14 @@ router.post('/admin/import/teachers', authenticateAdmin, uploadMemory.single('fi
 // ================================ TEACHER PAGE (authenticated) ================================
 router.post('/teacher/assignments', authenticateToken, uploadDisk.array('files', 10), teacherController.createAssignment);
 router.get('/teacher/assignments', authenticateToken, teacherController.getTeacherAssignments);
+router.delete('/teacher/assignments/:assignmentId', authenticateToken, teacherController.deleteAssignment);
+router.get('/teacher/assignments/:assignmentId/submissions', authenticateToken, teacherController.getAssignmentSubmissions);
+router.patch('/teacher/assignments/:assignmentId/archive', authenticateToken, teacherController.setAssignmentArchived);
+router.patch('/teacher/submissions/:submissionId', authenticateToken, teacherController.gradeSubmission);
 
 // ================================ STUDENT PAGE (authenticated) ================================
 router.get('/student/assignments', authenticateToken, studentController.getAssignments);
-router.post('/student/submit', authenticateToken, studentController.submitAssignment);
+router.post('/student/submit', authenticateToken, uploadSubmissionsDisk.array('files', 10), studentController.submitAssignment);
 router.get('/student/submissions', authenticateToken, studentController.getMySubmissions);
 
 // ================================ CLASSES & SUBJECTS (authenticated) ================================

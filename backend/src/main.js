@@ -24,6 +24,26 @@ app.use(express.urlencoded({ extended: true }));
 // ============================= API Routes =============================
 app.use('/api', apiRoutes);
 
+// ============================= Uploads Serving =============================
+// Serve uploaded assignment/submission files
+const UPLOADS_PATH = path.join(__dirname, '..', 'uploads');
+app.use('/uploads', express.static(UPLOADS_PATH));
+
+// ============================= Error Handling =============================
+app.use((err, req, res, next) => {
+  if (!err) return next();
+
+  if (err.name === 'MulterError') {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+
+  if (typeof err.message === 'string' && err.message.includes('Ungültiger Dateityp')) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+
+  return res.status(500).json({ success: false, message: 'Server Fehler' });
+});
+
 // ============================= Frontend Serving =============================
 app.use(express.static(FRONTEND_PATH));
 app.get(/.*/, (req, res) => {
