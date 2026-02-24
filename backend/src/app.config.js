@@ -24,6 +24,19 @@ if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR);
 if (!fs.existsSync(ASSIGNMENTS_DIR)) fs.mkdirSync(ASSIGNMENTS_DIR);
 if (!fs.existsSync(SUBMISSIONS_DIR)) fs.mkdirSync(SUBMISSIONS_DIR, { recursive: true });
 
+function allowListedFileFilter(req, file, cb) {
+  const allowedTypes = /\.(jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|zip|rar)$/;
+  const extnameOk = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+
+  const allowedMimes = /^(image\/(jpeg|png|gif)|application\/pdf|text\/plain|application\/(zip|x-zip-compressed|x-rar-compressed|vnd\.rar|msword|vnd\.ms-excel|vnd\.ms-powerpoint)|application\/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet|presentationml\.presentation))$/;
+  const mimetype = (file.mimetype || '').toLowerCase();
+  const mimetypeOk = allowedMimes.test(mimetype);
+  const mimetypeGeneric = mimetype === '' || mimetype === 'application/octet-stream';
+
+  if (extnameOk && (mimetypeOk || mimetypeGeneric)) return cb(null, true);
+  return cb(new Error('Ungültiger Dateityp'));
+}
+
 // ============================= Multer Configuration =============================
 const uploadMemory = multer({
   storage: multer.memoryStorage(),
@@ -41,40 +54,7 @@ const uploadDisk = multer({
     }
   }),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-  fileFilter: function (req, file, cb) {
-    const allowedExts = new Set([
-      'jpeg', 'jpg', 'png', 'gif',
-      'pdf',
-      'doc', 'docx',
-      'xls', 'xlsx',
-      'ppt', 'pptx',
-      'txt',
-      'zip', 'rar'
-    ]);
-
-    const allowedMimes = new Set([
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'application/pdf',
-      'text/plain',
-      'application/zip',
-      'application/x-zip-compressed',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-    ]);
-
-    const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
-    const isAllowedByExt = allowedExts.has(ext);
-    const isAllowedByMime = allowedMimes.has(file.mimetype);
-
-    if (isAllowedByExt || isAllowedByMime) return cb(null, true);
-    return cb(new Error('Ungültiger Dateityp'));
-  }
+  fileFilter: allowListedFileFilter
 });
 
 const uploadSubmissionsDisk = multer({
@@ -88,40 +68,7 @@ const uploadSubmissionsDisk = multer({
     }
   }),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-  fileFilter: function (req, file, cb) {
-    const allowedExts = new Set([
-      'jpeg', 'jpg', 'png', 'gif',
-      'pdf',
-      'doc', 'docx',
-      'xls', 'xlsx',
-      'ppt', 'pptx',
-      'txt',
-      'zip', 'rar'
-    ]);
-
-    const allowedMimes = new Set([
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'application/pdf',
-      'text/plain',
-      'application/zip',
-      'application/x-zip-compressed',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-    ]);
-
-    const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
-    const isAllowedByExt = allowedExts.has(ext);
-    const isAllowedByMime = allowedMimes.has(file.mimetype);
-
-    if (isAllowedByExt || isAllowedByMime) return cb(null, true);
-    return cb(new Error('Ungültiger Dateityp'));
-  }
+  fileFilter: allowListedFileFilter
 });
 
 // ============================= Database Init =============================
