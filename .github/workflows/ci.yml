@@ -87,20 +87,16 @@ jobs:
           
       - name: Test SSH connection
         run: |
-          ssh -T -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 ubuntu@79.76.119.73 "echo 'SSH connection successful'"
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=10 ubuntu@79.76.119.73 "echo 'SSH connection successful'"
           
       - name: Deploy to OCI VM
         timeout-minutes: 10
         run: |
-          ssh -T -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 ubuntu@79.76.119.73 "
-            set -e
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=10 ubuntu@79.76.119.73 "
             cd /home/ubuntu/SmartSubmit
             
             echo '=== Pulling latest code ==='
-            # Avoid interactive prompts/hangs; force workspace to match origin/main
-            GIT_TERMINAL_PROMPT=0 git fetch origin main
-            git reset --hard origin/main
-            git clean -fd
+            git pull origin main
             
             echo '=== Login to GitHub Container Registry ==='
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -118,15 +114,7 @@ jobs:
             sleep 15
             
             # Wait until MySQL is actually accepting connections
-            i=0
-            until docker compose exec -T db mysqladmin ping -h localhost --silent; do
-              i=$((i+1))
-              if [ "$i" -ge 60 ]; then
-                echo 'Database not ready in time.'
-                docker compose ps
-                docker compose logs db --tail=200 || true
-                exit 1
-              fi
+            until docker compose exec db mysqladmin ping -h localhost --silent; do
               echo 'Waiting for database connection...'
               sleep 2
             done
