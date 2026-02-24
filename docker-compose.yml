@@ -41,6 +41,8 @@ services:
       db:
         condition: service_healthy
     restart: always
+    volumes:
+      - uploads-data:/app/backend/uploads
     working_dir: /app
     command: >
       sh -c "
@@ -55,3 +57,4 @@ services:
 
 volumes:
   db-data:
+  uploads-data:

@@ -245,7 +245,7 @@ const getMySubmissions = async (req, res) => {
     return res.json({
       success: true,
       data: data,
-      message: 'Funktion wird noch implementiert'
+      message: 'Abgaben geladen'
     });
 
   } catch (error) {

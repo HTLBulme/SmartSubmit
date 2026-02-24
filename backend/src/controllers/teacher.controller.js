@@ -2,14 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const { prisma } = require('../app.config');
 
-const UPLOADS_ROOT = path.resolve(__dirname, '..', 'uploads');
+// Multer stores uploads in backend/uploads (see backend/src/app.config.js).
+// __dirname here is backend/src/controllers, so we need to go up two levels.
+const UPLOADS_ROOT = path.resolve(__dirname, '..', '..', 'uploads');
 
 function tryDeleteUploadedFile(filePath) {
   if (typeof filePath !== 'string' || filePath.trim() === '') return;
 
   try {
     const resolved = path.resolve(filePath);
-    // Only allow deleting files inside backend/src/uploads
+    // Only allow deleting files inside backend/uploads
     const allowedPrefix = UPLOADS_ROOT + path.sep;
     if (!resolved.startsWith(allowedPrefix)) return;
     if (fs.existsSync(resolved)) fs.unlinkSync(resolved);
