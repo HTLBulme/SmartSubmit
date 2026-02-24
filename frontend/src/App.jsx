@@ -8,6 +8,7 @@ const Register = lazy(() => import("./pages/register"));
 const Admin = lazy(() => import("./pages/admin"));
 const Teacher = lazy(() => import("./pages/teacher"));
 const Student = lazy(() => import("./pages/student"));
+const ChangePassword = lazy(() => import("./pages/changePassword"));//new
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="/admin" element={<Admin />} />
             <Route path="/teacher" element={<Teacher />} />
             <Route path="/student" element={<Student />} />
+            <Route path="/change-password" element={<ChangePassword />} />{/* new */}
           </Routes>
         </Suspense>
       </div>

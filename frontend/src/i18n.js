@@ -76,7 +76,23 @@ const T = {
     submitWork: "Abgabe einreichen",
     logout: "Abmelden",
     fetchError: "Fehler beim Laden der Daten",
-    loading: "Wird geladen..."
+    changePassword: "Passwort ändern",//new
+    loading: "Wird geladen...",
+
+    // new für pw-ändern
+    changePasswordTitle: "Passwort ändern",
+    changePasswordSubtitle: "Gib dein aktuelles und neues Passwort ein",
+    oldPassword: "Aktuelles Passwort",
+    newPassword: "Neues Passwort",
+    confirmPassword: "Passwort bestätigen",
+    cancel: "Abbrechen",
+    passwordChangeSuccess: "Passwort erfolgreich geändert!",
+    passwordMismatch: "Passwörter stimmen nicht überein",
+    passwordTooShort: "Passwort muss mindestens 6 Zeichen lang sein",
+    wrongOldPassword: "Aktuelles Passwort ist falsch",
+    samePassword: "Neues Passwort darf nicht mit dem alten übereinstimmen",
+    notLoggedIn: "Bitte melde dich zuerst an",
+    redirecting: "Du wirst in 3 Sekunden weitergeleitet..."
   },
   en: {
     title: "Login",
@@ -158,7 +174,23 @@ const T = {
     loading: "Wird geladen...",
     logout: "Logout",
     fetchError: "Error loading data",
-    loading: "Loading..."
+    changePassword: "Passwort ändern",//new
+    loading: "Loading...",
+
+    // new für pw-ändern
+    changePasswordTitle: "Change Password",
+    changePasswordSubtitle: "Enter your current and new password",
+    oldPassword: "Current Password",
+    newPassword: "New Password",
+    confirmPassword: "Confirm Password",
+    cancel: "Cancel",
+    passwordChangeSuccess: "Password successfully changed!",
+    passwordMismatch: "Passwords do not match",
+    passwordTooShort: "Password must be at least 6 characters long",
+    wrongOldPassword: "Current password is incorrect",
+    samePassword: "New password must be different from the old one",
+    notLoggedIn: "Please log in first",
+    redirecting: "Redirecting in 3 seconds..."
   },
 };
 
