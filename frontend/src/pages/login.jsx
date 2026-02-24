@@ -9,7 +9,7 @@ import "./login.css";
 const API_URL = import.meta.env.VITE_API_URL || "";
 
 export default function Login() {
-  // 🔹 берём язык из контекста (а не из localStorage напрямую)
+  // DE: Sprachkontext und Übersetzungen /
   const [lang] = useLang();
   const t = T[lang] || T.en;
 

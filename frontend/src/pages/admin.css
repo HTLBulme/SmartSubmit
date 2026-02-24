@@ -1,8 +1,8 @@
 /* DE: Seite für Benutzerimport */
 /* EN: Page for user import */
-/* RU: Страница импорта пользователей */
 
-/* DE: Hauptcontainer / RU: Главный контейнер */
+/* DE: Hauptcontainer der Seite */ 
+/* EN: Main container of the page */
 .upload-page {
   position: relative;
   min-height: 100vh;
@@ -10,24 +10,22 @@
   justify-content: center;
   align-items: center;
   font-family: "Inter", "Segoe UI", sans-serif;
-  isolation: isolate; /* DE: Erstellt einen eigenen Stacking-Kontext */ /* EN: Creates its own stacking context */ /* RU: Создает собственный stacking context */
+  isolation: isolate; /* DE: Erstellt einen eigenen Stacking-Kontext */ /* EN: Creates its own stacking context */
 }
 
 /* DE: Vollflächiger Hintergrund-Gradient innerhalb des eigenen Kontexts */
 /* EN: Full-viewport gradient background within its own context */
-/* RU: Фоновый градиент на весь вьюпорт внутри собственного контекста */
 .upload-page::before {
   content: "";
-  position: fixed;   /* покрываем весь вьюпорт */
+  position: fixed;   /* DE: Deckt den gesamten Viewport ab */ /* EN: Covers the entire viewport */
   inset: 0;
   background: linear-gradient(135deg, #f0f4ff, #fafcff);
-  z-index: -1;        /* фон под контентом */
+  z-index: -1;        /* DE: Hintergrund unter dem Inhalt */ /* EN: Background under the content */
   pointer-events: none;
 }
 
 /* DE: Karte (weißer Block) */
 /* EN: Card (white block) */
-/* RU: Карточка (белый блок) */
 .upload-card {
   background: #fff;
   border: 1px solid #d7dae0;
@@ -56,7 +54,6 @@
 
 /* DE: Drop-Zone */
 /* EN: Drop zone */
-/* RU: Зона перетаскивания */
 .drop-zone {
   border: 2px dashed #aab2c5;
   border-radius: 10px;
@@ -74,7 +71,6 @@
 
 /* DE: Vorschau-Tabelle */
 /* EN: Preview table */
-/* RU: Таблица предпросмотра */
 .preview-table {
   width: 100%;
   border-collapse: collapse;
@@ -96,7 +92,6 @@
 
 /* DE: Rollenwahl */
 /* EN: Role selection */
-/* RU: Выбор роли */
 .role-toggle {
   display: flex;
   justify-content: center;
@@ -114,13 +109,12 @@
 }
 
 .role-toggle input[type="radio"] {
-  accent-color: #1b355b; /* DE: Farbe der Radiobuttons / RU: Цвет радиокнопок */
+  accent-color: #1b355b; /* DE: Farbe der Radiobuttons / EN: Color of the radio buttons */
   transform: scale(1.2);
 }
 
 /* DE: Upload-Button */
 /* EN: Upload button */
-/* RU: Кнопка загрузки */
 .btn-upload {
   margin-top: 1.5rem;
   background: #1b355b;
@@ -140,7 +134,6 @@
 
 /* DE: Nachricht */
 /* EN: Message */
-/* RU: Сообщение */
 .upload-message {
   margin-top: 1rem;
   font-weight: 500;
@@ -149,7 +142,6 @@
 
 /* DE: Responsives Design */
 /* EN: Responsive design */
-/* RU: Адаптивный дизайн */
 @media (max-width: 640px) {
   .upload-card {
     width: 90%;

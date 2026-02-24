@@ -84,12 +84,6 @@ body {
   gap: 1.5rem;
 }
 
-@media (min-width: 900px) {
-  .dashboard-content {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
 .assignments, .grades {
   background: var(--card-bg);
   padding: 1.5rem;
@@ -158,6 +152,11 @@ body {
   font-size: 0.9rem;
 }
 
+.assignment-grade {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
 .assignment-status {
   padding: 0.4rem 0.8rem;
   border-radius: 12px;
@@ -201,6 +200,215 @@ body {
 .status-not-submitted {
   background-color: #fee2e2;
   color: #991b1b;
+}
+
+.status-active {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.assignment-details {
+  grid-column: 1 / -1;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+}
+
+.assignment-details-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.assignment-details-row:last-child {
+  margin-bottom: 0;
+}
+
+.assignment-details-label {
+  color: var(--text-light);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.assignment-details-value {
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+.attachment-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.attachment-item {
+  margin-bottom: 0.25rem;
+}
+
+.attachment-item:last-child {
+  margin-bottom: 0;
+}
+
+.attachment-item a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.attachment-item a:hover {
+  color: var(--primary-hover);
+}
+
+.submission-form {
+  grid-column: 1 / -1;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+}
+
+.submission-form-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.submission-text {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.5rem;
+  font-family: inherit;
+}
+
+.submission-files {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.student-dnd-zone {
+  width: 100%;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.student-dnd-zone.over {
+  border-color: var(--primary);
+}
+
+.student-dnd-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.student-dnd-text {
+  color: var(--text);
+}
+
+.student-dnd-sub {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.student-choose-btn {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.student-choose-btn:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.student-file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.5rem 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.student-file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.student-file-item:last-child {
+  border-bottom: none;
+}
+
+.student-file-name {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-file-remove {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  color: var(--text-light);
+}
+
+.student-file-remove:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.submission-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.submission-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.submission-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.submission-message {
+  margin-top: 0.5rem;
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.submission-closed {
+  grid-column: 1 / -1;
+  margin-top: 0.75rem;
+  color: var(--text-light);
+  font-style: italic;
 }
 
 /* Loading and error states */

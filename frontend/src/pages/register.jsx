@@ -14,7 +14,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [adminExists, setAdminExists] = useState(false);
   const [message, setMessage] = useState("");
-  const hasChecked = useRef(false); // To avoid multiple checks
+  const hasChecked = useRef(false); // DE: Verhindert mehrfache Überprüfungen beim Rendern /
 
   useEffect(() => {
     if (hasChecked.current) return;
