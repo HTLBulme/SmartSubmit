@@ -53,7 +53,10 @@ services:
         echo 'DB push failed, retrying in 5 seconds...'
         sleep 5
       done &&
-      npx prisma db seed &&
+      until node prisma/seed.js; do
+        echo 'Seed failed, retrying in 5 seconds...'
+        sleep 5
+      done &&
       cd .. &&
       node backend/src/main.js
       "
