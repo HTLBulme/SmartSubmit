@@ -1,19 +1,23 @@
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Link } from 'react-router-dom'; 
 import "./login.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
 export default function Login() {
-  // 🔹 берём язык из контекста (а не из localStorage напрямую)
+  // DE: Sprachkontext und Übersetzungen /
   const [lang] = useLang();
   const t = T[lang] || T.en;
 
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
+  const [requestedRole, setRequestedRole] = useState("");
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -25,52 +29,29 @@ async function handleLogin(e) {
     const res = await axios.post(`${API_URL}/api/login`, {
       email,
       passwort: password,
-      role,
+      role: requestedRole,
     });
 
-    console.log("🔍 SERVER RESPONSE:", res.data);
+    const { token, user } = res.data.data;
 
-    const user = res.data.data?.user;
-    const token = res.data.data?.token;
-
-   // Sicherstellen, dass die Rolle korrekt extrahiert wird
-   // безопасно получаем имя роли
-    const actualRole =
-      user?.role ||
-      user?.rolle ||
-      user?.roles?.[0]?.role ||
-      user?.roles?.[0]?.name ||
-      user?.roles?.[0]?.bezeichnung ||
-      "";
-
-    console.log("✅ EXTRACTED ROLE:", actualRole);
-
-    // Проверка всех 3 параметров
-    if (
-      !user ||
-      user.email.toLowerCase() !== email.toLowerCase() ||
-      actualRole.toLowerCase() !== role.toLowerCase()
-    ) {
-      setMessage("❌ E-Mail, Passwort oder Rolle stimmen nicht überein");
-      return;
-    }
-
-    // Sicherstellen, dass die Rolle korrekt extrahiert wird
-    // безопасно сохраняем данные в localStorage
     localStorage.setItem("token", token);
-    localStorage.setItem("role", actualRole);
+    localStorage.setItem("role", requestedRole);
+    if (user) localStorage.setItem("user", JSON.stringify(user));
 
-    if (actualRole.toLowerCase() === "admin") window.location.href = "/admin";
-    else if (actualRole.toLowerCase() === "lehrer") window.location.href = "/teacher";
-    else window.location.href = "/student";
+    if (requestedRole === "Admin") navigate("/admin");
+    else if (requestedRole === "Lehrer") navigate("/teacher");
+    else if (requestedRole === "Schüler") navigate("/student");
 
-    setMessage("✅ Login erfolgreich!");
   } catch (err) {
-    console.error("⚠️ Login Fehler:", err);
-    setMessage("⚠️ Serverfehler beim Login");
+    const status = err?.response?.status;
+    const backendMessage = err?.response?.data?.message;
+    console.error("Login Fehler:", status, backendMessage, err);
+    setMessage(
+      backendMessage ||
+        "❌ E-Mail, Passwort oder Rolle stimmen nicht überein"
+    );
   }
 }
-
 
   return (
     <div className="login-container">
@@ -119,12 +100,17 @@ async function handleLogin(e) {
           </button>
         </div>
 
-        <select value={role} onChange={(e) => setRole(e.target.value)} required>
+        <select
+          value={requestedRole}
+          onChange={(e) => setRequestedRole(e.target.value)}
+          required
+        >
           <option value="">{t.selectRole}</option>
           <option value="Admin">{t.admin}</option>
           <option value="Lehrer">{t.teacher}</option>
           <option value="Schüler">{t.student}</option>
         </select>
+
 
         <button type="submit">{t.login}</button>
 
@@ -132,8 +118,16 @@ async function handleLogin(e) {
           {t.forgot}
         </a>
 
+        {/* Help Link */}
+        <div className="text-center mt-3">
+          <Link to="/help" className="text-muted">
+            {t.helpBtn || "Hilfe"} | {t.helpTitle || "Anleitung"}
+          </Link>
+        </div>
+
         {message && <p className="error-text">{message}</p>}
       </form>
+
     </div>
   );
 }

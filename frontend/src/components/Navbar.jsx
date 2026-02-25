@@ -1,11 +1,15 @@
 
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
+import { useNavigate } from "react-router-dom";
+import { Link } from 'react-router-dom';
 import "./Navbar.css";
 
 export default function Navbar() {
   const [lang, setLang] = useLang();
   const t = T[lang];
+
+  const navigate = useNavigate();
 
   function toggleLang(newLang) {
     setLang(newLang);
@@ -14,7 +18,7 @@ export default function Navbar() {
 
   function handleLogout() {
     localStorage.clear();
-    window.location.href = "/";
+    navigate("/");
   }
 
    function handleChangePassword() {
@@ -58,6 +62,11 @@ export default function Navbar() {
         <button className="btn-logout" onClick={handleLogout}>
           {t.logout || "Logout"}
         </button>
+
+          {/* Add Help Button */}
+        <Link to="/help" className="btn btn-sm btn-outline-light me-2">
+          <i className="bi bi-question-circle"></i> {t.helpBtn}
+        </Link>
       </div>
     </nav>
   );

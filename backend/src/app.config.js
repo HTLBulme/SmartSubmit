@@ -18,9 +18,24 @@ const prisma = new PrismaClient({
 // ============================= Upload Directories =============================
 const UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
 const ASSIGNMENTS_DIR = path.join(UPLOAD_DIR, 'assignments');
+const SUBMISSIONS_DIR = path.join(UPLOAD_DIR, 'submissions');
 
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR);
 if (!fs.existsSync(ASSIGNMENTS_DIR)) fs.mkdirSync(ASSIGNMENTS_DIR);
+if (!fs.existsSync(SUBMISSIONS_DIR)) fs.mkdirSync(SUBMISSIONS_DIR, { recursive: true });
+
+function allowListedFileFilter(req, file, cb) {
+  const allowedTypes = /\.(jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|zip|rar)$/;
+  const extnameOk = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+
+  const allowedMimes = /^(image\/(jpeg|png|gif)|application\/pdf|text\/plain|application\/(zip|x-zip-compressed|x-rar-compressed|vnd\.rar|msword|vnd\.ms-excel|vnd\.ms-powerpoint)|application\/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet|presentationml\.presentation))$/;
+  const mimetype = (file.mimetype || '').toLowerCase();
+  const mimetypeOk = allowedMimes.test(mimetype);
+  const mimetypeGeneric = mimetype === '' || mimetype === 'application/octet-stream';
+
+  if (extnameOk && (mimetypeOk || mimetypeGeneric)) return cb(null, true);
+  return cb(new Error('Ungültiger Dateityp'));
+}
 
 // ============================= Multer Configuration =============================
 const uploadMemory = multer({
@@ -39,17 +54,21 @@ const uploadDisk = multer({
     }
   }),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-  fileFilter: function (req, file, cb) {
-    const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|zip|rar/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    
-    if (mimetype && extname) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Ungültiger Dateityp'));
+  fileFilter: allowListedFileFilter
+});
+
+const uploadSubmissionsDisk = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, SUBMISSIONS_DIR);
+    },
+    filename: function (req, file, cb) {      
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, `${uniqueSuffix}-${file.originalname}`);
     }
-  }
+  }),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: allowListedFileFilter
 });
 
 // ============================= Database Init =============================
@@ -76,5 +95,6 @@ module.exports = {
   prisma,       //objekt
   uploadMemory, //objekt
   uploadDisk,   //objekt
-  initDatabase  //funktion
+  initDatabase,  //funktion
+  uploadSubmissionsDisk
 };

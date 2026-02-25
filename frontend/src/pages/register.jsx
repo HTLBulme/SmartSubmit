@@ -1,6 +1,5 @@
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
-import LanguageSwitcher from "../components/LanguageSwitcher";
 import "./register.css";
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
@@ -9,14 +8,13 @@ const API_URL = import.meta.env.VITE_API_URL || "";
 
 export default function Register() {
   const [lang] = useLang();
-  if (!lang) return null;
-  const t = T[lang];
+  const t = T[lang] || T.en;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [adminExists, setAdminExists] = useState(false);
   const [message, setMessage] = useState("");
-  const hasChecked = useRef(false); // ✅ флаг
+  const hasChecked = useRef(false); // DE: Verhindert mehrfache Überprüfungen beim Rendern /
 
   useEffect(() => {
     if (hasChecked.current) return;
@@ -41,7 +39,7 @@ export default function Register() {
     try {
       const res = await axios.post(`${API_URL}/api/register`, {
         email,
-        password, // ✅ исправлено
+        password,
         roleId: 3,
       });
 
