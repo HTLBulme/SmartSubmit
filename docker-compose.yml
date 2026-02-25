@@ -48,7 +48,7 @@ services:
       sh -c "
       cd backend &&
       npx prisma generate &&
-      npx prisma migrate deploy &&
+      npx prisma db push --force-reset &&
       npx prisma db seed &&
       cd .. &&
       node backend/src/main.js
