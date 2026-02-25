@@ -7,6 +7,7 @@ const registerController = require('./controllers/register.controller');
 const adminController = require('./controllers/admin.controller');
 const teacherController = require('./controllers/teacher.controller');
 const studentController = require('./controllers/student.controller');
+const changePasswordController = require('./controllers/changePassword.controller');//new
 
 // Import middleware
 const { authenticateToken, authenticateAdmin } = require('./app.middleware');
@@ -39,6 +40,8 @@ router.get('/student/assignments', authenticateToken, studentController.getAssig
 router.post('/student/submit', authenticateToken, uploadSubmissionsDisk.array('files', 10), studentController.submitAssignment);
 router.get('/student/submissions', authenticateToken, studentController.getMySubmissions);
 
+// ================================ CHANGE PASSWORD ================================ new
+router.post('/change-password', authenticateToken, changePasswordController.changePassword);
 // ================================ CLASSES & SUBJECTS (authenticated) ================================
 router.get('/classes', authenticateToken, teacherController.getClasses);
 router.get('/subjects', authenticateToken, teacherController.getSubjects);

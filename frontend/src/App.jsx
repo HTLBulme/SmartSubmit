@@ -8,6 +8,7 @@ const Register = lazy(() => import("./pages/register"));
 const Admin = lazy(() => import("./pages/admin"));
 const Teacher = lazy(() => import("./pages/teacher"));
 const Student = lazy(() => import("./pages/student"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));//new
 const Help = lazy(() => import("./pages/help"));
 
 function RequireAuth({ children, allowedRoles }) {
@@ -31,33 +32,43 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route
-              path="/admin"
-              element={
-                <RequireAuth allowedRoles={["Admin"]}>
-                  <Admin />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/teacher"
-              element={
-                <RequireAuth allowedRoles={["Lehrer"]}>
-                  <Teacher />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/student"
-              element={
-                <RequireAuth allowedRoles={["Schüler"]}>
-                  <Student />
-                </RequireAuth>
-              }
-            />
 
-            <Route path="/help" element={<Help />} />
-            
+      <Route
+        path="/admin"
+        element={
+          <RequireAuth allowedRoles={["Admin"]}>
+            <Admin />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/teacher"
+        element={
+          <RequireAuth allowedRoles={["Lehrer"]}>
+            <Teacher />
+         </RequireAuth>
+        }
+      />
+      <Route
+       path="/student"
+       element={
+          <RequireAuth allowedRoles={["Schüler"]}>
+            <Student />
+         </RequireAuth>
+       }
+      />
+
+      <Route 
+       path="/change-password" 
+       element={
+         <RequireAuth allowedRoles={["Admin", "Lehrer", "Schüler"]}>
+            <ChangePassword />
+         </RequireAuth>
+       } 
+      />
+      <Route path="/help" element={<Help />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+
           </Routes>
         </Suspense>
       </div>

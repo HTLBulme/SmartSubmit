@@ -1,10 +1,10 @@
-const { PrismaClient } = require('@prisma/client');
-const multer = require('multer');
+const { PrismaClient } = require('@prisma/client');//Lädt den Prisma-Client, einen ORM (Object-Relational Mapper),als JavaScript-Objekt,für CRUD-Operationen
+const multer = require('multer');//Datei-Uploads verarbeiten middleware
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs');// Füge das fs-Modul hinzu (für Dateisystem-Operationen)
 
 // ============================= Prisma Client with Docker Support =============================
-const isDocker = process.env.IS_DOCKER === 'true';
+const isDocker = process.env.IS_DOCKER === 'true';//z.B. process.env.DATABASE_URL: sys-env ablesen，wenn local:IS_DOCKER=false, mit docker:IS_DOCKER=true(von yml zwingend abgelesen)
 const databaseUrl = isDocker ? process.env.DATABASE_DOCKER_URL : process.env.DATABASE_URL;
 
 const prisma = new PrismaClient({
@@ -92,9 +92,9 @@ const initDatabase = async () => {
 };
 
 module.exports = {
-  prisma,
-  uploadMemory,
-  uploadDisk,
-  uploadSubmissionsDisk,
-  initDatabase
+  prisma,       //objekt
+  uploadMemory, //objekt
+  uploadDisk,   //objekt
+  initDatabase,  //funktion
+  uploadSubmissionsDisk
 };

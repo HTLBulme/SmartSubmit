@@ -1,3 +1,4 @@
+
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +21,13 @@ export default function Navbar() {
     navigate("/");
   }
 
+   function handleChangePassword() {
+    window.location.href = "/change-password";//new 
+  }
+
+  
+  const isLoggedIn = localStorage.getItem("token");//new
+
   return (
     <nav className="navbar">
       {/* === Логотип / Название === */}
@@ -27,7 +35,7 @@ export default function Navbar() {
         Smart<span>Submit</span>
       </div>
 
-      {/* === Правая часть: языки + выход === */}
+      {/* === Правая часть: языки +pw ädern+ выход === */}
       <div className="navbar-right">
         <div className="lang-switcher">
           <button
@@ -44,6 +52,13 @@ export default function Navbar() {
           </button>
         </div>
 
+        {/* new pw ädern Button (nur nach einloggen) */}
+        {isLoggedIn && (
+          <button className="btn-logout" onClick={handleChangePassword}>
+            {t.changePassword || "Passwort ändern"}
+          </button>
+        )}
+        
         <button className="btn-logout" onClick={handleLogout}>
           {t.logout || "Logout"}
         </button>
