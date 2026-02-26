@@ -1,162 +1,162 @@
-# SmartSubmit - Aufgabenverwaltungssystem
+# SmartSubmit - Assignment Management System
 
-**Live-Demo:** http://79.76.119.73:8080
+**Live Demo:** http://79.76.119.73:8080
 
-## Inhaltsverzeichnis
+## Table of Contents
 
-1. [Projektübersicht](#projektübersicht)
-2. [Funktionen](#funktionen)
-3. [Technologie-Stack](#technologie-stack)
-4. [Systemarchitektur](#systemarchitektur)
-5. [Installation & Einrichtung](#installation--einrichtung)
-6. [Entwicklungshandbuch](#entwicklungshandbuch)
-7. [Bereitstellung](#bereitstellung)
-8. [Benutzerhandbuch](#benutzerhandbuch)
-9. [API-Dokumentation](#api-dokumentation)
-10. [Datenbankschema](#datenbankschema)
-11. [Fehlerbehebung](#fehlerbehebung)
-12. [Mitwirken](#mitwirken)
+1. [Project Overview](#project-overview)
+2. [Features](#features)
+3. [Technology Stack](#technology-stack)
+4. [System Architecture](#system-architecture)
+5. [Installation & Setup](#installation--setup)
+6. [Development Guide](#development-guide)
+7. [Deployment](#deployment)
+8. [User Guide](#user-guide)
+9. [API Documentation](#api-documentation)
+10. [Database Schema](#database-schema)
+11. [Troubleshooting](#troubleshooting)
+12. [Contributing](#contributing)
 
 ---
 
-## Projektübersicht
+## Project Overview
 
-SmartSubmit ist ein modernes webbasiertes Aufgabenverwaltungssystem für Bildungseinrichtungen. Es ermöglicht Lehrern, Aufgaben zu erstellen und zu verwalten, Schülern, ihre Arbeiten einzureichen, und Administratoren, das gesamte System zu verwalten.
+SmartSubmit is a modern web-based assignment management system designed for educational institutions. It enables teachers to create and manage assignments, students to submit their work, and administrators to manage the entire system.
 
-### Hauptziele
+### Key Goals
 
-- Vereinfachung der Aufgabenverteilung und -abgabe
-- Rollenbasierte Zugriffskontrolle (Admin, Lehrer, Schüler)
-- Effiziente Dateiverwaltung und Nachverfolgung
-- Mehrsprachige Benutzeroberfläche (Deutsch und Englisch)
+- Streamline assignment distribution and submission
+- Provide role-based access control (Admin, Teacher, Student)
+- Enable efficient file management and tracking
+- Offer a multilingual interface (German and English)
 
-### Projektinformationen
+### Project Information
 
-- **Typ:** Diplomarbeitsprojekt
+- **Type:** Diploma Thesis Project
 - **Institution:** HTL Bulme
-- **Status:** Aktive Entwicklung
-- **Lizenz:** Bildungszwecke
+- **Status:** Active Development
+- **License:** Educational Use
 
 ---
 
-## Funktionen
+## Features
 
-### Admin-Funktionen
+### Admin Features
 
-- Benutzerverwaltung (Massenimport über Excel)
-- Import von Schülern und Lehrern aus Excel-Dateien
-- Systemkonfiguration und Überwachung
-- Rollenzuweisung und Berechtigungen
-- Erstmalige Einrichtung
+- User management (bulk import via Excel)
+- Import students and teachers from Excel files
+- System configuration and monitoring
+- Role assignment and permissions
+- First-time setup wizard
 
-### Lehrer-Funktionen
+### Teacher Features
 
-- Aufgaben mit Dateianhängen erstellen
-- Fristen setzen und Klassen zuweisen
-- Aufgabenabgaben anzeigen
-- Abgaben bewerten und Feedback geben
-- Abgabestatistiken verfolgen
-- Mehrere Klassen und Fächer verwalten
+- Create assignments with file attachments
+- Set deadlines and assign to classes
+- View assignment submissions
+- Grade submissions and provide feedback
+- Track submission statistics
+- Manage multiple classes and subjects
 
-### Schüler-Funktionen
+### Student Features
 
-- Zugewiesene Aufgaben anzeigen
-- Aufgaben mit Datei-Uploads einreichen
-- Abgabenhistorie verfolgen
-- Bewertung und Feedback einsehen
-- Aufgabendetails und Fristen anzeigen
-- Aufgaben nach Klasse und Fach filtern
+- View assigned tasks
+- Submit assignments with file uploads
+- Track submission history
+- View grades and feedback
+- View assignment details and deadlines
+- Filter assignments by class and subject
 
-### Allgemeine Funktionen
+### General Features
 
-- Mehrsprachige Unterstützung (DE und EN)
-- Responsive Design (mobil-freundlich)
-- Sichere Authentifizierung mit JWT
-- Datei-Upload-Unterstützung (mehrere Formate)
-- Docker-Bereitstellung verfügbar
+- Multilingual support (DE and EN)
+- Responsive design (mobile-friendly)
+- Secure authentication with JWT
+- File upload support (multiple formats)
+- Docker deployment ready
 
 ---
 
-## Technologie-Stack
+## Technology Stack
 
 ### Frontend
 
 - **Framework:** React 18
-- **Build-Tool:** Vite
-- **Styling:** Bootstrap 5, Eigenes CSS
-- **HTTP-Client:** Axios
+- **Build Tool:** Vite
+- **Styling:** Bootstrap 5, Custom CSS
+- **HTTP Client:** Axios
 - **Routing:** React Router DOM
 - **State Management:** React Context API
 
 ### Backend
 
-- **Laufzeitumgebung:** Node.js 20
+- **Runtime:** Node.js 20
 - **Framework:** Express.js 5
 - **ORM:** Prisma 6
-- **Datenbank:** MySQL 8
-- **Authentifizierung:** JWT (jsonwebtoken)
-- **Passwort-Hashing:** bcryptjs
-- **Datei-Upload:** Multer
-- **Excel-Verarbeitung:** xlsx
+- **Database:** MySQL 8
+- **Authentication:** JWT (jsonwebtoken)
+- **Password Hashing:** bcryptjs
+- **File Upload:** Multer
+- **Excel Processing:** xlsx
 
 ### DevOps
 
-- **Containerisierung:** Docker, Docker Compose
-- **Datenbankverwaltung:** Prisma Studio
-- **Entwicklung:** Nodemon, Vite Dev Server
-- **Versionskontrolle:** Git
+- **Containerization:** Docker, Docker Compose
+- **Database Management:** Prisma Studio
+- **Development:** Nodemon, Vite Dev Server
+- **Version Control:** Git
 
 ---
 
-## Systemarchitektur
+## System Architecture
 
-### Hochstufige Architektur
+### High-Level Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  Client-Browser                     │
-│              (React SPA auf Port 5173/8080)         │
+│                    Client Browser                   │
+│              (React SPA on port 5173/8080)          │
 └─────────────────────────────────────────────────────┘
                           │
                           │ HTTP/HTTPS
                           ▼
 ┌─────────────────────────────────────────────────────┐
 │                  Express.js Backend                 │
-│                    (Port 3000/8080)                 │
+│                    (port 3000/8080)                 │
 │  ┌────────────────────────────────────────────────┐ │
-│  │  Routen (Login, Register, Admin, Lehrer,       │ │
-│  │          Schüler, Klassen, Fächer)             │ │
+│  │  Routes (Login, Register, Admin, Teacher,      │ │
+│  │          Student, Classes, Subjects)           │ │
 │  └────────────────────────────────────────────────┘ │
 │  ┌────────────────────────────────────────────────┐ │
-│  │  Controller (Geschäftslogik)                   │ │
+│  │  Controllers (Business Logic)                  │ │
 │  └────────────────────────────────────────────────┘ │
 │  ┌────────────────────────────────────────────────┐ │
-│  │  Middleware (Auth, Datei-Upload)               │ │
+│  │  Middleware (Auth, File Upload)                │ │
 │  └────────────────────────────────────────────────┘ │
 │  ┌────────────────────────────────────────────────┐ │
-│  │  Prisma ORM (Datenbankzugriff)                 │ │
+│  │  Prisma ORM (Database Access)                  │ │
 │  └────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────┘
                           │
-                          │ MySQL-Protokoll
+                          │ MySQL Protocol
                           ▼
 ┌─────────────────────────────────────────────────────┐
-│                  MySQL-Datenbank                    │
-│                    (Port 3306/3307)                 │
+│                  MySQL Database                     │
+│                    (port 3306/3307)                 │
 │  ┌────────────────────────────────────────────────┐ │
-│  │  Tabellen: Benutzer, Rolle, Klasse, Fach,      │ │
-│  │            Aufgabe, Abgabe                     │ │
+│  │  Tables: Benutzer, Rolle, Klasse, Fach,        │ │
+│  │          Aufgabe, Abgabe                       │ │
 │  └────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────┘
 ```
 
-### Projektstruktur
+### Project Structure
 
 ```
 SmartSubmit/
-├── frontend/                  # React-Frontend-Anwendung
+├── frontend/                  # React frontend application
 │   ├── src/
-│   │   ├── pages/            # Seitenkomponenten
+│   │   ├── pages/            # Page components
 │   │   │   ├── login.jsx
 │   │   │   ├── register.jsx
 │   │   │   ├── admin.jsx
@@ -164,131 +164,131 @@ SmartSubmit/
 │   │   │   └── student.jsx
 │   │   ├── context/          # React Context
 │   │   │   └── LanguageContext.jsx
-│   │   ├── i18n/             # Übersetzungen
+│   │   ├── i18n/             # Translations
 │   │   │   └── index.js
-│   │   ├── App.jsx           # Hauptkomponente
-│   │   └── main.jsx          # Einstiegspunkt
-│   ├── public/               # Statische Ressourcen
+│   │   ├── App.jsx           # Main app component
+│   │   └── main.jsx          # Entry point
+│   ├── public/               # Static assets
 │   ├── package.json
 │   └── vite.config.js
 │
-├── backend/                   # Node.js-Backend-Anwendung
-│   ├── src/                  # Refaktorierte modulare Struktur
-│   │   ├── controllers/      # Geschäftslogik
+├── backend/                   # Node.js backend application
+│   ├── src/                  # Refactored modular structure
+│   │   ├── controllers/      # Business logic
 │   │   │   ├── login.controller.js
 │   │   │   ├── register.controller.js
 │   │   │   ├── admin.controller.js
 │   │   │   ├── teacher.controller.js
 │   │   │   └── student.controller.js
-│   │   ├── main.js           # Server-Einstiegspunkt
-│   │   ├── app.config.js     # Konfiguration & Prisma
-│   │   ├── app.routes.js     # Routendefinitionen
-│   │   ├── app.middleware.js # Authentifizierungs-Middleware
-│   │   └── app.utils.js      # Hilfsfunktionen
-│   ├── prisma/               # Datenbankschema & Migrationen
-│   │   ├── schema.prisma     # Datenbankschema
-│   │   ├── migrations/       # Migrationshistorie
-│   │   └── seed.js           # Datenbank-Seeding
-│   ├── uploads/              # Datei-Upload-Verzeichnis
-│   │   └── assignments/      # Aufgabendateien
+│   │   ├── main.js           # Server entry point
+│   │   ├── app.config.js     # Configuration & Prisma
+│   │   ├── app.routes.js     # Route definitions
+│   │   ├── app.middleware.js # Authentication middleware
+│   │   └── app.utils.js      # Utility functions
+│   ├── prisma/               # Database schema & migrations
+│   │   ├── schema.prisma     # Database schema
+│   │   ├── migrations/       # Migration history
+│   │   └── seed.js           # Database seeding
+│   ├── uploads/              # File upload directory
+│   │   └── assignments/      # Assignment files
 │   ├── package.json
-│   └── .env                  # Umgebungsvariablen
+│   └── .env                  # Environment variables
 │
-├── docker-compose.yml        # Docker-Orchestrierung
-├── Dockerfile                # Backend-Container-Definition
+├── docker-compose.yml        # Docker orchestration
+├── Dockerfile                # Backend container definition
 └── README.md
 ```
 
 ---
 
-## Installation & Einrichtung
+## Installation & Setup
 
-### Voraussetzungen
+### Prerequisites
 
-- Node.js 20.x oder höher
-- MySQL 8.0 oder höher
-- npm 10.x oder höher
-- Docker 24.x oder höher (für containerisierte Bereitstellung)
-- Git für Versionskontrolle
+- Node.js 20.x or higher
+- MySQL 8.0 or higher
+- npm 10.x or higher
+- Docker 24.x or higher (for containerized deployment)
+- Git for version control
 
-### Lokale Entwicklungsumgebung
+### Local Development Setup
 
-#### 1. Repository klonen
+#### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/htlbulme/smartsubmit.git
 cd SmartSubmit
 ```
 
-#### 2. Backend einrichten
+#### 2. Setup Backend
 
 ```bash
 cd backend
 
-# Abhängigkeiten installieren
+# Install dependencies
 npm install
 
-# .env-Datei erstellen
+# Create .env file
 cp .env.example .env
-# .env mit Ihren Datenbank-Zugangsdaten bearbeiten
+# Edit .env with your database credentials
 
-# MySQL-Datenbank erstellen
+# Create MySQL database
 mysql -u root -p
-CREATE DATABASE your_database_name;
-CREATE USER 'your_username'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON your_database_name.* TO 'your_username'@'localhost';
+CREATE DATABASE smartsubmit;
+CREATE USER 'your_user'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON smartsubmit.* TO 'your_user'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 
-# Prisma-Migrationen ausführen
+# Run Prisma migrations
 npx prisma generate
 npx prisma migrate deploy
 
-# Datenbank befüllen
+# Seed the database
 npm run seed
 
-# Backend-Server starten
+# Start backend server
 npm start
 ```
 
-Backend läuft auf `http://localhost:3000`
+Backend will run on `http://localhost:3000`
 
-#### 3. Frontend einrichten
+#### 3. Setup Frontend
 
 ```bash
 cd ../frontend
 
-# Abhängigkeiten installieren
+# Install dependencies
 npm install
 
-# .env-Datei für Entwicklung erstellen
+# Create .env file for development
 echo "VITE_API_URL=http://localhost:3000" > .env.development
 
-# Entwicklungsserver starten
+# Start development server
 npm run dev
 ```
 
-Frontend läuft auf `http://localhost:5173`
+Frontend will run on `http://localhost:5173`
 
-#### 4. Anwendung aufrufen
+#### 4. Access the Application
 
-Öffnen Sie Ihren Browser und navigieren Sie zu:
+Open your browser and navigate to:
 - Frontend: `http://localhost:5173`
 - Backend API: `http://localhost:3000/api`
 
-**Standard-Admin-Zugangsdaten:**
-- E-Mail: `admin@smartsubmit.com`
-- Passwort: `admin123`
+**Default Admin Credentials:**
+- Email: `admin@smartsubmit.com`
+- Password: `admin123`
 
-Wichtig: Ändern Sie das Standardpasswort sofort nach der ersten Anmeldung.
+**Important:** Change the default password immediately after first login.
 
 ---
 
-## Entwicklungshandbuch
+## Development Guide
 
-### Im Entwicklungsmodus ausführen
+### Running in Development Mode
 
-#### Frontend und Backend starten
+#### Start Both Frontend and Backend
 
 ```bash
 # Terminal 1: Backend
@@ -300,96 +300,96 @@ cd frontend
 npm run dev
 ```
 
-#### Oder gleichzeitiger Modus verwenden
+#### Or use Concurrent Mode
 
 ```bash
-# Vom Frontend-Verzeichnis
+# From frontend directory
 npm run dev
-# Dies führt Frontend und Backend gleichzeitig aus
+# This runs both frontend and backend simultaneously
 ```
 
-### Datenbankverwaltung
+### Database Management
 
-#### Datenbank mit Prisma Studio anzeigen
+#### View Database with Prisma Studio
 
 ```bash
 cd backend
 npx prisma studio
 ```
 
-Öffnet Browser unter `http://localhost:5555` mit visuellem Datenbankeditor.
+Opens browser at `http://localhost:5555` with visual database editor.
 
-#### Neue Migration erstellen
+#### Create a New Migration
 
 ```bash
 cd backend
 
-# 1. schema.prisma bearbeiten
-# 2. Migration erstellen
-npx prisma migrate dev --name ihre_migrations_name
+# 1. Edit schema.prisma
+# 2. Create migration
+npx prisma migrate dev --name your_migration_name
 
-# 3. Prisma Client generieren
+# 3. Generate Prisma Client
 npx prisma generate
 ```
 
-#### Datenbank zurücksetzen
+#### Reset Database
 
 ```bash
 cd backend
 
-# Warnung: Dies löscht alle Daten
+# Warning: This deletes all data
 npx prisma migrate reset
 ```
 
-### Neue Funktionen hinzufügen
+### Adding New Features
 
-#### 1. Neuen API-Endpunkt hinzufügen
+#### 1. Add a New API Endpoint
 
-**backend/src/controllers/beispiel.controller.js:**
+**backend/src/controllers/example.controller.js:**
 ```javascript
-const beispielFunktion = async (req, res) => {
+const exampleFunction = async (req, res) => {
   try {
-    // Ihre Logik hier
+    // Your logic here
     res.json({ success: true, data: {} });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Fehler' });
+    res.status(500).json({ success: false, message: 'Error' });
   }
 };
 
-module.exports = { beispielFunktion };
+module.exports = { exampleFunction };
 ```
 
 **backend/src/app.routes.js:**
 ```javascript
-const beispielController = require('./controllers/beispiel.controller');
+const exampleController = require('./controllers/example.controller');
 
-router.get('/beispiel', authenticateToken, beispielController.beispielFunktion);
+router.get('/example', authenticateToken, exampleController.exampleFunction);
 ```
 
-#### 2. Neue Frontend-Seite hinzufügen
+#### 2. Add a New Frontend Page
 
-**frontend/src/pages/beispiel.jsx:**
+**frontend/src/pages/example.jsx:**
 ```javascript
 import { useState } from 'react';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
-export default function Beispiel() {
-  const [daten, setDaten] = useState(null);
+export default function Example() {
+  const [data, setData] = useState(null);
 
-  const datenAbrufen = async () => {
+  const fetchData = async () => {
     const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_URL}/api/beispiel`, {
+    const response = await axios.get(`${API_URL}/api/example`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    setDaten(response.data);
+    setData(response.data);
   };
 
   return (
     <div>
-      <h1>Beispielseite</h1>
-      <button onClick={datenAbrufen}>Daten abrufen</button>
+      <h1>Example Page</h1>
+      <button onClick={fetchData}>Fetch Data</button>
     </div>
   );
 }
@@ -397,248 +397,248 @@ export default function Beispiel() {
 
 **frontend/src/App.jsx:**
 ```javascript
-import Beispiel from './pages/beispiel';
+import Example from './pages/example';
 
-// Route hinzufügen
-<Route path="/beispiel" element={<Beispiel />} />
+// Add route
+<Route path="/example" element={<Example />} />
 ```
 
-### Code-Stil-Richtlinien
+### Code Style Guidelines
 
-- ES6+-Funktionen verwenden (const, Pfeilfunktionen, async/await)
-- CamelCase für Variablen und Funktionen
-- PascalCase für React-Komponenten
-- Kommentare für komplexe Logik hinzufügen
-- Funktionen klein und fokussiert halten
-- Fehler ordnungsgemäß mit try-catch behandeln
+- Use ES6+ features (const, arrow functions, async/await)
+- Follow camelCase for variables and functions
+- Use PascalCase for React components
+- Add comments for complex logic
+- Keep functions small and focused
+- Handle errors properly with try-catch
 
 ---
 
-## Bereitstellung
+## Deployment
 
-### Docker-Bereitstellung (Empfohlen)
+### Docker Deployment (Recommended)
 
-#### 1. Umgebung vorbereiten
+#### 1. Prepare Environment
 
-.env-Datei im Backend-Verzeichnis mit Ihren Produktionszugangsdaten erstellen.
+Create `.env` file in the backend directory with your production credentials.
 
-#### 2. Erstellen und Bereitstellen
+#### 2. Build and Deploy
 
 ```bash
-# Container erstellen und starten
+# Build and start containers
 docker compose build --no-cache
 docker compose up -d
 
-# Überprüfen, ob Container laufen
+# Verify containers are running
 docker compose ps
 
-# Logs überprüfen
+# Check logs
 docker compose logs -f backend
 ```
 
-#### 3. Anwendung aufrufen
+#### 3. Access Application
 
-- Anwendung: `http://ihre-server-ip:8080`
-- MySQL (externer Zugriff): `ihre-server-ip:3307`
+- Application: `http://your-server-ip:8080`
+- MySQL (external access): `your-server-ip:3307`
 
-#### 4. Nach der Bereitstellung
+#### 4. Post-Deployment
 
-1. Anwendung aufrufen
-2. Mit Standard-Admin-Zugangsdaten anmelden
-3. Admin-Passwort sofort ändern
-4. Firewall konfigurieren, um Port 8080 zuzulassen:
+1. Access the application
+2. Login with default admin credentials
+3. Change admin password immediately
+4. Configure firewall to allow port 8080:
    ```bash
    sudo ufw allow 8080/tcp
    ```
 
-### Produktionsserver-Einrichtung
+### Production Server Setup
 
-#### 1. Server-Vorbereitung
+#### 1. Server Preparation
 
 ```bash
-# System aktualisieren
+# Update system
 sudo apt update && sudo apt upgrade -y
 
-# Docker installieren
+# Install Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 
-# Docker Compose installieren
+# Install Docker Compose
 sudo apt install docker-compose -y
 
-# Docker aktivieren, um beim Booten zu starten
+# Enable Docker to start on boot
 sudo systemctl enable docker
 
-# Benutzer zur Docker-Gruppe hinzufügen
+# Add user to docker group
 sudo usermod -aG docker $USER
 ```
 
-#### 2. Klonen und Bereitstellen
+#### 2. Clone and Deploy
 
 ```bash
-# Repository klonen
+# Clone repository
 git clone https://github.com/htlbulme/smartsubmit.git
 cd SmartSubmit
 
-# Produktions-.env mit Ihren Zugangsdaten erstellen
+# Create production .env with your credentials
 
-# Bereitstellen
+# Deploy
 docker compose build --no-cache
 docker compose up -d
 ```
 
-#### 3. Firewall konfigurieren
+#### 3. Configure Firewall
 
 ```bash
-# HTTP zulassen
+# Allow HTTP
 sudo ufw allow 8080/tcp
 
-# Firewall aktivieren
+# Enable firewall
 sudo ufw enable
 
-# Status überprüfen
+# Check status
 sudo ufw status
 ```
 
-### Umgebungsspezifische Konfiguration
+### Environment-Specific Configuration
 
-#### Entwicklung (.env.development)
+#### Development (.env.development)
 
 ```env
 VITE_API_URL=http://localhost:3000
 ```
 
-#### Produktion (.env.production)
+#### Production (.env.production)
 
 ```env
 VITE_API_URL=
 ```
 
-Hinweis: Leerer Wert verwendet denselben Ursprung (relative URLs)
+Note: Empty value uses same origin (relative URLs)
 
 ---
 
-## Benutzerhandbuch
+## User Guide
 
-### Für Administratoren
+### For Administrators
 
-#### 1. Erste Anmeldung
+#### 1. First Login
 
-1. Zur Anwendungs-URL navigieren
-2. Auf "Login" klicken
-3. Admin-Zugangsdaten eingeben
-4. Passwort sofort ändern
+1. Navigate to application URL
+2. Click "Login"
+3. Enter admin credentials
+4. Change password immediately
 
-#### 2. Schüler importieren
+#### 2. Import Students
 
-Excel-Datei mit Spalten vorbereiten:
-- vorname (Vorname)
-- nachname (Nachname)
-- email (E-Mail)
-- klasse (Klasse, z.B. "5A" oder mehrere: "5A,5B")
-- jahrgang (Jahr, z.B. 2025)
+Prepare Excel file with columns:
+- vorname (First Name)
+- nachname (Last Name)
+- email (Email)
+- klasse (Class, e.g., "5A" or multiple: "5A,5B")
+- jahrgang (Year, e.g., 2025)
 
-**Beispiel:**
+**Example:**
 
 | vorname | nachname | email | klasse | jahrgang |
 |---------|----------|-------|--------|----------|
-| Max | Mustermann | max@schule.com | 5A | 2025 |
-| Anna | Schmidt | anna@schule.com | 5B | 2025 |
+| Max | Mustermann | max@school.com | 5A | 2025 |
+| Anna | Schmidt | anna@school.com | 5B | 2025 |
 
-Schritte:
-1. Zum Admin-Panel gehen
-2. "Schüler" auswählen
-3. Auf "Datei auswählen" klicken und Excel auswählen
-4. Auf "Daten hochladen" klicken
+Steps:
+1. Go to Admin panel
+2. Select "Schüler" (Students)
+3. Click "Choose File" and select Excel
+4. Click "Daten hochladen" (Upload Data)
 
-#### 3. Lehrer importieren
+#### 3. Import Teachers
 
-Excel-Datei mit Spalten vorbereiten:
-- vorname (Vorname)
-- nachname (Nachname)
-- email (E-Mail)
-- klasse (Klasse, optional)
-- jahrgang (Jahr, optional)
-- fach_kuerzel (Fachkürzel, z.B. "MATH,DE")
+Prepare Excel file with columns:
+- vorname (First Name)
+- nachname (Last Name)
+- email (Email)
+- klasse (Class, optional)
+- jahrgang (Year, optional)
+- fach_kuerzel (Subject code, e.g., "MATH,DE")
 
-Anfangspasswörter: `vorname nachname` (kleingeschrieben)
+Initial passwords: `firstnamelastname` (lowercase)
 
-Beispiel: Max Mustermann hat Passwort `maxmustermann`
+Example: Max Mustermann has password `maxmustermann`
 
-Benutzer müssen Passwort bei erster Anmeldung ändern.
+Users must change password on first login.
 
-### Für Lehrer
+### For Teachers
 
-#### 1. Aufgabe erstellen
+#### 1. Create Assignment
 
-1. Mit Lehrer-Zugangsdaten anmelden
-2. Klasse aus Dropdown auswählen
-3. Fach auswählen
-4. Aufgabentitel eingeben
-5. Aufgabenbeschreibung schreiben
-6. Dateien hochladen, falls erforderlich (PDF, DOCX, etc.)
-7. Frist festlegen
-8. Auf "Aufgabe speichern" klicken
+1. Login with teacher credentials
+2. Select class from dropdown
+3. Select subject
+4. Enter assignment title
+5. Write assignment description
+6. Upload files if needed (PDF, DOCX, etc.)
+7. Set deadline
+8. Click "Aufgabe speichern" (Save Assignment)
 
-#### 2. Aufgaben anzeigen
+#### 2. View Assignments
 
-1. Auf "Aufgabenliste" klicken
-2. Alle erstellten Aufgaben anzeigen
-3. Abgabenanzahl sehen
-4. Frist-Status überprüfen (aktiv/abgelaufen)
+1. Click "Aufgabenliste" (Assignment List)
+2. View all created assignments
+3. See submission count
+4. Check deadline status (active/expired)
 
-#### 3. Abgaben anzeigen
+#### 3. View Submissions
 
-1. Aufgabe in Liste finden
-2. Auf "Abgabenliste" klicken
-3. Schülerabgaben anzeigen
-4. Eingereichte Dateien herunterladen
+1. Find assignment in list
+2. Click "Abgabenliste" (Submissions)
+3. View student submissions
+4. Download submitted files
 
-### Für Schüler
+### For Students
 
-#### 1. Aufgaben anzeigen
+#### 1. View Assignments
 
-1. Mit Schüler-Zugangsdaten anmelden
-2. Alle Aufgaben für Ihre Klassen sehen
-3. Nach Frist oder Fach filtern
-4. Aufgabendetails anzeigen
+1. Login with student credentials
+2. See all assignments for your classes
+3. Filter by deadline or subject
+4. View assignment details
 
-#### 2. Aufgabe einreichen
+#### 2. Submit Assignment
 
-1. Auf Aufgabe klicken
-2. Abgabetext schreiben
-3. Dateien hochladen, falls erforderlich
-4. Auf "Abgeben" klicken
-5. Bestätigungsmeldung erscheint
+1. Click on assignment
+2. Write submission text
+3. Upload files if required
+4. Click "Abgeben" (Submit)
+5. Confirmation message appears
 
-#### 3. Abgaben verfolgen
+#### 3. Track Submissions
 
-1. Zu "Meine Abgaben" gehen
-2. Abgabenhistorie anzeigen
-3. Abgabestatus überprüfen
-4. Eingereichte Dateien herunterladen
+1. Go to "Meine Abgaben" (My Submissions)
+2. View submission history
+3. Check submission status
+4. Download your submitted files
 
 ---
 
-## API-Dokumentation
+## API Documentation
 
-### Authentifizierung
+### Authentication
 
-Alle authentifizierten Endpunkte erfordern JWT-Token im Header:
+All authenticated endpoints require JWT token in header:
 
 ```
 Authorization: Bearer <token>
 ```
 
-### Öffentliche Endpunkte
+### Public Endpoints
 
-#### Admin-Existenz überprüfen
+#### Check Admin Exists
 
 ```http
 GET /api/admin/check
 ```
 
-Antwort:
+Response:
 ```json
 {
   "success": true,
@@ -646,109 +646,109 @@ Antwort:
 }
 ```
 
-#### Registrieren (Nur erster Admin)
+#### Register (First Admin Only)
 
 ```http
 POST /api/register
 Content-Type: application/json
 
 {
-  "email": "admin@beispiel.com",
-  "password": "passwort123",
+  "email": "admin@example.com",
+  "password": "password123",
   "roleId": 3
 }
 ```
 
-#### Anmelden
+#### Login
 
 ```http
 POST /api/login
 Content-Type: application/json
 
 {
-  "email": "benutzer@beispiel.com",
-  "passwort": "passwort123",
+  "email": "user@example.com",
+  "passwort": "password123",
   "role": "Admin"
 }
 ```
 
-### Admin-Endpunkte
+### Admin Endpoints
 
-#### Schüler importieren
+#### Import Students
 
 ```http
 POST /api/admin/import/students
 Authorization: Bearer <admin-token>
 Content-Type: multipart/form-data
 
-file: <excel-datei>
+file: <excel-file>
 ```
 
-#### Lehrer importieren
+#### Import Teachers
 
 ```http
 POST /api/admin/import/teachers
 Authorization: Bearer <admin-token>
 Content-Type: multipart/form-data
 
-file: <excel-datei>
+file: <excel-file>
 ```
 
-### Lehrer-Endpunkte
+### Teacher Endpoints
 
-#### Aufgabe erstellen
+#### Create Assignment
 
 ```http
 POST /api/teacher/assignments
-Authorization: Bearer <lehrer-token>
+Authorization: Bearer <teacher-token>
 Content-Type: multipart/form-data
 
 class: "5A"
 subject: "Mathematik"
-title: "Hausaufgabe 1"
-text: "Übungen 1-10 ausfüllen"
+title: "Homework 1"
+text: "Complete exercises 1-10"
 dueDate: "2025-12-31"
-files: <datei1>, <datei2>
+files: <file1>, <file2>
 ```
 
-#### Lehrer-Aufgaben abrufen
+#### Get Teacher's Assignments
 
 ```http
 GET /api/teacher/assignments
-Authorization: Bearer <lehrer-token>
+Authorization: Bearer <teacher-token>
 ```
 
-### Schüler-Endpunkte
+### Student Endpoints
 
-#### Aufgaben abrufen
+#### Get Assignments
 
 ```http
 GET /api/student/assignments
-Authorization: Bearer <schueler-token>
+Authorization: Bearer <student-token>
 ```
 
-#### Aufgabe einreichen
+#### Submit Assignment
 
 ```http
 POST /api/student/submit
-Authorization: Bearer <schueler-token>
+Authorization: Bearer <student-token>
 Content-Type: multipart/form-data
 
 assignmentId: 1
-text: "Meine Abgabe"
-files: <datei1>, <datei2>
+text: "My submission"
+files: <file1>, <file2>
 ```
 
-### Hilfs-Endpunkte
+### Utility Endpoints
 
-#### Klassen abrufen
+#### Get Classes
 
 ```http
 GET /api/classes
 Authorization: Bearer <token>
 ```
 
-#### Fächer abrufen
+#### Get Subjects
 
 ```http
 GET /api/subjects
@@ -757,9 +757,9 @@ Authorization: Bearer <token>
 
 ---
 
-## Datenbankschema
+## Database Schema
 
-### Entity-Relationship-Diagramm
+### Entity Relationship Diagram
 
 ```
 ┌─────────────┐       ┌─────────────┐       ┌─────────────┐
@@ -808,167 +808,167 @@ Authorization: Bearer <token>
 └─────────────┘
 ```
 
-### Tabellenbeschreibungen
+### Table Descriptions
 
-#### Benutzer
+#### Benutzer (Users)
 
-Speichert alle Systembenutzer (Administratoren, Lehrer, Schüler).
+Stores all system users (admins, teachers, students).
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
-| id | INT | Primärschlüssel |
-| vorname | VARCHAR(255) | Vorname |
-| nachname | VARCHAR(255) | Nachname |
-| email | VARCHAR(255) | Eindeutige E-Mail-Adresse |
-| passwort_hash | VARCHAR(255) | Gehashtes Passwort |
-| erstellt_am | DATETIME | Erstellungszeitstempel |
-| aktiv | BOOLEAN | Aktiv-Status |
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| vorname | VARCHAR(255) | First name |
+| nachname | VARCHAR(255) | Last name |
+| email | VARCHAR(255) | Unique email address |
+| passwort_hash | VARCHAR(255) | Hashed password |
+| erstellt_am | DATETIME | Creation timestamp |
+| aktiv | BOOLEAN | Active status |
 
-#### Rolle
+#### Rolle (Roles)
 
-Definiert Benutzerrollen im System.
+Defines user roles in the system.
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
-| id | INT | Primärschlüssel (1=Schüler, 2=Lehrer, 3=Admin) |
-| bezeichnung | VARCHAR(255) | Rollenname |
-| beschreibung | TEXT | Rollenbeschreibung |
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key (1=Student, 2=Teacher, 3=Admin) |
+| bezeichnung | VARCHAR(255) | Role name |
+| beschreibung | TEXT | Role description |
 
-#### Klasse
+#### Klasse (Classes)
 
-Speichert Schulklassen.
+Stores school classes.
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
-| id | INT | Primärschlüssel |
-| name | VARCHAR(50) | Klassenname (z.B. "5A") |
-| jahrgang | INT | Jahr (z.B. 2025) |
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| name | VARCHAR(50) | Class name (e.g., "5A") |
+| jahrgang | INT | Year (e.g., 2025) |
 
-Eindeutige Einschränkung: (name, jahrgang)
+Unique constraint: (name, jahrgang)
 
-#### Fach
+#### Fach (Subjects)
 
-Speichert Schulfächer.
+Stores school subjects.
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
-| id | INT | Primärschlüssel |
-| name | VARCHAR(255) | Fachname |
-| kuerzel | VARCHAR(255) | Fachkürzel (eindeutig) |
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| name | VARCHAR(255) | Subject name |
+| kuerzel | VARCHAR(255) | Subject code (unique) |
 
-#### Aufgabe
+#### Aufgabe (Assignments)
 
-Speichert von Lehrern erstellte Aufgaben.
+Stores teacher-created assignments.
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
-| id | INT | Primärschlüssel |
-| titel | VARCHAR(255) | Aufgabentitel |
-| beschreibung | TEXT | Aufgabenbeschreibung |
-| anhaenge | TEXT | Angehängte Dateien (JSON) |
-| termin | DATETIME | Fälligkeitsdatum |
-| klasse_id | INT | Fremdschlüssel zu Klasse |
-| fach_id | INT | Fremdschlüssel zu Fach |
-| lehrer_id | INT | Fremdschlüssel zu Benutzer (Lehrer) |
-| erstellt_am | DATETIME | Erstellungszeitstempel |
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| titel | VARCHAR(255) | Assignment title |
+| beschreibung | TEXT | Assignment description |
+| anhaenge | TEXT | Attached files (JSON) |
+| termin | DATETIME | Due date |
+| klasse_id | INT | Foreign key to Klasse |
+| fach_id | INT | Foreign key to Fach |
+| lehrer_id | INT | Foreign key to Benutzer (teacher) |
+| erstellt_am | DATETIME | Creation timestamp |
 
-#### Abgabe
+#### Abgabe (Submissions)
 
-Speichert Schülerabgaben.
+Stores student submissions.
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
-| id | INT | Primärschlüssel |
-| aufgabe_id | INT | Fremdschlüssel zu Aufgabe |
-| schueler_id | INT | Fremdschlüssel zu Benutzer (Schüler) |
-| dateien | TEXT | Eingereichte Dateien (JSON) |
-| abgabe_zeitpunkt | DATETIME | Abgabezeitstempel |
-| bewertung | INT | Note (0-100) |
-| feedback | TEXT | Lehrer-Feedback |
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| aufgabe_id | INT | Foreign key to Aufgabe |
+| schueler_id | INT | Foreign key to Benutzer (student) |
+| dateien | TEXT | Submitted files (JSON) |
+| abgabe_zeitpunkt | DATETIME | Submission timestamp |
+| bewertung | INT | Grade (0-100) |
+| feedback | TEXT | Teacher feedback |
 
-Eindeutige Einschränkung: (aufgabe_id, schueler_id)
+Unique constraint: (aufgabe_id, schueler_id)
 
 ---
 
-## Fehlerbehebung
+## Troubleshooting
 
-### Häufige Probleme
+### Common Issues
 
-#### 1. Port-Konflikte
+#### 1. Port Conflicts
 
-**Problem:** Port 3306 bereits in Verwendung
+**Problem:** Port 3306 already in use
 
-**Lösung:**
+**Solution:**
 ```bash
-# Für lokale Entwicklung: Docker-MySQL-Port ändern
-# docker-compose.yml bearbeiten:
+# For local development: Change Docker MySQL port
+# Edit docker-compose.yml:
 ports:
-  - "3307:3306"  # Port 3307 extern verwenden
+  - "3307:3306"  # Use 3307 externally
 ```
 
-#### 2. Prisma Client nicht generiert
+#### 2. Prisma Client Not Generated
 
-**Problem:** Modul '@prisma/client' kann nicht gefunden werden
+**Problem:** Cannot find module '@prisma/client'
 
-**Lösung:**
+**Solution:**
 ```bash
 cd backend
 npx prisma generate
 npm start
 ```
 
-#### 3. Upload schlägt in Docker fehl
+#### 3. Upload Fails in Docker
 
-**Problem:** Serverfehler beim Hochladen von Dateien
+**Problem:** Serverfehler when uploading files
 
-**Lösungen:**
-- Frontend-API-URL prüfen (leer für Docker)
-- Frontend neu erstellen: `npm run build`
-- Docker neu erstellen: `docker compose build --no-cache`
-- Browser-Cache löschen und erneut anmelden
+**Solutions:**
+- Check frontend API URL is correct (empty for Docker)
+- Rebuild frontend: `npm run build`
+- Rebuild Docker: `docker compose build --no-cache`
+- Clear browser cache and login again
 
-#### 4. Datenbankverbindung fehlgeschlagen
+#### 4. Database Connection Failed
 
-**Problem:** Kann Datenbankserver nicht erreichen
+**Problem:** Can't reach database server
 
-**Lösung:**
+**Solution:**
 ```bash
-# Datenbank läuft prüfen
+# Check database is running
 docker compose ps
 
-# Logs prüfen
+# Check logs
 docker compose logs db
 
-# Datenbank neu starten
+# Restart database
 docker compose restart db
 ```
 
-#### 5. 403 Forbidden auf Admin-Routen
+#### 5. 403 Forbidden on Admin Routes
 
-**Problem:** Nur für Admins-Fehler
+**Problem:** Nur für Admins error
 
-**Lösung:**
-- Admin-Benutzer in Docker-Datenbank erstellen
-- Erneut anmelden, um neues Token zu erhalten
-- Admin-Rolle in Datenbank prüfen
+**Solution:**
+- Create admin user in Docker database
+- Login again to get fresh token
+- Check admin role exists in database
 
-### Docker-Probleme
+### Docker Issues
 
-#### Container wird ständig neu gestartet
+#### Container Keeps Restarting
 
-Logs prüfen:
+Check logs:
 ```bash
 docker compose logs backend --tail 100
 ```
 
-Häufige Ursachen:
-- Datenbankverbindung fehlgeschlagen
-- Prisma Client nicht generiert
-- Port bereits in Verwendung
+Common causes:
+- Database connection failed
+- Prisma Client not generated
+- Port already in use
 
-#### Build schlägt fehl
+#### Build Fails
 
-Docker-Cache löschen:
+Clear Docker cache:
 ```bash
 docker compose down
 docker system prune -af
@@ -976,64 +976,64 @@ docker compose build --no-cache
 docker compose up -d
 ```
 
-### Frontend-Probleme
+### Frontend Issues
 
-#### Leere Seite nach Build
+#### Blank Page After Build
 
-Konsole auf Fehler prüfen:
-1. Browser-DevTools öffnen (F12)
-2. Konsolen-Tab auf Fehler prüfen
-3. Häufige Probleme:
-   - Fehlende API_URL
-   - CORS-Fehler
-   - Build-Fehler
+Check console for errors:
+1. Open browser DevTools (F12)
+2. Check Console tab for errors
+3. Common issues:
+   - Missing API_URL
+   - CORS errors
+   - Build errors
 
-#### API-Anfragen schlagen fehl
+#### API Requests Fail
 
-Netzwerk-Tab prüfen:
-1. DevTools öffnen (F12) → Netzwerk-Tab
-2. Aktion ausführen, die fehlschlägt
-3. Anfrage-URL, Status-Code und Antwort prüfen
+Check Network tab:
+1. Open DevTools (F12) → Network tab
+2. Try the action that fails
+3. Check request URL, status code, and response
 
 ---
 
-## Mitwirken
+## Contributing
 
-### Entwicklungsablauf
+### Development Workflow
 
-1. Repository forken
-2. Feature-Branch erstellen: `git checkout -b feature/ihr-feature-name`
-3. Änderungen vornehmen
-4. Gründlich in Entwicklung und Docker testen
-5. Änderungen committen: `git commit -m "Add: Ihre Feature-Beschreibung"`
-6. Zu Ihrem Fork pushen: `git push origin feature/ihr-feature-name`
-7. Pull Request erstellen
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/your-feature-name`
+3. Make changes
+4. Test thoroughly in both development and Docker
+5. Commit changes: `git commit -m "Add: your feature description"`
+6. Push to your fork: `git push origin feature/your-feature-name`
+7. Create Pull Request
 
-### Code-Review-Checkliste
+### Code Review Checklist
 
-- Code folgt Projekt-Stil-Richtlinien
-- Alle Tests bestanden
-- Keine console.log im Produktionscode
-- Fehlerbehandlung implementiert
-- Kommentare für komplexe Logik hinzugefügt
-- Dokumentation aktualisiert
-- Keine sensiblen Daten im Code
-- Funktioniert sowohl in Entwicklung als auch in Docker
+- Code follows project style guidelines
+- All tests pass
+- No console.log in production code
+- Error handling implemented
+- Comments added for complex logic
+- Documentation updated
+- No sensitive data in code
+- Works in both development and Docker
 
-### Testen
+### Testing
 
-Vor dem Einreichen:
+Before submitting:
 
 ```bash
-# Backend testen
+# Test backend
 cd backend
 npm test
 
-# Frontend-Build testen
+# Test frontend build
 cd frontend
 npm run build
 
-# Docker-Bereitstellung testen
+# Test Docker deployment
 docker compose build --no-cache
 docker compose up -d
 docker compose logs backend
@@ -1041,74 +1041,74 @@ docker compose logs backend
 
 ---
 
-## Lizenz
+## License
 
-Dieses Projekt wird als Diplomarbeit für Bildungszwecke an der HTL Bulme entwickelt.
+This project is developed as a diploma thesis for educational purposes at HTL Bulme.
 
-Nur für Bildungszwecke. Kommerzielle Nutzung ist ohne Genehmigung nicht gestattet.
+For educational use only. Commercial use is not permitted without permission.
 
 ---
 
-## Kontakt & Support
+## Contact & Support
 
-### Projektteam
+### Project Team
 
 - **Institution:** HTL Bulme
-- **Projekttyp:** Diplomarbeit
+- **Project Type:** Diploma Thesis
 - **Repository:** https://github.com/htlbulme/smartsubmit
 
-### Hilfe erhalten
+### Getting Help
 
-1. Dokumentation prüfen: Dieses README und Fehlerbehebungsabschnitt lesen
-2. Issues prüfen: Bestehende GitHub-Issues durchsuchen
-3. Issue erstellen: Bei anhaltendem Problem neues Issue erstellen mit detaillierter Beschreibung, Schritten zur Reproduktion, Fehlermeldungen und Umgebungsdetails
+1. Check Documentation: Read this README and troubleshooting section
+2. Check Issues: Search existing GitHub issues
+3. Create Issue: If problem persists, create new issue with detailed description, steps to reproduce, error messages, and environment details
 
-### Fehler melden
+### Reporting Bugs
 
-Beinhalten:
-- Erwartetes Verhalten
-- Tatsächliches Verhalten
-- Schritte zur Reproduktion
-- Screenshots falls zutreffend
-- Fehler-Logs
-- Systeminformationen
-
----
-
-## Änderungsprotokoll
-
-### Version 1.0.0 (Aktuell)
-
-**Funktionen:**
-- Benutzerauthentifizierung und -autorisierung
-- Rollenbasierte Zugriffskontrolle
-- Admin-Panel mit Excel-Import
-- Lehrer-Aufgabenerstellung
-- Schüler-Aufgabenanzeige
-- Schülerabgabe (Text- und Datei-Upload) inkl. Abgabenübersicht
-- Aufgabenbewertung und Feedback durch Lehrer
-- Datei-Upload-Unterstützung
-- Persistente Upload-Speicherung in Docker (Uploads über Volume)
-- Mehrsprachige Oberfläche (DE, EN)
-- Docker-Bereitstellung
-- Responsive Design
-
-**Bekannte Einschränkungen:**
-- E-Mail-Benachrichtigungen (geplant)
-- Erweiterte Berichterstattung (geplant)
+Include:
+- Expected behavior
+- Actual behavior
+- Steps to reproduce
+- Screenshots if applicable
+- Error logs
+- System information
 
 ---
 
-## Danksagungen
+## Changelog
 
-- HTL Bulme für Projektunterstützung
-- Prisma für ausgezeichnetes ORM
-- React und Vite Teams
-- Express.js Community
-- Alle Mitwirkenden und Tester
+### Version 1.0.0 (Current)
+
+**Features:**
+- User authentication and authorization
+- Role-based access control
+- Admin panel with Excel import
+- Teacher assignment creation
+- Student assignment viewing
+- Student submissions (text + file upload) incl. submission overview
+- Teacher grading and feedback for submissions
+- File upload support
+- Persistent upload storage in Docker (uploads via volume)
+- Multilingual interface (DE, EN)
+- Docker deployment
+- Responsive design
+
+**Known Limitations:**
+- Email notifications (planned)
+- Advanced reporting (planned)
 
 ---
 
-**Letzte Aktualisierung:** Januar 2026  
+## Acknowledgments
+
+- HTL Bulme for project support
+- Prisma for excellent ORM
+- React and Vite teams
+- Express.js community
+- All contributors and testers
+
+---
+
+**Last Updated:** January 2026  
 **Version:** 1.0.0  
-**Status:** Aktive Entwicklung
+**Status:** Active Development
