@@ -1,5 +1,13 @@
 const { prisma } = require('../app.config');
 
+async function ensureStudentRole(studentId) {
+  const isStudent = await prisma.benutzerRolle.findFirst({
+    where: { benutzer_id: studentId, rolle_id: 1 },
+    select: { id: true }
+  });
+  return Boolean(isStudent);
+}
+
 /**
  * Get all assignments for a student
  * TODO: Filter by student's classes
@@ -11,6 +19,11 @@ const getAssignments = async (req, res) => {
 
     if (!Number.isInteger(studentId)) {
       return res.status(401).json({ success: false, message: 'Ungültiger Benutzer' });
+    }
+
+    const isStudent = await ensureStudentRole(studentId);
+    if (!isStudent) {
+      return res.status(403).json({ success: false, message: 'Nur für Schüler' });
     }
     
     // Get student's classes
@@ -72,6 +85,11 @@ const submitAssignment = async (req, res) => {
 
     if (!Number.isInteger(studentId)) {
       return res.status(401).json({ success: false, message: 'Ungültiger Benutzer' });
+    }
+
+    const isStudent = await ensureStudentRole(studentId);
+    if (!isStudent) {
+      return res.status(403).json({ success: false, message: 'Nur für Schüler' });
     }
 
     const rawAssignmentId = assignmentId ?? aufgabeId;
@@ -202,7 +220,16 @@ const submitAssignment = async (req, res) => {
  */
 const getMySubmissions = async (req, res) => {
   try {
-    const studentId = req.userId;
+    const studentId = Number.parseInt(req.userId, 10);
+
+    if (!Number.isInteger(studentId)) {
+      return res.status(401).json({ success: false, message: 'Ungültiger Benutzer' });
+    }
+
+    const isStudent = await ensureStudentRole(studentId);
+    if (!isStudent) {
+      return res.status(403).json({ success: false, message: 'Nur für Schüler' });
+    }
 
     const rows = await prisma.abgabe.findMany({
       where: { schueler_id: studentId },

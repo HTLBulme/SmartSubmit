@@ -240,7 +240,14 @@ const getAssignmentSubmissions = async (req, res) => {
     }
 
     const rows = await prisma.abgabe.findMany({
-      where: { aufgabe_id: assignmentId },
+      where: {
+        aufgabe_id: assignmentId,
+        schueler: {
+          benutzer_rollen: {
+            some: { rolle_id: 1 }
+          }
+        }
+      },
       orderBy: { abgabe_zeitpunkt: 'desc' },
       select: {
         id: true,

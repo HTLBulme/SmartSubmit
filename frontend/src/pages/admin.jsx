@@ -55,7 +55,7 @@ export default function UploadUsers() {
   async function handleUpload() {
     if (!file) return setMessage(t.noFile);
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token") || localStorage.getItem("token");
     if (!token) {
       setMessage(t.serverError);
       return;
