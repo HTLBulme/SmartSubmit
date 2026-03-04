@@ -1,7 +1,7 @@
-const path = require('path');// Path-Modul importieren (für Dateipfade)
+const path = require('path');// Import the path module (for file paths)
 const express = require('express');
-const cors = require('cors');//Lädt die CORS-Middleware zur Handhabung von Cross-Origin-Anfragen，const cors ist eine Factory Function
-const dotenv = require('dotenv');//Zum Laden von Umgebungsvariablen aus .env
+const cors = require('cors');//Loads the CORS middleware for handling cross-origin requests, const cors is a factory function
+const dotenv = require('dotenv');//For loading environment variables from .env
 
 // Load environment variables
 dotenv.config();
@@ -18,7 +18,7 @@ const FRONTEND_PATH = path.join(__dirname, '..', '..', 'frontend', 'dist');
 
 // ============================= Middleware =============================
 app.use(cors());
-app.use(express.json());// Führt JSON-req.body(js-object)-Parser-Middleware aus 
+app.use(express.json());//  Runs the JSON req.body (JS object) parser middleware
 app.use(express.urlencoded({ extended: true }));
 
 // ============================= API Routes =============================

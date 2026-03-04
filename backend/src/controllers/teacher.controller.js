@@ -12,7 +12,7 @@ function tryDeleteUploadedFile(filePath) {
   try {
     const resolved = path.resolve(filePath);
     // Only allow deleting files inside backend/uploads
-    const allowedPrefix = UPLOADS_ROOT + path.sep;
+    const allowedPrefix = UPLOADS_ROOT + path.sep; //path.sep = /
     if (!resolved.startsWith(allowedPrefix)) return;
     if (fs.existsSync(resolved)) fs.unlinkSync(resolved);
   } catch (error) {
@@ -35,13 +35,13 @@ const createAssignment = async (req, res) => {
         message: 'Klasse, Fach und Abgabetermin sind erforderlich'
       });
     }
-
+    // Ensure title and text are strings; default to empty string if missing or wrong type
     const safeTitle = typeof title === 'string' ? title : '';
     const safeText = typeof text === 'string' ? text : '';
 
     const isTeacher = await prisma.benutzerRolle.findFirst({
       where: { benutzer_id: teacherId, rolle_id: 2 },
-      select: { id: true }
+      select: { id: true } // Only fetch id, existence check only
     });
 
     if (!isTeacher) {
@@ -87,8 +87,8 @@ const createAssignment = async (req, res) => {
       anhaenge = JSON.stringify(filePaths);
     }
 
-    const terminDate = new Date(dueDate);
-    if (Number.isNaN(terminDate.getTime())) {
+    const terminDate = new Date(dueDate); //String:"2025-06-15T23:59:00.000Z"-->Js-object
+    if (Number.isNaN(terminDate.getTime())) {//-> 1749945600000
       return res.status(400).json({
         success: false,
         message: 'Ungültiges Datum-Format'
@@ -211,12 +211,12 @@ const getTeacherAssignments = async (req, res) => {
  */
 const getAssignmentSubmissions = async (req, res) => {
   try {
-    const teacherId = Number.parseInt(req.userId, 10);
-    const assignmentId = Number.parseInt(req.params.assignmentId, 10);
+    const teacherId = Number.parseInt(req.userId, 10);//No conversion needed here. Because req.userId come from token its aways a number
+    const assignmentId = Number.parseInt(req.params.assignmentId, 10);//params from router.get('/assignments/:assignmentId/submissions', getAssignmentSubmissions);
 
-    if (!Number.isInteger(teacherId)) {
-      return res.status(401).json({ success: false, message: 'Ungültiger Benutzer' });
-    }
+    //if (!Number.isInteger(teacherId)) {
+     // return res.status(401).json({ success: false, message: 'Ungültiger Benutzer' });
+   // }
 
     if (!Number.isInteger(assignmentId)) {
       return res.status(400).json({ success: false, message: 'Aufgaben-ID erforderlich' });
@@ -274,7 +274,7 @@ const getAssignmentSubmissions = async (req, res) => {
       }
 
       return {
-        ...row,
+        ...row,   // Spread row and replace dateien string with parsed array
         dateien: parsedFiles
       };
     });
@@ -401,7 +401,7 @@ const setAssignmentArchived = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Aufgabe nicht gefunden' });
     }
 
-    const bodyValue = req.body?.archiviert;
+    const bodyValue = req.body?.archiviert;// ?. prevents crash if req.body is null/undefined
     if (typeof bodyValue !== 'boolean') {
       return res.status(400).json({ success: false, message: 'archiviert (boolean) erforderlich' });
     }

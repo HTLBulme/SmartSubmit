@@ -3,31 +3,31 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 /**
- * Passwort ändern
+ * Change password
  * POST /api/change-password
- * Benötigt: Authorization header mit Bearer token
+ * Requires: Authorization header with Bearer token
  * Body: { oldPassword, newPassword }
  */
 const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    const userId = req.userId; // Vom authenticateToken Middleware erhalten
+    const userId = req.userId; //Received from authenticateToken middleware
 
-    // Eingaben validieren
+    // Validate inputs
     if (!oldPassword || !newPassword) {
       return res.status(400).json({
         error: 'Altes und neues Passwort sind erforderlich'
       });
     }
 
-    // Neue Passwortlänge validieren
+    // Validate new password length
     if (newPassword.length < 6) {
       return res.status(400).json({
         error: 'Neues Passwort muss mindestens 6 Zeichen lang sein'
       });
     }
 
-    // Benutzer suchen
+    // Find user
     const user = await prisma.benutzer.findUnique({
       where: { id: userId }
     });
@@ -38,7 +38,7 @@ const changePassword = async (req, res) => {
       });
     }
 
-    // Altes Passwort verifizieren
+    // Verify old password
     const isOldPasswordValid = await bcrypt.compare(oldPassword, user.passwort_hash);
     
     if (!isOldPasswordValid) {
@@ -47,7 +47,7 @@ const changePassword = async (req, res) => {
       });
     }
 
-    // Prüfen ob neues Passwort identisch mit altem ist
+    // Check if new password is identical to old one
     /*
     const isSamePassword = await bcrypt.compare(newPassword, user.passwort_hash);
     
@@ -58,10 +58,10 @@ const changePassword = async (req, res) => {
     }
       */
 
-    // Neues Passwort hashen
+    // Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Passwort aktualisieren
+    // Update password
     await prisma.benutzer.update({
       where: { id: userId },
       data: {

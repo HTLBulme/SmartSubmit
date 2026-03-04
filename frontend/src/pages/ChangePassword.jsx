@@ -27,19 +27,19 @@ export default function ChangePassword() {
     e.preventDefault();
     setMessage("");
 
-    // 🔹 Passwortlänge validieren
+    // Validate password length
     if (newPassword.length < 6) {
       setMessage(t.passwordTooShort);
       return;
     }
 
-    // 🔹 Passwortübereinstimmung prüfen
+    // Check password match
     if (newPassword !== confirmPassword) {
       setMessage(t.passwordMismatch);
       return;
     }
     /*
-    // 🔹 Neues Passwort darf nicht mit altem übereinstimmen
+    // New password must not be the same as the old one
     if (oldPassword === newPassword) {
       setMessage(t.samePassword);
       return;
@@ -73,7 +73,7 @@ export default function ChangePassword() {
       setIsSuccess(true);
       setMessage(res.data.message || t.passwordChangeSuccess);
 
-      // 🔹 Nach 3 Sekunden automatisch zur Startseite weiterleiten
+      // Automatically redirect to home page after 3 seconds
       setTimeout(() => {
         const role = localStorage.getItem("role");
         if (role?.toLowerCase() === "admin") navigate("/admin");
@@ -96,7 +96,7 @@ export default function ChangePassword() {
     }
   }
 
-  // 🔹 Augen-Symbol SVG-Komponente
+  // Eye icon SVG component
   const EyeIcon = ({ show }) => (
     show ? (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -120,7 +120,7 @@ export default function ChangePassword() {
 
         {!isSuccess ? (
           <>
-            {/* 🔹 Altes Passwort */}
+            {/* Old password */}
             <div className="password-field">
               <input
                 type={showOldPassword ? "text" : "password"}
@@ -140,7 +140,7 @@ export default function ChangePassword() {
               </button>
             </div>
 
-            {/* 🔹 Neues Passwort */}
+            {/* New password */}
             <div className="password-field">
               <input
                 type={showNewPassword ? "text" : "password"}
@@ -161,7 +161,7 @@ export default function ChangePassword() {
               </button>
             </div>
 
-            {/* 🔹 Neues Passwort bestätigen */}
+            {/* Confirm new password */}
             <div className="password-field">
               <input
                 type={showConfirmPassword ? "text" : "password"}

@@ -32,7 +32,7 @@ router.post('/teacher/assignments', authenticateToken, uploadDisk.array('files',
 router.get('/teacher/assignments', authenticateToken, teacherController.getTeacherAssignments);
 router.delete('/teacher/assignments/:assignmentId', authenticateToken, teacherController.deleteAssignment);
 router.get('/teacher/assignments/:assignmentId/submissions', authenticateToken, teacherController.getAssignmentSubmissions);
-router.patch('/teacher/assignments/:assignmentId/archive', authenticateToken, teacherController.setAssignmentArchived);
+router.patch('/teacher/assignments/:assignmentId/archive', authenticateToken, teacherController.setAssignmentArchived);//Partial update, only modifies the specified fields.
 router.patch('/teacher/submissions/:submissionId', authenticateToken, teacherController.gradeSubmission);
 
 // ================================ STUDENT PAGE (authenticated) ================================

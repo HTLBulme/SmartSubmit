@@ -1,10 +1,10 @@
-const { PrismaClient } = require('@prisma/client');//Lädt den Prisma-Client, einen ORM (Object-Relational Mapper),als JavaScript-Objekt,für CRUD-Operationen
-const multer = require('multer');//Datei-Uploads verarbeiten middleware
+const { PrismaClient } = require('@prisma/client');//Loads the Prisma Client, an ORM (Object-Relational Mapper), as a JavaScript object, for CRUD operations
+const multer = require('multer');//Middleware for handling file uploads
 const path = require('path');
-const fs = require('fs');// Füge das fs-Modul hinzu (für Dateisystem-Operationen)
+const fs = require('fs');// Add the fs module (for file system operations)
 
 // ============================= Prisma Client with Docker Support =============================
-const isDocker = process.env.IS_DOCKER === 'true';//z.B. process.env.DATABASE_URL: sys-env ablesen，wenn local:IS_DOCKER=false, mit docker:IS_DOCKER=true(von yml zwingend abgelesen)
+const isDocker = process.env.IS_DOCKER === 'true';//e.g. process.env.DATABASE_URL: reads from system environment variables, local: IS_DOCKER=false, with Docker: IS_DOCKER=true (mandatory read from yml)
 const databaseUrl = isDocker ? process.env.DATABASE_DOCKER_URL : process.env.DATABASE_URL;
 
 const prisma = new PrismaClient({
@@ -16,25 +16,24 @@ const prisma = new PrismaClient({
 });
 
 // ============================= Upload Directories =============================
-const UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
-const ASSIGNMENTS_DIR = path.join(UPLOAD_DIR, 'assignments');
-const SUBMISSIONS_DIR = path.join(UPLOAD_DIR, 'submissions');
+const UPLOAD_DIR = path.resolve(__dirname, '..', 'uploads');
+const ASSIGNMENTS_DIR = path.resolve(UPLOAD_DIR, 'assignments');
+const SUBMISSIONS_DIR = path.resolve(UPLOAD_DIR, 'submissions');
 
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR);
 if (!fs.existsSync(ASSIGNMENTS_DIR)) fs.mkdirSync(ASSIGNMENTS_DIR);
-if (!fs.existsSync(SUBMISSIONS_DIR)) fs.mkdirSync(SUBMISSIONS_DIR, { recursive: true });
+if (!fs.existsSync(SUBMISSIONS_DIR)) fs.mkdirSync(SUBMISSIONS_DIR);
 
 function allowListedFileFilter(req, file, cb) {
-  const allowedTypes = /\.(jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|zip|rar)$/;
-  const extnameOk = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|zip|rar/;
+  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedTypes.test(file.mimetype);
 
-  const allowedMimes = /^(image\/(jpeg|png|gif)|application\/pdf|text\/plain|application\/(zip|x-zip-compressed|x-rar-compressed|vnd\.rar|msword|vnd\.ms-excel|vnd\.ms-powerpoint)|application\/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet|presentationml\.presentation))$/;
-  const mimetype = (file.mimetype || '').toLowerCase();
-  const mimetypeOk = allowedMimes.test(mimetype);
-  const mimetypeGeneric = mimetype === '' || mimetype === 'application/octet-stream';
-
-  if (extnameOk && (mimetypeOk || mimetypeGeneric)) return cb(null, true);
-  return cb(new Error('Ungültiger Dateityp'));
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb(new Error('Ungültiger Dateityp'));
+  }
 }
 
 // ============================= Multer Configuration =============================
@@ -92,9 +91,9 @@ const initDatabase = async () => {
 };
 
 module.exports = {
-  prisma,       //objekt
-  uploadMemory, //objekt
-  uploadDisk,   //objekt
+  prisma,       //object
+  uploadMemory, //object
+  uploadDisk,   //object
   initDatabase,  //funktion
   uploadSubmissionsDisk
 };
