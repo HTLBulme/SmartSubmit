@@ -1,8 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-/**
- * Generate JWT token for a user
- */
+// --- Generate JWT token for a user ---
 const generateToken = (userId) => {
   return jwt.sign(
     { userId: userId },
@@ -11,9 +9,8 @@ const generateToken = (userId) => {
   );
 };
 
-/**
- * Validate email address
- */
+// --- Validate email address ---
+
 const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);

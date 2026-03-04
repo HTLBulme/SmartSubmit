@@ -31,6 +31,13 @@ const T = {
     loginTitle: "Anmeldung",
 
     // --- Teacher Panel & Assignment Creation ---
+    assignmentSeed1: "Quadratische Gleichungen lösen",
+    assignmentSeed1Desc: "Lösen Sie die Aufgaben auf Seite 45-47 im Mathematikbuch. Zeigen Sie alle Rechenschritte.",
+    assignmentSeed2: "Einführung in Python",
+    assignmentSeed2Desc: "Schreiben Sie ein Python-Programm, das die Fibonacci-Folge bis zur 10. Zahl berechnet.",
+    assignmentSeed3: "Gedichtanalyse: Goethe",
+    assignmentSeed3Desc: "Analysieren Sie das Gedicht 'Erlkönig' von Johann Wolfgang von Goethe. Mindestens 2 Seiten.",
+    submissionSeedFeedback: "Sehr gute Arbeit! Die Rechenschritte sind klar dargestellt.",
     teacherPanel: "Lehrerbereich",
     classLbl: "Klasse",
     subjectLbl: "Fach",
@@ -49,7 +56,7 @@ const T = {
     assgnSaved: "Aufgabe wurde gespeichert",
     assgnError: "Fehler beim Speichern",
     assignmentBtn: "Aufgabenliste",
-    abgabenBtn: "Abgabenliste",
+    submissionsBtn: "Abgabenliste",
     submissionsTitle: "Abgabenliste",
     noSubmissions: "Keine Abgaben vorhanden",
 
@@ -70,7 +77,7 @@ const T = {
     firstName: "Vorname",
     lastName: "Nachname",
     gradeLevel: "Jahrgang",
-    subjectAbbrev: "Fachkürzel",
+    subjectCode: "Fachkürzel",
 
     // --- Student Panel ---
     roleStudents: "Schüler",
@@ -132,6 +139,9 @@ const T = {
     deleteLbl: "Löschen",
     deleteConfirm: "Aufgabe wirklich löschen? Alle Abgaben werden ebenfalls gelöscht.",
     deleteError: "Fehler beim Löschen",
+      errorArchiving: "Fehler beim Archivieren der Aufgabe",
+      errorDeleting: "Fehler beim Löschen der Aufgabe",
+      errorLoadingSubmissions: "Fehler beim Laden der Abgaben",
         
     // --- Help page ---
     helpTitle: "Hilfe & Anleitung",
@@ -175,16 +185,16 @@ const T = {
       "vorname: Vorname des Schülers",
       "nachname: Nachname des Schülers",
       "email: E-Mail-Adresse (muss eindeutig sein)",
-      "klasse: Klassenname (z.B. \"5A\" oder \"5A,5B\")",
+       "className: Klassenname (z.B. \"5A\" oder \"5A,5B\")",
       "jahrgang: Jahr (z.B. 2025)"
     ],
     excelTeacherColumns: [
       "vorname: Vorname des Lehrers",
       "nachname: Nachname des Lehrers",
       "email: E-Mail-Adresse (muss eindeutig sein)",
-      "klasse: Klassenname (optional)",
+       "className: Klassenname (optional)",
       "jahrgang: Jahr (optional)",
-      "fach_kuerzel: Fachkürzel (z.B. \"MATH,DE\")"
+       "subjectCode: Fachkürzel (z.B. \"MATH,DE\")"
     ],
 
     // --- Password Hint ---
@@ -269,14 +279,21 @@ const T = {
     loginTitle: "Login",
 
     // --- Teacher Panel & Assignment Creation ---
+    assignmentSeed1: "Solving quadratic equations",
+    assignmentSeed1Desc: "Solve the problems on pages 45-47 in the math book. Show all steps.",
+    assignmentSeed2: "Introduction to Python",
+    assignmentSeed2Desc: "Write a Python program that calculates the Fibonacci sequence up to the 10th number.",
+    assignmentSeed3: "Poetry analysis: Goethe",
+    assignmentSeed3Desc: "Analyze the poem 'Erlkönig' by Johann Wolfgang von Goethe. At least 2 pages.",
+    submissionSeedFeedback: "Very good work! All steps are clearly shown.",
     teacherPanel: "Teacher Panel",
     classLbl: "Class",
     subjectLbl: "Subject",
     titleLbl: "Title",
-    textLbl: "Description",
-    filesLbl: "Files",
     dueLbl: "Due date",
-    duePresetPlaceholder: "Quick select",
+    titlePh: "Enter assignment title",
+    gradeRange: "Invalid grade (0-100)",
+    subjectCode: "Subject code",
     duePresetDay: "+ 1 day",
     duePresetWeek: "+ 1 week",
     duePresetMonth: "+ 1 month",
@@ -287,7 +304,7 @@ const T = {
     assgnSaved: "Assignment saved",
     assgnError: "Error while saving",
     assignmentBtn: "Assignments list",
-    abgabenBtn: "Submissions list",
+    submissionsBtn: "Submissions list",
     submissionsTitle: "Submissions",
     noSubmissions: "No submissions yet",
 
@@ -308,7 +325,7 @@ const T = {
     firstName: "First name",
     lastName: "Last name",
     gradeLevel: "Grade",
-    subjectAbbrev: "Subject code",
+    subjectCode: "Subject code",
 
     // --- Student Panel ---
     roleStudents: "Students",
@@ -370,6 +387,9 @@ const T = {
     deleteLbl: "Delete",
     deleteConfirm: "Delete this assignment? All submissions will be deleted too.",
     deleteError: "Delete failed",
+      errorArchiving: "Error archiving assignment",
+      errorDeleting: "Error deleting assignment",
+      errorLoadingSubmissions: "Error loading submissions",
 
     // --- Help page ---
     helpTitle: "Help & Instructions",
@@ -413,16 +433,16 @@ const T = {
       "vorname: First name",
       "nachname: Last name",
       "email: Email address (must be unique)",
-      "klasse: Class name (e.g. \"5A\" or \"5A,5B\")",
+      "className: Class name (e.g. \"5A\" or \"5A,5B\")",
       "jahrgang: Year (e.g. 2025)"
     ],
     excelTeacherColumns: [
       "vorname: First name",
       "nachname: Last name",
       "email: Email address (must be unique)",
-      "klasse: Class name (optional)",
+      "className: Class name (optional)",
       "jahrgang: Year (optional)",
-      "fach_kuerzel: Subject code (e.g. \"MATH,DE\")"
+      "subjectCode: Subject code (e.g. \"MATH,DE\")"
     ],
 
     // --- Password Hint ---
@@ -452,7 +472,7 @@ const T = {
     ],
     faqLate: [
       "What happens if I miss the deadline?",
-      "You can still submit the assignment, but it will be marked as late.",
+      "You can still submit the assignment, but it will be marked as late."
     ], 
     faqEdit: [
       "Can I edit a submission after it's been made?",

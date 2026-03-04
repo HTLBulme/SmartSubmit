@@ -183,7 +183,7 @@ export default function StudentDashboard() {
       const assignments = assignmentsRaw.map((assignment) => {
         const submission = getSubmission(assignment.id);
         const submitted = Boolean(submission);
-        const gradeValue = submission?.bewertung ?? null;
+        const gradeValue = submission?.grade ?? null;
 
         let submittedFiles = [];
         const rawSubmittedFiles = submission?.dateien;
@@ -212,13 +212,13 @@ export default function StudentDashboard() {
 
         return {
           id: assignment.id,
-          title: assignment.titel,
-          description: assignment.beschreibung,
-          dueDate: assignment.termin,
+          title: assignment.title,
+          description: assignment.description,
+          dueDate: assignment.dueDate,
           submitted,
           gradeValue,
           feedback: submission?.feedback ?? null,
-          submissionTime: submission?.abgabe_zeitpunkt ?? null,
+          submissionTime: submission?.submissionTime ?? null,
           submittedText: submission?.text ?? "",
           submittedFiles,
           attachments,

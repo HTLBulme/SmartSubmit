@@ -3,9 +3,7 @@ const XLSX = require('xlsx');
 const { prisma } = require('../app.config');
 const { validateEmail } = require('../app.utils');
 
-/**
- * Check if admin exists
- */
+// --- Check if admin exists ---
 const checkAdminExists = async (req, res) => {
   try {
     const adminCount = await prisma.benutzerRolle.count({
@@ -17,21 +15,19 @@ const checkAdminExists = async (req, res) => {
       adminExists: adminCount > 0
     });
   } catch (error) {
-    console.error('Fehler bei der Administratorprüfung', error);
+    console.error('Admin check error', error);
     res.status(500).json({
       success: false,
-      message: 'Server Fehler'
+      message: 'Server error'
     });
   }
 };
 
-/**
- * Import students from Excel
- */
+// --- Import students from Excel ---
 const importStudents = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'Keine Datei hochgeladen' });
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
     const workbook = XLSX.read(req.file.buffer);
@@ -45,29 +41,29 @@ const importStudents = async (req, res) => {
         const { vorname, nachname, email, klasse, jahrgang } = row;
 
         if (!vorname || !nachname || !email || !klasse || !jahrgang) {
-          results.failed.push({ row: row, reason: 'Fehlende Pflichtfelder' });
+          results.failed.push({ row: row, reason: 'Missing required fields' });
           continue;
         }
 
         if (!validateEmail(email)) {
-          results.failed.push({ row: row, reason: 'Ungültige E-Mail' });
+          results.failed.push({ row: row, reason: 'Invalid email' });
           continue;
         }
 
         const existingUser = await prisma.benutzer.findUnique({ where: { email } });
         if (existingUser) {
-          results.failed.push({ row: row, reason: 'E-Mail existiert bereits' });
+          results.failed.push({ row: row, reason: 'Email already exists' });
           continue;
         }
 
         const initialPassword = `${vorname}${nachname}`.toLowerCase();
         const hashedPassword = await bcrypt.hash(initialPassword, 10);
 
-        // Students can belong to multiple classes (separated by comma)
+        // --- Students can belong to multiple classes (separated by comma) ---
         const klasseNames = klasse.split(',').map(k => k.trim());
 
         await prisma.$transaction(async (tx) => {
-          // 1. Create user
+          // --- 1. Create user ---
           const user = await tx.benutzer.create({
             data: {
               vorname: vorname,
@@ -77,12 +73,12 @@ const importStudents = async (req, res) => {
             }
           });
 
-          // 2. Assign student role
+          // --- 2. Assign student role ---
           await tx.benutzerRolle.create({
             data: { benutzer_id: user.id, rolle_id: 1 }
           });
 
-          // 3. Create/link classes
+          // --- 3. Create/link classes ---
           for (const klasseName of klasseNames) {
             let klasseRecord = await tx.klasse.findFirst({
               where: { name: klasseName, jahrgang: parseInt(jahrgang) }
@@ -108,22 +104,20 @@ const importStudents = async (req, res) => {
 
     res.json({
       success: true,
-      message: `${results.success.length} Schüler importiert, ${results.failed.length} fehlgeschlagen`,
+      message: `${results.success.length} students imported, ${results.failed.length} failed`,
       data: results
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Import Fehler' });
+    res.status(500).json({ success: false, message: 'Import error' });
   }
 };
 
-/**
- * Import teachers from Excel
- */
+// --- Import teachers from Excel ---
 const importTeachers = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'Keine Datei' });
+      return res.status(400).json({ success: false, message: 'No file' });
     }
 
     const workbook = XLSX.read(req.file.buffer);
@@ -136,18 +130,18 @@ const importTeachers = async (req, res) => {
         const { vorname, nachname, email, klasse, jahrgang, fach_kuerzel } = row;
 
         if (!vorname || !nachname || !email) {
-          results.failed.push({ row, reason: 'Fehlende Pflichtfelder' });
+          results.failed.push({ row, reason: 'Missing required fields' });
           continue;
         }
 
         if (!validateEmail(email)) {
-          results.failed.push({ row, reason: 'Ungültige E-Mail' });
+          results.failed.push({ row, reason: 'Invalid email' });
           continue;
         }
 
         const existingUser = await prisma.benutzer.findUnique({ where: { email: email } });
         if (existingUser) {
-          results.failed.push({ row: row, reason: 'E-Mail existiert bereits' });
+          results.failed.push({ row: row, reason: 'Email already exists' });
           continue;
         }
 
@@ -155,17 +149,17 @@ const importTeachers = async (req, res) => {
         const hashedPassword = await bcrypt.hash(initialPassword, 10);
 
         await prisma.$transaction(async (tx) => {
-          // 1. Create user
+          // --- 1. Create user ---
           const user = await tx.benutzer.create({
             data: { vorname, nachname, email, passwort_hash: hashedPassword }
           });
 
-          // 2. Assign teacher role
+          // --- 2. Assign teacher role ---
           await tx.benutzerRolle.create({
             data: { benutzer_id: user.id, rolle_id: 2 }
           });
 
-          // 3. Link to classes (if provided)
+          // --- 3. Link to classes (if provided) ---
           if (klasse && jahrgang) {
             const klasseNames = klasse.split(',').map(k => k.trim());
             
@@ -186,7 +180,7 @@ const importTeachers = async (req, res) => {
             }
           }
 
-          // 4. Link to subjects (if provided)
+          // --- 4. Link to subjects (if provided) ---
           if (fach_kuerzel) {
             const fachKuerzels = fach_kuerzel.split(',').map(k => k.trim());
             
@@ -228,12 +222,12 @@ const importTeachers = async (req, res) => {
 
     res.json({
       success: true,
-      message: `${results.success.length} Lehrer importiert, ${results.failed.length} fehlgeschlagen`,
+      message: `${results.success.length} teachers imported, ${results.failed.length} failed`,
       data: results
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Import Fehler' });
+    res.status(500).json({ success: false, message: 'Import error' });
   }
 };
 
