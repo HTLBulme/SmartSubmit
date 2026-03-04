@@ -48,8 +48,15 @@ services:
       sh -c "
       cd backend &&
       npx prisma generate &&
-      npx prisma migrate deploy &&
-      npx prisma db seed &&
+      echo 'Waiting for database...' &&
+      until npx prisma db push --force-reset; do
+        echo 'DB push failed, retrying in 5 seconds...'
+        sleep 5
+      done &&
+      until node prisma/seed.js; do
+        echo 'Seed failed, retrying in 5 seconds...'
+        sleep 5
+      done &&
       cd .. &&
       node backend/src/main.js
       "

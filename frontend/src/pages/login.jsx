@@ -26,6 +26,36 @@ async function handleLogin(e) {
   setMessage("");
 
   try {
+    // DE: Wenn Token + User bereits vorhanden sind, erlauben wir einen Rollenwechsel
+    //     ohne erneuten Backend-Login (hilft bei parallelen Tabs Lehrer/Schüler).
+    // EN: If token + user are already present, allow switching the active role
+    //     without calling backend again (helps with parallel teacher/student tabs).
+    const existingToken = localStorage.getItem("token");
+    const existingUserRaw = localStorage.getItem("user");
+    let existingUser = null;
+    try {
+      existingUser = existingUserRaw ? JSON.parse(existingUserRaw) : null;
+    } catch {
+      existingUser = null;
+    }
+
+    if (existingToken && existingUser && Array.isArray(existingUser.roles) && requestedRole) {
+      const hasRole = existingUser.roles.some(
+        (r) => typeof r?.bezeichnung === "string" && r.bezeichnung.toLowerCase() === requestedRole.toLowerCase()
+      );
+      if (hasRole) {
+        sessionStorage.setItem("token", existingToken);
+        sessionStorage.setItem("activeRole", requestedRole);
+        // Keep for backwards compatibility / старое поведение
+        localStorage.setItem("role", requestedRole);
+
+        if (requestedRole === "Admin") navigate("/admin");
+        else if (requestedRole === "Lehrer") navigate("/teacher");
+        else if (requestedRole === "Schüler") navigate("/student");
+        return;
+      }
+    }
+
     const res = await axios.post(`${API_URL}/api/login`, {
       email,
       passwort: password,
@@ -35,6 +65,11 @@ async function handleLogin(e) {
     const { token, user } = res.data.data;
 
     localStorage.setItem("token", token);
+    // DE/EN: Rolle pro Tab speichern, damit mehrere Rollen parallel möglich sind.
+    // DE/EN: Token pro Tab speichern, damit mehrere Accounts parallel möglich sind.
+    sessionStorage.setItem("token", token);
+    sessionStorage.setItem("activeRole", requestedRole);
+    // Keep for backwards compatibility / старое поведение
     localStorage.setItem("role", requestedRole);
     if (user) localStorage.setItem("user", JSON.stringify(user));
 

@@ -153,7 +153,7 @@ export default function StudentDashboard() {
     if (showLoading) setLoading(true);
     setError("");
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
       if (!token) {
         setError(t.fetchError || "Not authenticated");
         return;
@@ -284,7 +284,11 @@ export default function StudentDashboard() {
     setSubmitMessage("");
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+      if (!token) {
+        setSubmitMessage(t.fetchError || "Not authenticated");
+        return;
+      }
       const fd = new FormData();
       fd.append("assignmentId", String(assignmentId));
       fd.append("text", submitText);
@@ -306,39 +310,6 @@ export default function StudentDashboard() {
     }
   };
 
-  /* Local-backend
-  useEffect(() => {
-    // Mockdaten
-    const mockData = {
-      name: "Max Mustermann",
-      assignments: [
-        {
-          id: 1,
-          title: "Mathe-Hausaufgabe",
-          dueDate: "2025-12-01",
-          submitted: true
-        },
-        {
-          id: 2,
-          title: "Programmierprojekt",
-          dueDate: "2025-12-15",
-          submitted: false
-        }
-      ],
-      grades: [
-        {
-          id: 1,
-          assignmentTitle: "Klassenarbeit",
-          grade: "1",
-          feedback: "Ausgezeichnete Arbeit!"
-        }
-      ]
-    };
-
-    setUserData(mockData);
-    setLoading(false);
-  }, []); // Einmalig beim Laden, da es sich um Mockdaten handelt
-*/
   if (loading) {
     return <div className="loading">{t.loading || "Loading..."}</div>;
   }

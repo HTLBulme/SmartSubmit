@@ -12,12 +12,42 @@ const ChangePassword = lazy(() => import("./pages/ChangePassword"));//new
 const Help = lazy(() => import("./pages/help"));
 
 function RequireAuth({ children, allowedRoles }) {
-  const token = localStorage.getItem("token");
+  // DE: Token pro Tab (sessionStorage) bevorzugen, damit mehrere Accounts parallel funktionieren.
+  // EN: Prefer per-tab token (sessionStorage) so multiple accounts can run in parallel.
+  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+  // DE: Rolle pro Tab speichern (sessionStorage), damit Lehrer+Schüler parallel gehen.
+  // EN: Store role per tab (sessionStorage) so teacher+student can run in parallel.
+  const activeRole = sessionStorage.getItem("activeRole");
   const role = localStorage.getItem("role");
 
+  let userRoles = [];
+  try {
+    const raw = localStorage.getItem("user");
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (parsed && Array.isArray(parsed.roles)) {
+      userRoles = parsed.roles
+        .map((r) => (typeof r?.bezeichnung === "string" ? r.bezeichnung : null))
+        .filter(Boolean);
+    }
+  } catch {
+    userRoles = [];
+  }
+
   if (!token) return <Navigate to="/" replace />;
-  if (Array.isArray(allowedRoles) && allowedRoles.length > 0 && !allowedRoles.includes(role)) {
-    return <Navigate to="/" replace />;
+
+  if (Array.isArray(allowedRoles) && allowedRoles.length > 0) {
+    // DE: Primär prüfen wir die pro-Tab Rolle.
+    // EN: First check the per-tab role.
+    if (activeRole && allowedRoles.includes(activeRole)) return children;
+
+    // DE: Fallback: explizit gespeicherte Rolle.
+    // EN: Fallback: explicitly stored role.
+    if (role && allowedRoles.includes(role)) return children;
+
+    // DE: Fallback: Rolle(n) aus gespeichertem user.roles verwenden.
+    // EN: Fallback: use roles from stored user.roles.
+    const hasAllowed = userRoles.some((r) => allowedRoles.includes(r));
+    if (!hasAllowed) return <Navigate to="/" replace />;
   }
 
   return children;
