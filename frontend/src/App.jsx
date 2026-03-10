@@ -72,7 +72,7 @@ export default function App() {
       <Route
         path="/teacher"
         element={
-          <RequireAuth allowedRoles={["Lehrer"]}>
+          <RequireAuth allowedRoles={["Teacher"]}>
             <Teacher />
          </RequireAuth>
         }
@@ -80,7 +80,7 @@ export default function App() {
       <Route
        path="/student"
        element={
-          <RequireAuth allowedRoles={["Schüler"]}>
+          <RequireAuth allowedRoles={["Student"]}>
             <Student />
          </RequireAuth>
        }
@@ -89,7 +89,7 @@ export default function App() {
       <Route 
        path="/change-password" 
        element={
-         <RequireAuth allowedRoles={["Admin", "Lehrer", "Schüler"]}>
+         <RequireAuth allowedRoles={["Admin", "Teacher", "Student"]}>
             <ChangePassword />
          </RequireAuth>
        } 

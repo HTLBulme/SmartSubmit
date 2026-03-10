@@ -35,9 +35,9 @@ async function handleLogin(e) {
       existingUser = null;
     }
 
-    if (existingToken && existingUser && Array.isArray(existingUser.roles) && requestedRole) {
-      const hasRole = existingUser.roles.some(
-        (r) => typeof r?.bezeichnung === "string" && r.bezeichnung.toLowerCase() === requestedRole.toLowerCase()
+    if (existingToken && existingUser && Array.isArray(existingUser.userRoles) && requestedRole) {
+      const hasRole = existingUser.userRoles.some(
+        (r) => typeof r?.name === "string" && r.name.toLowerCase() === requestedRole.toLowerCase()
       );
       if (hasRole) {
         sessionStorage.setItem("token", existingToken);
@@ -55,7 +55,7 @@ async function handleLogin(e) {
     const res = await axios.post(`${API_URL}/api/login`, {
       email,
       password: password,
-      role: requestedRole,
+      role: requestedRole.trim(), // Ensure no extra spaces in role
     });
 
     const { token, user } = res.data.data;
@@ -75,7 +75,7 @@ async function handleLogin(e) {
   } catch (err) {
     const status = err?.response?.status;
     const backendMessage = err?.response?.data?.message;
-    console.error("Login Fehler:", status, backendMessage, err);
+    console.error("Login Error:", status, backendMessage, err);
     setMessage(
       backendMessage ||
         "❌ Email, password, or role do not match."

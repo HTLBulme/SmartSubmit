@@ -430,9 +430,9 @@ export default function Teacher() {
                               <tr key={a.id}>
                                 <td>{idx + 1}</td>
                                 <td>{a.title}</td>
-                                <td>{a.className}</td>
+                                <td>{a.class}</td>
                                 <td>{a.subject}</td>
-                                <td>{a.termin ? new Date(a.termin).toLocaleDateString() : ''}</td>
+                                <td>{a.dueDate ? new Date(a.dueDate).toLocaleDateString() : ''}</td>
                                 <td>
                                   {/* Assignment status (active/expired/archived) */}
                                   {a.status === 'active' ? (
@@ -555,16 +555,16 @@ export default function Teacher() {
                             <tr key={s.id}>
                               <td>
                                 {/* Student name and email */}
-                                {s.schueler?.vorname} {s.schueler?.nachname}
-                                {s.schueler?.email ? (
+                                {s.student?.firstName} {s.student?.lastName}
+                                {s.student?.email ? (
                                   <div className="text-muted" style={{ fontSize: "0.85rem" }}>
-                                    {s.schueler.email}
+                                    {s.student.email}
                                   </div>
                                 ) : null}
                               </td>
                               <td>
                                 {/* Submission timestamp */}
-                                {s.submissionTime ? new Date(s.submissionTime).toLocaleString() : ""}
+                                {s.submittedAt ? new Date(s.submittedAt).toLocaleString() : ""}
                               </td>
                               <td style={{ minWidth: "110px" }}>
                                 {/* Enter grade (0-100) */}
@@ -586,9 +586,9 @@ export default function Teacher() {
                               </td>
                               <td>
                                 {/* Submission files */}
-                                {Array.isArray(s.dateien) && s.dateien.length > 0 ? (
+                                {Array.isArray(s.files) && s.files.length > 0 ? (
                                   <ul className="mb-0" style={{ paddingLeft: "1.1rem" }}>
-                                    {s.dateien.map((f, idx) => {
+                                    {s.files.map((f, idx) => {
                                       const href = getSubmissionFileUrl(f);
                                       const label = getSubmissionFileLabel(f);
                                       return (
