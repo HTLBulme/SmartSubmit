@@ -2,54 +2,52 @@ const bcrypt = require('bcryptjs');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-/**
- * Passwort ändern
- * POST /api/change-password
- * Benötigt: Authorization header mit Bearer token
- * Body: { oldPassword, newPassword }
- */
+// --- Change password ---
+// POST /api/change-password
+// Requires: Authorization header with Bearer token
+// Body: { oldPassword, newPassword }
 const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    const userId = req.userId; // Vom authenticateToken Middleware erhalten
+    const userId = req.userId; // Set by authenticateToken middleware
 
-    // Eingaben validieren
+    // --- Validate input --- 
     if (!oldPassword || !newPassword) {
       return res.status(400).json({
-        error: 'Altes und neues Passwort sind erforderlich'
+        error: 'Old and new password are required'
       });
     }
 
-    // Neue Passwortlänge validieren
+    // --- Validate new password length ---
     if (newPassword.length < 6) {
       return res.status(400).json({
-        error: 'Neues Passwort muss mindestens 6 Zeichen lang sein'
+        error: 'New password must be at least 6 characters long'
       });
     }
 
-    // Benutzer suchen
-    const user = await prisma.benutzer.findUnique({
+    // --- Find user ---
+    const user = await prisma.user.findUnique({
       where: { id: userId }
     });
 
     if (!user) {
       return res.status(404).json({
-        error: 'Benutzer nicht gefunden'
+        error: 'User not found'
       });
     }
 
-    // Altes Passwort verifizieren
-    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.passwort_hash);
+    // --- Verify old password ---
+    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.passwordHash);
     
     if (!isOldPasswordValid) {
       return res.status(401).json({
-        error: 'Aktuelles Passwort ist falsch'
+        error: 'Current password is incorrect'
       });
     }
 
-    // Prüfen ob neues Passwort identisch mit altem ist
+    // --- Check if new password is identical to old password ---
     /*
-    const isSamePassword = await bcrypt.compare(newPassword, user.passwort_hash);
+    const isSamePassword = await bcrypt.compare(newPassword, user.passwordHash);
     
     if (isSamePassword) {
       return res.status(400).json({
@@ -58,27 +56,27 @@ const changePassword = async (req, res) => {
     }
       */
 
-    // Neues Passwort hashen
+    // --- Hash new password ---
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Passwort aktualisieren
-    await prisma.benutzer.update({
+    // --- Update password ---
+    await prisma.user.update({
       where: { id: userId },
       data: {
-        passwort_hash: hashedPassword
+        passwordHash: hashedPassword
       }
     });
 
-    console.log(`✅ Passwort für Benutzer ${user.email} erfolgreich geändert`);
+    console.log(`✅ Password for user ${user.email} changed successfully`);
 
     return res.json({
-      message: 'Passwort erfolgreich geändert'
+      message: 'Password changed successfully'
     });
 
   } catch (error) {
-    console.error('❌ Fehler beim Ändern des Passworts:', error);
+    console.error('❌ Error changing password:', error);
     return res.status(500).json({
-      error: 'Serverfehler beim Ändern des Passworts'
+      error: 'Server error while changing password'
     });
   }
 };

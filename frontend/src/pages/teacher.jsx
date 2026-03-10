@@ -6,40 +6,23 @@ import "./teacher.css";
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 
-const API_URL = import.meta.env.VITE_API_URL || "";   // verbindung mit backend http://localhost:3000
+// --- backend http://localhost:3000 ---
+const API_URL = import.meta.env.VITE_API_URL || "";   
 
-// Lehrer-Seite / Teacher page /
+// --- Teacher page ---
 export default function Teacher() {
   const [lang] = useLang();
   const t = T[lang] || T.en;
 
-  // Formularstatus / Form state /
-  // DE: Diese States sind die Eingabefelder für das Erstellen einer Aufgabe.
-  // EN: These states back the input fields for creating an assignment.
-  const [klass, setKlass] = useState("");
-  // DE: Ausgewählte Klasse (Dropdown).
-  // EN: Selected class (dropdown).
-  const [subject, setSubject] = useState("");
-  // DE: Ausgewähltes Fach (Dropdown).
-  // EN: Selected subject (dropdown).
-  const [title, setTitle] = useState("");
-  // DE: Titel der Aufgabe.
-  // EN: Assignment title.
-  const [text, setText] = useState("");
-  // DE: Beschreibungstext der Aufgabe (für Schüler sichtbar).
-  // EN: Assignment description text (visible to students).
-  const [due, setDue] = useState(""); // Fälligkeitsdatum / Due date /
-  // DE: Fälligkeitsdatum im Input-Format (YYYY-MM-DD).
-  // EN: Due date in input format (YYYY-MM-DD).
-  const [duePreset, setDuePreset] = useState("");
-  // DE: Quick-Select Preset (day/week/month) fürs Datum.
-  // EN: Quick-select preset (day/week/month) for the due date.
-  const [lastDuePreset, setLastDuePreset] = useState("");
-  // DE: Merkt letztes Preset für die Anzeige im Placeholder.
-  // EN: Tracks last preset so the placeholder can reflect it.
-  const [link, setLink] = useState("");
-  // DE: Optionaler Link zur Aufgabe (z.B. Materialien).
-  // EN: Optional assignment link (e.g., resources).
+  // --- Assignment form state ---
+  const [klass, setKlass] = useState("");        // Class
+  const [subject, setSubject] = useState("");    // Subject
+  const [title, setTitle] = useState("");        // Title
+  const [text, setText] = useState("");          // Description
+  const [due, setDue] = useState("");            // Due date
+  const [duePreset, setDuePreset] = useState("");      // Due date preset
+  const [lastDuePreset, setLastDuePreset] = useState(""); // Last used preset
+  const [link, setLink] = useState("");          // Optional link
 
   function formatDateForInput(date) {
     const yyyy = date.getFullYear();
@@ -59,65 +42,31 @@ export default function Teacher() {
     setDue(formatDateForInput(next));
   }
 
-  // Dateien (Drag & Drop + Dateiauswahl) / Files (drag & drop + file input) /
-  const [files, setFiles] = useState([]);      // File[]
-  // DE: Angehängte Dateien für eine neue Aufgabe (werden als multipart/form-data gesendet).
-  // EN: Attached files for a new assignment (sent as multipart/form-data).
-  const [isOver, setIsOver] = useState(false); // dnd highlight
-  // DE: UI-Zustand fürs Drag&Drop-Highlight.
-  // EN: UI state for drag&drop highlight.
-  const [msg, setMsg] = useState("");
-  // DE: Statusmeldung (Erfolg/Fehler) für Speichern/Laden.
-  // EN: Status message (success/error) for save/load.
+  // --- Files and assignments state ---
+  const [files, setFiles] = useState([]);                // Attached files
+  const [isOver, setIsOver] = useState(false);           // Drag & drop highlight
+  const [msg, setMsg] = useState("");                   // Status message
 
-  // Klassen, Fächer, Aufgaben / Classes, subjects, assignments /
-  const [classes, setClasses] = useState([]);
-  // DE: Klassenliste für Dropdown.
-  // EN: Class list for dropdown.
-  const [subjects, setSubjects] = useState([]);
-  // DE: Fächerliste für Dropdown.
-  // EN: Subject list for dropdown.
-  const [assignments, setAssignments] = useState([]);
-  // DE: Aufgabenliste (vom Lehrer erstellt).
-  // EN: Assignments created by the teacher.
-  const [isAssignmentsOpen, setIsAssignmentsOpen] = useState(false);
-  // DE: Modal-Status für Aufgabenliste.
-  // EN: Open/close state for assignments modal.
-  const [assignmentsTab, setAssignmentsTab] = useState("active");
-  // DE: Tab in der Aufgabenliste (active/archived).
-  // EN: Tab in assignments modal (active/archived).
-  const [archiveBusyId, setArchiveBusyId] = useState(null);
-  // DE: Zeigt "busy" UI beim Archivieren (pro Assignment).
-  // EN: Busy UI state while archiving (per assignment).
-  const [deleteBusyId, setDeleteBusyId] = useState(null);
-  // DE: Zeigt "busy" UI beim Löschen (pro Assignment).
-  // EN: Busy UI state while deleting (per assignment).
+  const [classes, setClasses] = useState([]);            // Class list
+  const [subjects, setSubjects] = useState([]);          // Subject list
+  const [assignments, setAssignments] = useState([]);    // Assignments
+  const [isAssignmentsOpen, setIsAssignmentsOpen] = useState(false); // Assignments modal open
+  const [assignmentsTab, setAssignmentsTab] = useState("active");   // Assignments tab
+  const [archiveBusyId, setArchiveBusyId] = useState(null);          // Archiving busy state
+  const [deleteBusyId, setDeleteBusyId] = useState(null);            // Deleting busy state
 
-  const [selectedAssignmentId, setSelectedAssignmentId] = useState(null);
-  const [submissions, setSubmissions] = useState([]);
-  const [submissionsMeta, setSubmissionsMeta] = useState(null);
-  const [submissionsLoading, setSubmissionsLoading] = useState(false);
-  const [submissionsError, setSubmissionsError] = useState("");
-  const [isSubmissionsOpen, setIsSubmissionsOpen] = useState(false);
-  const [gradeDrafts, setGradeDrafts] = useState({});
-  const [restoreAssignmentsOnClose, setRestoreAssignmentsOnClose] = useState(false);
+  // --- Submissions and grading state ---
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState(null); // Selected assignment for submissions
+  const [submissions, setSubmissions] = useState([]);                    // Submissions list
+  const [submissionsMeta, setSubmissionsMeta] = useState(null);          // Submission metadata
+  const [submissionsLoading, setSubmissionsLoading] = useState(false);   // Loading state
+  const [submissionsError, setSubmissionsError] = useState("");         // Error message
+  const [isSubmissionsOpen, setIsSubmissionsOpen] = useState(false);     // Submissions modal open
+  const [gradeDrafts, setGradeDrafts] = useState({});                   // Grade/feedback drafts
+  const [restoreAssignmentsOnClose, setRestoreAssignmentsOnClose] = useState(false); // Restore assignments modal
 
-  // DE: Abgaben-Modal / EN: Submissions modal
-  // DE: selectedAssignmentId = welche Aufgabe gerade ausgewählt ist.
-  // EN: selectedAssignmentId = which assignment is currently selected.
-  // DE: submissions = Liste der Abgaben (inkl. Dateien/Noten/Feedback).
-  // EN: submissions = list of submissions (incl. files/grades/feedback).
-  // DE: submissionsMeta = Metadaten zur Aufgabe (Titel/Termin) für den Modal-Header.
-  // EN: submissionsMeta = assignment metadata (title/due) for modal header.
-  // DE: submissionsLoading/submissionsError = Lade-/Fehlerzustand.
-  // EN: submissionsLoading/submissionsError = loading/error state.
-  // DE: gradeDrafts = lokale Eingaben pro Abgabe (bewertung/feedback) bevor gespeichert wird.
-  // EN: gradeDrafts = local inputs per submission (grade/feedback) before saving.
-
-  // Dateien zur Liste hinzufügen / Add files to list / 
+  // --- Add files to state (unique by name+size) ---
   function addFiles(fileList) {
-    // DE: FileList in Array umwandeln und nur einzigartige (Name+Größe) hinzufügen
-    // EN: Convert FileList to array and add only unique (name+size)
     const incoming = Array.from(fileList || []);
     setFiles(prev => {
       const map = new Map(prev.map(f => [f.name + "_" + f.size, f]));
@@ -126,14 +75,14 @@ export default function Teacher() {
     });
   }
 
-  // Drag & Drop-Handler / Drag & drop handler /
+  // --- Handle drag & drop ---
   function onDrop(e) {
     e.preventDefault();
     setIsOver(false);
     if (e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files);
   }
 
-  // Formular absenden / Submit form /
+  // --- Handle assignment form submit ---
   async function onSubmit(e) {
     e.preventDefault();
     setMsg("");
@@ -148,10 +97,9 @@ export default function Teacher() {
       fd.append("dueDate", due);
       files.forEach((f) => fd.append("files", f));
 
-      const token = sessionStorage.getItem("token") || localStorage.getItem("token"); // DE: falls vorhanden / EN: if exists
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
       await axios.post(`${API_URL}/api/teacher/assignments`, fd, {
         headers: {
-          // Let axios/browser set the correct multipart boundary automatically
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
@@ -164,20 +112,21 @@ export default function Teacher() {
       setMsg(t.assgnError);
     }
   }
-  // Aufgaben vom Server laden / Fetch assignments from server / 
-  async function fetchAssignments() {
-      try {
-        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-        const res = await axios.get(`${API_URL}/api/teacher/assignments`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setAssignments(res.data.data || []);
-      } catch (err) {
-        console.error("Fehler beim Laden der Aufgaben:", err);
-      }
-    }
 
-  // Initiales Laden der Daten / Initial data load /
+  // --- Fetch assignments from server ---
+  async function fetchAssignments() {
+    try {
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+      const res = await axios.get(`${API_URL}/api/teacher/assignments`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAssignments(res.data.data || []);
+    } catch (err) {
+      console.error("Error loading assignments:", err);
+    }
+  }
+
+  // --- Initial data load ---
   useEffect(() => {
   async function loadData() {
     try {
@@ -195,19 +144,21 @@ export default function Teacher() {
       setClasses(classRes.data.data);
       setSubjects(subjectRes.data.data);
     } catch (err) {
-      console.error("Fehler beim Laden der Daten:", err);
+      //  Error loading data
+      console.error("Error loading data:", err);
     }
-      fetchAssignments();
+    fetchAssignments();
   }
 
   loadData();
 }, []);
 
-  // Handler für Abgabenliste / Handler for submissions list /
-  function handleAbgabenClick() {
+  // --- Handler for submissions list ---
+  // Deprecated: use handleSubmissionsClick per assignment
+  function handleSubmissionsClick() {
     // kept for backwards compatibility; actual list is handled per assignment
   }
-  // Handler für Aufgabenliste / Handler for assignments list /
+  // --- Handler for assignments list ---
   function handleAssignmentClick() {
     setAssignmentsTab("active");
     setIsAssignmentsOpen(true);
@@ -219,9 +170,7 @@ export default function Teacher() {
   }
 
   async function openSubmissionsModal(assignmentId) {
-    // DE: Bootstrap-Modals stacken schlecht. Deshalb schließen wir die Aufgabenliste,
-    //     bevor wir die Abgabenliste öffnen (und können sie danach wiederherstellen).
-    // EN: Bootstrap modals don't stack well. Close assignments modal before opening submissions.
+    // --- Bootstrap modals don't stack well. Close assignments modal before opening submissions. ---
     const shouldRestore = isAssignmentsOpen;
     setRestoreAssignmentsOnClose(shouldRestore);
     if (shouldRestore) setIsAssignmentsOpen(false);
@@ -231,19 +180,20 @@ export default function Teacher() {
     await fetchSubmissions(assignmentId);
   }
 
-  async function setArchived(assignmentId, archiviert) {
+  async function setArchived(assignmentId, archived) {
     try {
       setArchiveBusyId(assignmentId);
       const token = sessionStorage.getItem("token") || localStorage.getItem("token");
       await axios.patch(
         `${API_URL}/api/teacher/assignments/${assignmentId}/archive`,
-        { archiviert },
+        { archived },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       await fetchAssignments();
     } catch (err) {
-      console.error("Fehler beim Archivieren:", err);
-      setMsg(t.archiveError || "Error");
+      // Error archiving assignment
+      console.error("Error archiving assignment:", err);
+      setMsg(t.archiveError || t.errorArchiving || "Error archiving");
     } finally {
       setArchiveBusyId(null);
     }
@@ -269,16 +219,16 @@ export default function Teacher() {
 
       await fetchAssignments();
     } catch (err) {
-      console.error("Fehler beim Löschen:", err);
-      setMsg(t.deleteError || "Error");
+      // Error deleting assignment
+      console.error("Error deleting assignment:", err);
+      setMsg(t.deleteError || t.errorDeleting || "Error deleting");
     } finally {
       setDeleteBusyId(null);
     }
   }
 
   const getSubmissionFileUrl = (fileMeta) => {
-    // DE: Baut eine download/preview URL für eine Abgabe-Datei.
-    // EN: Builds a download/preview URL for a submission file.
+    // Builds a download/preview URL for a submission file.
     if (!fileMeta) return null;
     if (typeof fileMeta === "string") {
       if (fileMeta.startsWith("/uploads/")) return `${API_URL}${fileMeta}`;
@@ -309,8 +259,7 @@ export default function Teacher() {
   };
 
   const getSubmissionFileLabel = (fileMeta) => {
-    // DE: Bestimmt eine schöne Anzeige für Dateinamen.
-    // EN: Picks a nice display label for the file name.
+    // Picks a nice display label for the file name.
     if (!fileMeta) return "";
     if (typeof fileMeta === "string") return fileMeta.split("/").pop() || fileMeta;
     if (typeof fileMeta === "object") {
@@ -337,7 +286,7 @@ export default function Teacher() {
         for (const s of list) {
           if (!next[s.id]) {
             next[s.id] = {
-              bewertung: typeof s.bewertung === "number" ? String(s.bewertung) : "",
+              grade: typeof s.grade === "number" ? String(s.grade) : "",
               feedback: typeof s.feedback === "string" ? s.feedback : "",
               saving: false,
               error: "",
@@ -348,8 +297,9 @@ export default function Teacher() {
         return next;
       });
     } catch (err) {
-      console.error("Fehler beim Laden der Abgaben:", err);
-      setSubmissionsError(t.fetchError || "Error loading data");
+      // Error loading submissions
+      console.error("Error loading submissions:", err);
+      setSubmissionsError(t.fetchError || t.errorLoadingSubmissions || "Error loading submissions");
       setSubmissions([]);
       setSubmissionsMeta(null);
     } finally {
@@ -359,10 +309,10 @@ export default function Teacher() {
 
   async function saveGrade(submissionId) {
     const draft = gradeDrafts[submissionId] || {};
-    const rawGrade = (draft.bewertung ?? "").trim();
+    const rawGrade = (draft.grade ?? "").trim();
     const rawFeedback = draft.feedback ?? "";
 
-    let bewertung = null;
+    let grade = null;
     if (rawGrade !== "") {
       const parsed = Number.parseInt(rawGrade, 10);
       if (!Number.isInteger(parsed) || parsed < 0 || parsed > 100) {
@@ -372,7 +322,7 @@ export default function Teacher() {
         }));
         return;
       }
-      bewertung = parsed;
+      grade = parsed;
     }
 
     const feedback = rawFeedback.trim() === "" ? null : rawFeedback;
@@ -386,7 +336,7 @@ export default function Teacher() {
       const token = sessionStorage.getItem("token") || localStorage.getItem("token");
       const res = await axios.patch(
         `${API_URL}/api/teacher/submissions/${submissionId}`,
-        { bewertung, feedback },
+        { grade, feedback },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -400,10 +350,11 @@ export default function Teacher() {
         [submissionId]: { ...prev[submissionId], saving: false, error: "", ok: t.gradeSaved || "Saved" },
       }));
     } catch (err) {
-      console.error("Fehler beim Speichern der Bewertung:", err);
+      // Error saving grade/feedback
+      console.error("Error saving grade:", err);
       setGradeDrafts((prev) => ({
         ...prev,
-        [submissionId]: { ...prev[submissionId], saving: false, error: t.gradeError || "Save failed", ok: "" },
+        [submissionId]: { ...prev[submissionId], saving: false, error: t.gradeError || t.errorSavingGrade || "Save failed", ok: "" },
       }));
     }
   }
@@ -417,7 +368,7 @@ export default function Teacher() {
     }
   }
 
-  // Render / Rendering /
+  // --- Render / Rendering ---
   return (
     <div className="teacher-page">
 
@@ -466,7 +417,7 @@ export default function Teacher() {
                             <th>{t.subjectLbl}</th>
                             <th>{t.dueLbl}</th>
                             <th>{t.status}</th>
-                            <th>{t.abgabenBtn}</th>
+                            <th>{t.submissionsBtn}</th>
                             <th>Count</th>
                             <th>{t.archiveTab || "Archive"}</th>
                             <th>{t.deleteLbl || "Delete"}</th>
@@ -474,16 +425,16 @@ export default function Teacher() {
                         </thead>
                         <tbody>
                           {assignments
-                            .filter((a) => (assignmentsTab === "archived" ? a.archiviert : !a.archiviert))
+                            .filter((a) => (assignmentsTab === "archived" ? a.archived : !a.archived))
                             .map((a, idx) => (
                               <tr key={a.id}>
                                 <td>{idx + 1}</td>
-                                <td>{a.titel}</td>
-                                <td>{a.klasse}</td>
-                                <td>{a.fach}</td>
-                                <td>{a.termin ? new Date(a.termin).toLocaleDateString() : ''}</td>
+                                <td>{a.title}</td>
+                                <td>{a.class}</td>
+                                <td>{a.subject}</td>
+                                <td>{a.dueDate ? new Date(a.dueDate).toLocaleDateString() : ''}</td>
                                 <td>
-                                  {/* DE: Status der Aufgabe (aktiv/abgelaufen/archiviert) / EN: Assignment status (active/expired/archived) */}
+                                  {/* Assignment status (active/expired/archived) */}
                                   {a.status === 'active' ? (
                                     <span className="badge bg-success">{t.active || "Active"}</span>
                                   ) : a.status === 'expired' ? (
@@ -498,12 +449,12 @@ export default function Teacher() {
                                     className="btn btn-sm btn-outline-primary"
                                     onClick={() => openSubmissionsModal(a.id)}
                                   >
-                                    {t.abgabenBtn}
+                                    {t.submissionsBtn}
                                   </button>
                                 </td>
-                                <td>{a.abgabenCount}</td>
+                                <td>{a.submissionsCount}</td>
                                 <td>
-                                  {a.archiviert ? (
+                                  {a.archived ? (
                                     <button
                                       type="button"
                                       className="btn btn-sm btn-outline-secondary"
@@ -564,8 +515,8 @@ export default function Teacher() {
               <div className="modal-content">
                 <div className="modal-header">
                   <h5 className="modal-title">
-                    {t.submissionsTitle || t.abgabenBtn}
-                    {submissionsMeta?.titel ? `: ${submissionsMeta.titel}` : ""}
+                    {t.submissionsTitle}
+                    {submissionsMeta?.title ? `: ${submissionsMeta.title}` : ""}
                   </h5>
                   <button type="button" className="btn-close" aria-label="Close" onClick={closeSubmissionsModal} />
                 </div>
@@ -587,57 +538,57 @@ export default function Teacher() {
                       <table className="table table-sm table-bordered align-middle">
                         <thead>
                           <tr>
-                            <th>{/* DE: Schüler / EN: Student */}Student</th>
-                            <th>{/* DE: Abgabezeitpunkt / EN: Submission time */}Time</th>
-                            <th>{/* DE: Bewertung (0-100) / EN: Grade (0-100) */}{t.grade || "Grade"}</th>
-                            <th>{/* DE: Hochgeladene Dateien / EN: Uploaded files */}{t.filesLbl || "Files"}</th>
-                            <th>{/* DE: Abgabetext / EN: Submission text */}{t.textLbl || "Text"}</th>
-                            <th>{/* DE: Feedback des Lehrers / EN: Teacher feedback */}{t.feedback || "Feedback"}</th>
-                            <th>{/* DE: Speichern / EN: Save */}{t.save || "Save"}</th>
+                            <th>{/* Student */}Student</th>
+                            <th>{/* Submission time */}Time</th>
+                            <th>{/* Grade (0-100) */}{t.grade || "Grade"}</th>
+                            <th>{/* Uploaded files */}{t.filesLbl || "Files"}</th>
+                            <th>{/* Submission text */}{t.textLbl || "Text"}</th>
+                            <th>{/* Teacher feedback */}{t.feedback || "Feedback"}</th>
+                            <th>{/* Save */}{t.save || "Save"}</th>
                           </tr>
                         </thead>
                         <tbody>
                           {submissions.map((s) => (
                             (() => {
-                              const draft = gradeDrafts[s.id] || { bewertung: "", feedback: "", saving: false, error: "", ok: "" };
+                              const draft = gradeDrafts[s.id] || { grade: "", feedback: "", saving: false, error: "", ok: "" };
                               return (
                             <tr key={s.id}>
                               <td>
-                                {/* DE: Name + Email des Schülers / EN: Student name + email */}
-                                {s.schueler?.vorname} {s.schueler?.nachname}
-                                {s.schueler?.email ? (
+                                {/* Student name and email */}
+                                {s.student?.firstName} {s.student?.lastName}
+                                {s.student?.email ? (
                                   <div className="text-muted" style={{ fontSize: "0.85rem" }}>
-                                    {s.schueler.email}
+                                    {s.student.email}
                                   </div>
                                 ) : null}
                               </td>
                               <td>
-                                {/* DE: Zeitpunkt der Abgabe / EN: Submission timestamp */}
-                                {s.abgabe_zeitpunkt ? new Date(s.abgabe_zeitpunkt).toLocaleString() : ""}
+                                {/* Submission timestamp */}
+                                {s.submittedAt ? new Date(s.submittedAt).toLocaleString() : ""}
                               </td>
                               <td style={{ minWidth: "110px" }}>
-                                {/* DE: Note eingeben (0-100) / EN: Enter grade (0-100) */}
+                                {/* Enter grade (0-100) */}
                                 <input
                                   className="form-control form-control-sm"
                                   type="number"
                                   min="0"
                                   max="100"
-                                  value={draft.bewertung}
+                                  value={draft.grade}
                                   onChange={(e) => {
                                     const v = e.target.value;
                                     setGradeDrafts((prev) => ({
                                       ...prev,
-                                      [s.id]: { ...draft, bewertung: v, error: "", ok: "" },
+                                      [s.id]: { ...draft, grade: v, error: "", ok: "" },
                                     }));
                                   }}
-                                  placeholder={typeof s.bewertung === "number" ? String(s.bewertung) : "0-100"}
+                                  placeholder={typeof s.grade === "number" ? String(s.grade) : "0-100"}
                                 />
                               </td>
                               <td>
-                                {/* DE: Dateien der Abgabe / EN: Submission files */}
-                                {Array.isArray(s.dateien) && s.dateien.length > 0 ? (
+                                {/* Submission files */}
+                                {Array.isArray(s.files) && s.files.length > 0 ? (
                                   <ul className="mb-0" style={{ paddingLeft: "1.1rem" }}>
-                                    {s.dateien.map((f, idx) => {
+                                    {s.files.map((f, idx) => {
                                       const href = getSubmissionFileUrl(f);
                                       const label = getSubmissionFileLabel(f);
                                       return (
@@ -658,11 +609,11 @@ export default function Teacher() {
                                 )}
                               </td>
                               <td style={{ minWidth: "220px"}} >
-                                {/* DE: Text, den der Schüler abgegeben hat / EN: Text submitted by the student */}
+                                {/* Text submitted by the student */}
                                 {s.text && s.text.trim() !== "" ? s.text : "—"}
                               </td> 
                               <td style={{ minWidth: "220px" }}>
-                                {/* DE: Feedback des Lehrers / EN: Teacher feedback */}
+                                {/* Teacher feedback */}
                                 <textarea
                                   className="form-control form-control-sm"
                                   rows={2}
@@ -684,7 +635,7 @@ export default function Teacher() {
                                 ) : null}
                               </td>
                               <td style={{ width: "1%", whiteSpace: "nowrap" }}>
-                                {/* DE: Bewertung/Feedback speichern / EN: Save grade/feedback */}
+                                {/* Save grade/feedback */}
                                 <button
                                   type="button"
                                   className="btn btn-sm btn-primary"
@@ -724,7 +675,7 @@ export default function Teacher() {
           </h2>
 
           <form onSubmit={onSubmit} className="teacher-form-compact">
-            {/* Row: Class / DE: Klasse auswählen / EN: Select class */}
+            {/* Row: Select class */}
             <div className="row g-2 align-items-center mb-2">
               <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.classLbl}</label>
               <div className="col-12 col-sm-10">
@@ -739,7 +690,7 @@ export default function Teacher() {
               </div>
             </div>
 
-            {/* Row: Subject / DE: Fach auswählen / EN: Select subject */}
+            {/* Row: Select subject */}
             <div className="row g-2 align-items-center mb-2">
               <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.subjectLbl}</label>
               <div className="col-12 col-sm-10">
@@ -754,7 +705,7 @@ export default function Teacher() {
               </div>
             </div>
 
-            {/* Row: Title / DE: Aufgabentitel / EN: Assignment title */}
+            {/* Row: Assignment title */}
             <div className="row g-2 align-items-center mb-2">
               <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.titleLbl}</label>
               <div className="col-12 col-sm-10">
@@ -768,7 +719,7 @@ export default function Teacher() {
               </div>
             </div>
 
-            {/* Row: Due (preset + calendar) / DE: Fälligkeit / EN: Due date */}
+            {/* Row: Due date (preset + calendar) */}
             <div className="row g-2 align-items-center mb-2">
               <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.dueLbl}</label>
               <div className="col-12 col-sm-10">
@@ -808,7 +759,7 @@ export default function Teacher() {
               </div>
             </div>
 
-            {/* Row: Link / DE: Optionaler Link / EN: Optional link */}
+            {/* Row: Optional link */}
             <div className="row g-2 align-items-center mb-2">
               <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.linkLbl}</label>
               <div className="col-12 col-sm-10">
@@ -822,7 +773,7 @@ export default function Teacher() {
               </div>
             </div>
 
-            {/* Row: Text / DE: Beschreibungstext / EN: Description text */}
+            {/* Row: Description text */}
             <div className="row g-2 align-items-start mb-2">
               <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.textLbl}</label>
               <div className="col-12 col-sm-10">
@@ -836,7 +787,7 @@ export default function Teacher() {
               </div>
             </div>
 
-            {/* Row: Files / DE: Dateien anhängen (Drag & Drop) / EN: Attach files (drag & drop) */}
+            {/* Row: Files Attach files (drag & drop) */}
             <div className="row g-2 align-items-start mb-2">
               <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.filesLbl}</label>
               <div className="col-12 col-sm-10">
@@ -895,10 +846,10 @@ export default function Teacher() {
               </div>
             </div>
           </form>
-          {/* Statusmeldung / Status message  */}  
+          {/* Status message  */}  
 
           {msg && <div className="alert alert-info text-center mt-3">{msg}</div>}
-          {/* 'Aufgabenliste' */}
+          {/* 'Assignments list' */}
           <div className="d-flex justify-content-center gap-3 mt-3">
             <button type="button" className="btn btn-outline-secondary" onClick={handleAssignmentClick}>
               {t.assignmentBtn}

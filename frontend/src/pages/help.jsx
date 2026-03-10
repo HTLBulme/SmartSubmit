@@ -16,36 +16,36 @@ export default function Help() {
           
           {/* Header */}
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h1>{t.helpTitle || "Hilfe & Anleitung"}</h1>
+            <h1>{t.helpTitle || "Help & Guide"}</h1>
             <button 
               className="btn btn-secondary" 
               onClick={() => navigate(-1)}
             >
-              {t.back || "Zurück"}
+              {t.back || "Back"}
             </button>
           </div>
 
           {/* Quick Start Guide */}
           <div className="card mb-4">
             <div className="card-header bg-primary text-white">
-              <h3>{t.quickStart || "Schnellstart"}</h3>
+              <h3>{t.quickStart || "Quick Start"}</h3>
             </div>
             <div className="card-body">
-              <h4>{t.forAdmins || "Für Administratoren"}</h4>
+              <h4>{t.forAdmins || "For Administrators"}</h4>
               <ol>
                 {t.adminSteps.map((step, index) => (
                     <li key={index}>{step}</li>
                 ))}
               </ol>
 
-              <h4 className="mt-4">{t.forTeachers || "Für Lehrer"}</h4>
+              <h4 className="mt-4">{t.forTeachers || "For Teachers"}</h4>
               <ol>
                 {t.teacherSteps.map((step, index) => (
                     <li key={index}>{step}</li>
                 ))}
               </ol>
 
-              <h4 className="mt-4">{t.forStudents || "Für Schüler"}</h4>
+              <h4 className="mt-4">{t.forStudents || "For Students"}</h4>
               <ol>
                 {t.studentSteps.map((step, index) => (
                     <li key={index}>{step}</li>
@@ -58,10 +58,10 @@ export default function Help() {
           {/* Excel Import Guide */}
           <div className="card mb-4">
             <div className="card-header bg-success text-white">
-              <h3>{t.excelImport || "Excel-Import"}</h3>
+              <h3>{t.excelImport || "Excel Import"}</h3>
             </div>
             <div className="card-body">
-              <h4>{t.studentImport || "Schüler importieren"}</h4>
+              <h4>{t.studentImport || "Import students"}</h4>
               <p>{t.columndHint || "Excel file must contain the following columns:"}</p>
               <ul>               
                 {t.excelStudentColumns.map((col, index) => (
@@ -69,7 +69,7 @@ export default function Help() {
                 ))}                              
               </ul>
               
-              <h4 className="mt-3">{t.teacherImport || "Lehrer importieren"}</h4>
+              <h4 className="mt-3">{t.teacherImport || "Import teachers"}</h4>
               <p>{t.columndHint || "Excel file must contain the following columns:"}</p>
               <ul>
                 {t.excelTeacherColumns.map((col, index) => (
@@ -86,7 +86,7 @@ export default function Help() {
           {/* File Upload Guide */}
           <div className="card mb-4">
             <div className="card-header bg-info text-white">
-              <h3>{t.fileUpload || "Datei-Upload"}</h3>
+              <h3>{t.fileUpload || "File Upload"}</h3>
             </div>
             <div className="card-body">
               <h4>{t.supportedFormats || "Supported file formats:"}</h4>
@@ -105,7 +105,7 @@ export default function Help() {
           {/* FAQ */}
           <div className="card mb-4">
             <div className="card-header bg-warning">
-              <h3>{t.faq || "Häufig gestellte Fragen (FAQ)"}</h3>
+              <h3>{t.faq || "Frequently Asked Questions (FAQ)"}</h3>
             </div>
             <div className="card-body">
               <div className="mb-3">

@@ -1,36 +1,36 @@
-import { useLang } from "../context/LanguageContext"; // DE: Sprachkontext / 
-import T from "../i18n"; // DE: Übersetzungen / 
-import { useState } from "react"; // DE: React Hooks / 
-import axios from "axios"; // DE: HTTP-Anfragen / 
-import * as XLSX from "xlsx"; // DE: Excel-Dateien verarbeiten / 
-import "./admin.css"; // DE: Styles / 
+import { useLang } from "../context/LanguageContext"; // Language context
+import T from "../i18n"; // Translations
+import { useState } from "react"; // React hooks
+import axios from "axios"; // HTTP requests
+import * as XLSX from "xlsx"; // Excel file processing
+import "./admin.css"; // Styles
 
-const API_URL = import.meta.env.VITE_API_URL || ""; // DE: Basis-URL des Backends / 
+const API_URL = import.meta.env.VITE_API_URL || ""; // Base URL of backend
 
 function getPreviewHeaderLabel(key, t) {
   const map = {
     vorname: t.firstName,
     nachname: t.lastName,
     email: t.email,
-    klasse: t.classLbl,
+    className: t.classLbl,
     jahrgang: t.gradeLevel,
-    fach_kuerzel: t.subjectAbbrev,
+    subjectCode: t.subjectAbbrev,
   };
 
   return map[key] || key;
 }
 
 export default function UploadUsers() {
-  const [lang] = useLang(); // DE: Aktuelle Sprache / 
-  const t = T[lang] || T.en; // DE: Übersetzungstabellen / 
+  const [lang] = useLang(); // Current language
+  const t = T[lang] || T.en; // Translation table
 
-  // DE: Zustand (State) / 
-  const [file, setFile] = useState(null); // DE: Ausgewählte Datei / 
-  const [preview, setPreview] = useState([]); // DE: Vorschau der Daten / 
-  const [message, setMessage] = useState(""); // DE: Statusmeldung / 
-  const [role, setRole] = useState("students"); // DE: Rolle (Schüler oder Lehrer) / 
+  // State
+  const [file, setFile] = useState(null); // Selected file
+  const [preview, setPreview] = useState([]); // Data preview
+  const [message, setMessage] = useState(""); // Status message
+  const [role, setRole] = useState("students"); // Role (students or teachers)
 
-  // DE: Wird aufgerufen, wenn Datei ausgewählt wird / 
+  // Called when a file is selected
   function handleFile(e) {
     const f = e.target.files[0];
     if (!f) return;
@@ -38,7 +38,7 @@ export default function UploadUsers() {
     readFile(f);
   }
 
-  // DE: Liest Excel-Datei und erstellt Vorschau / 
+  // Reads Excel file and creates preview
   function readFile(f) {
     const reader = new FileReader();
     reader.onload = (evt) => {
@@ -46,12 +46,12 @@ export default function UploadUsers() {
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet);
-      setPreview(rows.slice(0, 5)); // DE: Nur erste 5 Zeilen / 
+      setPreview(rows.slice(0, 5)); // Only first 5 rows
     };
     reader.readAsArrayBuffer(f);
   }
 
-  // DE: Datei an Backend senden / 
+  // Sends file to backend
   async function handleUpload() {
     if (!file) return setMessage(t.noFile);
 
@@ -61,10 +61,10 @@ export default function UploadUsers() {
       return;
     }
 
-    const formData = new FormData(); // DE: FormData für Dateiübertragung / 
+    const formData = new FormData(); // FormData for file upload
     formData.append("file", file);
 
-    // DE: Endpunkt je nach Rolle / 
+    // Endpoint depending on role
     const endpoint =
       role === "teachers"
         ? `${API_URL}/api/admin/import/teachers`
@@ -74,11 +74,11 @@ export default function UploadUsers() {
       const res = await axios.post(endpoint, formData, {
         headers: {
           // Let axios/browser set the correct multipart boundary automatically
-          Authorization: `Bearer ${token}`, // DE: Authentifizierung / 
+          Authorization: `Bearer ${token}`, // Authentication
         },
       });
 
-      // DE: Erfolg / 
+      // Success
       if (res.data.success) {
         setMessage(t.success);
         setFile(null);
@@ -87,12 +87,11 @@ export default function UploadUsers() {
         setMessage(t.uploadError);
       }
     } catch (err) {
-      console.error(err);
       setMessage(t.serverError);
     }
   }
 
-  // DE: Drag-and-Drop Upload / 
+  // Drag-and-drop upload
   function handleDrop(e) {
     e.preventDefault();
     const f = e.dataTransfer.files[0];
@@ -102,14 +101,14 @@ export default function UploadUsers() {
     }
   }
 
-  // DE: Benutzeroberfläche / 
+  // User interface
   return (
     <div className="upload-page">
       <div className="upload-card">
         <h2>📦 {t.userImport}</h2>
         <p className="text-muted">{t.uploadHint}</p>
 
-        {/* DE: Rollenwahl (Schüler oder Lehrer)  */}
+        {/* Role selection (students or teachers) */}
         <div className="role-toggle">
           <label>
             <input
@@ -131,7 +130,7 @@ export default function UploadUsers() {
           </label>
         </div>
 
-        {/* DE: Bereich zum Hochladen  */}
+        {/* Upload area */}
         <div
           className="drop-zone"
           onDragOver={(e) => e.preventDefault()}
@@ -142,7 +141,7 @@ export default function UploadUsers() {
           <input id="fileInput" type="file" accept=".xlsx" hidden onChange={handleFile} />
         </div>
 
-        {/* DE: Vorschau der ersten Zeilen  */}
+        {/* Preview of first rows */}
         {preview.length > 0 && (
           <>
             <p className="preview-title">{t.previewTitle || "Preview (first 5 rows)"}</p>
@@ -167,12 +166,12 @@ export default function UploadUsers() {
           </>
         )}
 
-        {/* DE: Upload-Button  */}
+        {/* Upload button */}
         <button className="btn-upload" onClick={handleUpload}>
           📤 {t.uploadButton}
         </button>
 
-        {/* DE: Statusmeldung  */}
+        {/* Status message */}
         {message && <p className="upload-message">{message}</p>}
       </div>
     </div>

@@ -2,28 +2,21 @@ const fs = require('fs');
 const path = require('path');
 const { prisma } = require('../app.config');
 
-// Multer stores uploads in backend/uploads (see backend/src/app.config.js).
-// __dirname here is backend/src/controllers, so we need to go up two levels.
 const UPLOADS_ROOT = path.resolve(__dirname, '..', '..', 'uploads');
 
 function tryDeleteUploadedFile(filePath) {
   if (typeof filePath !== 'string' || filePath.trim() === '') return;
-
   try {
     const resolved = path.resolve(filePath);
-    // Only allow deleting files inside backend/uploads
     const allowedPrefix = UPLOADS_ROOT + path.sep;
     if (!resolved.startsWith(allowedPrefix)) return;
     if (fs.existsSync(resolved)) fs.unlinkSync(resolved);
   } catch (error) {
-    // Best-effort: don't fail request if disk cleanup fails
     console.error('Fehler beim Löschen der Datei:', error);
   }
 }
 
-/**
- * Teacher creates assignment
- */
+// --- Teacher creates assignment ---
 const createAssignment = async (req, res) => {
   try {
     const { class: className, subject, title, text, dueDate } = req.body;
@@ -39,38 +32,35 @@ const createAssignment = async (req, res) => {
     const safeTitle = typeof title === 'string' ? title : '';
     const safeText = typeof text === 'string' ? text : '';
 
-    const isTeacher = await prisma.benutzerRolle.findFirst({
-      where: { benutzer_id: teacherId, rolle_id: 2 },
+    const isTeacher = await prisma.userRole.findFirst({  // ✅ fix
+      where: { userId: teacherId, roleId: 2 },
       select: { id: true }
     });
 
     if (!isTeacher) {
-      return res.status(403).json({
-        success: false,
-        message: 'Nur für Lehrer'
+      return res.status(403).json({ success: false, message: 'Only for teachers' });
+    }
+
+    let classObj = await prisma.class.findFirst({ where: { name: className } });
+    if (!classObj) {
+      classObj = await prisma.class.create({
+        data: { name: className, year: new Date().getFullYear() }
       });
     }
 
-    let klasse = await prisma.klasse.findFirst({ where: { name: className } });
-    if (!klasse) {
-      klasse = await prisma.klasse.create({
-        data: { name: className, jahrgang: new Date().getFullYear() }
-      });
+    let subjectObj = await prisma.subject.findFirst({ where: { name: subject } });
+    if (!subjectObj) {
+      subjectObj = await prisma.subject.create({ data: { name: subject, code: subject } });
     }
 
-    let fach = await prisma.fach.findFirst({ where: { name: subject } });
-    if (!fach) {
-      fach = await prisma.fach.create({ data: { name: subject, kuerzel: subject } });
-    }
-
-    const teacherFach = await prisma.benutzerFach.findFirst({
-      where: { benutzer_id: teacherId, fach_id: fach.id },
+    const teacherSubject = await prisma.userSubject.findFirst({
+      where: { userId: teacherId, subjectId: subjectObj.id },
       select: { id: true }
     });
 
-    if (!teacherFach) {
-      await prisma.benutzerFach.create({
-        data: { benutzer_id: teacherId, fach_id: fach.id }
+    if (!teacherSubject) {
+      await prisma.userSubject.create({
+        data: { userId: teacherId, subjectId: subjectObj.id }
       });
     }
 
@@ -89,114 +79,101 @@ const createAssignment = async (req, res) => {
 
     const terminDate = new Date(dueDate);
     if (Number.isNaN(terminDate.getTime())) {
-      return res.status(400).json({
-        success: false,
-        message: 'Ungültiges Datum-Format'
-      });
+      return res.status(400).json({ success: false, message: 'Ungültiges Datum-Format' });
     }
 
-    const aufgabe = await prisma.aufgabe.create({
+    const assignment = await prisma.assignment.create({  // ✅ fix
       data: {
-        titel: safeTitle,
-        beschreibung: safeText,
-        termin: terminDate,
-        klasse_id: klasse.id,
-        fach_id: fach.id,
-        lehrer_id: teacherId,
-        anhaenge
+        title: safeTitle,
+        description: safeText,
+        dueDate: terminDate,
+        classId: classObj.id,
+        subjectId: subjectObj.id,
+        teacherId: teacherId,
+        attachments: anhaenge
       },
       include: {
-        klasse: true,
-        fach: true,
-        lehrer: {
-          select: {
-            id: true,
-            vorname: true,
-            nachname: true
-          }
-        }
+        class: true,
+        subject: true,
+        teacher: { select: { id: true, firstName: true, lastName: true } }
       }
     });
 
     return res.status(201).json({
       success: true,
-      message: 'Aufgabe erfolgreich erstellt',
+      message: 'Assignment created successfully',
       data: {
-        id: aufgabe.id,
-        titel: aufgabe.titel,
-        beschreibung: aufgabe.beschreibung,
-        termin: aufgabe.termin,
-        klasse: aufgabe.klasse.name,
-        fach: aufgabe.fach.name,
-        lehrer: `${aufgabe.lehrer.vorname} ${aufgabe.lehrer.nachname}`,
-        anhaenge: aufgabe.anhaenge ? JSON.parse(aufgabe.anhaenge) : []
+        id: assignment.id,
+        title: assignment.title,
+        description: assignment.description,
+        dueDate: assignment.dueDate,
+        class: assignment.class.name,
+        subject: assignment.subject.name,
+        teacher: `${assignment.teacher.firstName} ${assignment.teacher.lastName}`,
+        attachments: assignment.attachments ? JSON.parse(assignment.attachments) : []
       }
     });
   } catch (error) {
     console.error('Aufgabe erstellen Fehler:', error);
-
     if (req.files && req.files.length > 0) {
       req.files.forEach(file => {
-        if (file?.path && fs.existsSync(file.path)) {
-          fs.unlinkSync(file.path);
-        }
+        if (file?.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
       });
     }
-
-    return res.status(500).json({
-      success: false,
-      message: 'Server Fehler',
-      error: error.message
-    });
+    return res.status(500).json({ success: false, message: 'Server Fehler', error: error.message });
   }
 };
 
 const getClasses = async (req, res) => {
   try {
-    const classes = await prisma.klasse.findMany();
+    const teacherId = req.userId;
+    const userClasses = await prisma.userClass.findMany({
+      where: { userId: teacherId },
+      include: { class: true }
+    });
+    const classes = userClasses.map(uc => uc.class);
     return res.json({ data: classes });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Fehler beim Laden der Klassen' });
+    return res.status(500).json({ success: false, message: 'Error loading classes' });
   }
 };
 
 const getSubjects = async (req, res) => {
   try {
-    const subjects = await prisma.fach.findMany();
+    const teacherId = req.userId;
+    const userSubjects = await prisma.userSubject.findMany({
+      where: { userId: teacherId },
+      include: { subject: true }
+    });
+    const subjects = userSubjects.map(us => us.subject);
     return res.json({ data: subjects });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Fehler beim Laden der Fächer' });
+    return res.status(500).json({ success: false, message: 'Error loading subjects' });
   }
 };
 
-/**
- * Get all assignments created by the current teacher
- */
+// --- Get all assignments created by the current teacher ---
 const getTeacherAssignments = async (req, res) => {
   try {
     const teacherId = req.userId;
 
-    const assignments = await prisma.aufgabe.findMany({
-      where: { lehrer_id: teacherId },
-      include: {
-        klasse: true,
-        fach: true,
-        abgaben: true
-      },
-      orderBy: { termin: 'desc' }
+    const assignments = await prisma.assignment.findMany({  // ✅ fix
+      where: { teacherId: teacherId },
+      include: { class: true, subject: true, submissions: true },
+      orderBy: { dueDate: 'desc' }
     });
 
     const now = new Date();
     const data = assignments.map(a => ({
       id: a.id,
-      titel: a.titel,
-      beschreibung: a.beschreibung,
-      termin: a.termin,
-      klasse: a.klasse ? a.klasse.name : '',
-      fach: a.fach ? a.fach.name : '',
-      archiviert: Boolean(a.archiviert),
-      status: a.archiviert ? 'archived' : (a.termin > now ? 'active' : 'expired'),
-      abgabenCount: Array.isArray(a.abgaben) ? a.abgaben.length : 0
+      title: a.title,
+      description: a.description,
+      dueDate: a.dueDate,
+      class: a.class ? a.class.name : '',
+      subject: a.subject ? a.subject.name : '',
+      archived: Boolean(a.archived),
+      status: a.archived ? 'archived' : (a.dueDate > now ? 'active' : 'expired'),
+      submissionsCount: Array.isArray(a.submissions) ? a.submissions.length : 0
     }));
 
     return res.json({ success: true, data });
@@ -206,9 +183,7 @@ const getTeacherAssignments = async (req, res) => {
   }
 };
 
-/**
- * Get all submissions for a specific assignment created by the current teacher
- */
+// --- Get all submissions for a specific assignment ---
 const getAssignmentSubmissions = async (req, res) => {
   try {
     const teacherId = Number.parseInt(req.userId, 10);
@@ -217,73 +192,47 @@ const getAssignmentSubmissions = async (req, res) => {
     if (!Number.isInteger(teacherId)) {
       return res.status(401).json({ success: false, message: 'Ungültiger Benutzer' });
     }
-
     if (!Number.isInteger(assignmentId)) {
       return res.status(400).json({ success: false, message: 'Aufgaben-ID erforderlich' });
     }
 
-    const isTeacher = await prisma.benutzerRolle.findFirst({
-      where: { benutzer_id: teacherId, rolle_id: 2 },
+    const isTeacher = await prisma.userRole.findFirst({  // ✅ fix
+      where: { userId: teacherId, roleId: 2 },
       select: { id: true }
     });
     if (!isTeacher) {
-      return res.status(403).json({ success: false, message: 'Nur für Lehrer' });
+      return res.status(403).json({ success: false, message: 'Only for teachers' });
     }
 
-    const assignment = await prisma.aufgabe.findFirst({
-      where: { id: assignmentId, lehrer_id: teacherId },
-      select: { id: true, titel: true, termin: true }
+    const assignment = await prisma.assignment.findFirst({  // ✅ fix
+      where: { id: assignmentId, teacherId: teacherId },
+      select: { id: true, title: true, dueDate: true }
     });
-
     if (!assignment) {
-      return res.status(404).json({ success: false, message: 'Aufgabe nicht gefunden' });
+      return res.status(404).json({ success: false, message: 'Assignment not found' });
     }
 
-    const rows = await prisma.abgabe.findMany({
+    const rows = await prisma.submission.findMany({
       where: {
-        aufgabe_id: assignmentId,
-        schueler: {
-          benutzer_rollen: {
-            some: { rolle_id: 1 }
-          }
-        }
+        assignmentId: assignmentId,
+        student: { userRoles: { some: { roleId: 1 } } }
       },
-      orderBy: { abgabe_zeitpunkt: 'desc' },
+      orderBy: { submittedAt: 'desc' },
       select: {
-        id: true,
-        aufgabe_id: true,
-        abgabe_zeitpunkt: true,
-        bewertung: true,
-        feedback: true,
-        text: true,
-        dateien: true,
-        schueler: {
-          select: {
-            id: true,
-            vorname: true,
-            nachname: true,
-            email: true
-          }
-        }
+        id: true, assignmentId: true, submittedAt: true,
+        grade: true, feedback: true, text: true, files: true,
+        student: { select: { id: true, firstName: true, lastName: true, email: true } }
       }
     });
 
     const data = rows.map(row => {
       let parsedFiles = [];
-      if (typeof row.dateien === 'string' && row.dateien.trim() !== '') {
-        try {
-          parsedFiles = JSON.parse(row.dateien);
-        } catch (error) {
-          console.error('Fehler beim Parsen der Dateien:', error);
-        }
-      } else if (Array.isArray(row.dateien)) {
-        parsedFiles = row.dateien;
+      if (typeof row.files === 'string' && row.files.trim() !== '') {
+        try { parsedFiles = JSON.parse(row.files); } catch (error) { console.error('Error parsing files:', error); }
+      } else if (Array.isArray(row.files)) {
+        parsedFiles = row.files;
       }
-
-      return {
-        ...row,
-        dateien: parsedFiles
-      };
+      return { ...row, files: parsedFiles };
     });
 
     return res.json({ success: true, data, assignment });
@@ -293,9 +242,7 @@ const getAssignmentSubmissions = async (req, res) => {
   }
 };
 
-/**
- * Grade/update feedback for a submission (Abgabe)
- */
+// --- Grade/update feedback for a submission ---
 const gradeSubmission = async (req, res) => {
   try {
     const teacherId = Number.parseInt(req.userId, 10);
@@ -304,43 +251,39 @@ const gradeSubmission = async (req, res) => {
     if (!Number.isInteger(teacherId)) {
       return res.status(401).json({ success: false, message: 'Ungültiger Benutzer' });
     }
-
     if (!Number.isInteger(submissionId)) {
       return res.status(400).json({ success: false, message: 'Abgabe-ID erforderlich' });
     }
 
-    const isTeacher = await prisma.benutzerRolle.findFirst({
-      where: { benutzer_id: teacherId, rolle_id: 2 },
+    const isTeacher = await prisma.userRole.findFirst({  // ✅ fix
+      where: { userId: teacherId, roleId: 2 },
       select: { id: true }
     });
     if (!isTeacher) {
-      return res.status(403).json({ success: false, message: 'Nur für Lehrer' });
+      return res.status(403).json({ success: false, message: 'Only for teachers' });
     }
 
-    const submission = await prisma.abgabe.findFirst({
+    const submission = await prisma.submission.findFirst({  // ✅ fix
       where: { id: submissionId },
       select: {
-        id: true,
-        aufgabe_id: true,
-        aufgabe: { select: { id: true, lehrer_id: true } }
+        id: true, assignmentId: true,
+        assignment: { select: { id: true, teacherId: true } }
       }
     });
-
     if (!submission) {
-      return res.status(404).json({ success: false, message: 'Abgabe nicht gefunden' });
+      return res.status(404).json({ success: false, message: 'Submission not found' });
+    }
+    if (!submission.assignment || submission.assignment.teacherId !== teacherId) {
+      return res.status(403).json({ success: false, message: 'No access' });
     }
 
-    if (!submission.aufgabe || submission.aufgabe.lehrer_id !== teacherId) {
-      return res.status(403).json({ success: false, message: 'Kein Zugriff' });
-    }
-
-    const { bewertung, feedback } = req.body || {};
+    const { grade, feedback } = req.body || {};
 
     let gradeValue = null;
-    if (bewertung !== undefined && bewertung !== null && bewertung !== '') {
-      const parsed = Number.parseInt(bewertung, 10);
+    if (grade !== undefined && grade !== null && grade !== '') {
+      const parsed = Number.parseInt(grade, 10);
       if (!Number.isInteger(parsed) || parsed < 0 || parsed > 100) {
-        return res.status(400).json({ success: false, message: 'Ungültige Bewertung (0-100)' });
+        return res.status(400).json({ success: false, message: 'Invalid grade (0-100)' });
       }
       gradeValue = parsed;
     }
@@ -351,21 +294,12 @@ const gradeSubmission = async (req, res) => {
       feedbackValue = asString.trim() === '' ? null : asString;
     }
 
-    const updated = await prisma.abgabe.update({
+    const updated = await prisma.submission.update({  // ✅ fix
       where: { id: submissionId },
-      data: {
-        bewertung: gradeValue,
-        feedback: feedbackValue
-      },
+      data: { grade: gradeValue, feedback: feedbackValue },
       select: {
-        id: true,
-        aufgabe_id: true,
-        schueler_id: true,
-        abgabe_zeitpunkt: true,
-        bewertung: true,
-        feedback: true,
-        text: true,
-        dateien: true
+        id: true, assignmentId: true, studentId: true,
+        submittedAt: true, grade: true, feedback: true, text: true, files: true
       }
     });
 
@@ -376,9 +310,7 @@ const gradeSubmission = async (req, res) => {
   }
 };
 
-/**
- * Archive/unarchive assignment (manual)
- */
+// --- Archive/unarchive assignment ---
 const setAssignmentArchived = async (req, res) => {
   try {
     const teacherId = Number.parseInt(req.userId, 10);
@@ -387,36 +319,35 @@ const setAssignmentArchived = async (req, res) => {
     if (!Number.isInteger(teacherId)) {
       return res.status(401).json({ success: false, message: 'Ungültiger Benutzer' });
     }
-
     if (!Number.isInteger(assignmentId)) {
       return res.status(400).json({ success: false, message: 'Aufgaben-ID erforderlich' });
     }
 
-    const isTeacher = await prisma.benutzerRolle.findFirst({
-      where: { benutzer_id: teacherId, rolle_id: 2 },
+    const isTeacher = await prisma.userRole.findFirst({  // ✅ fix
+      where: { userId: teacherId, roleId: 2 },
       select: { id: true }
     });
     if (!isTeacher) {
-      return res.status(403).json({ success: false, message: 'Nur für Lehrer' });
+      return res.status(403).json({ success: false, message: 'Only for teachers' });
     }
 
-    const assignment = await prisma.aufgabe.findFirst({
-      where: { id: assignmentId, lehrer_id: teacherId },
-      select: { id: true, archiviert: true }
+    const assignment = await prisma.assignment.findFirst({  // ✅ fix
+      where: { id: assignmentId, teacherId: teacherId },
+      select: { id: true, archived: true }
     });
     if (!assignment) {
-      return res.status(404).json({ success: false, message: 'Aufgabe nicht gefunden' });
+      return res.status(404).json({ success: false, message: 'Assignment not found' });
     }
 
-    const bodyValue = req.body?.archiviert;
+    const bodyValue = req.body?.archived;
     if (typeof bodyValue !== 'boolean') {
-      return res.status(400).json({ success: false, message: 'archiviert (boolean) erforderlich' });
+      return res.status(400).json({ success: false, message: 'archived (boolean) required' });
     }
 
-    const updated = await prisma.aufgabe.update({
+    const updated = await prisma.assignment.update({  // ✅ fix
       where: { id: assignmentId },
-      data: { archiviert: bodyValue },
-      select: { id: true, archiviert: true }
+      data: { archived: bodyValue },
+      select: { id: true, archived: true }
     });
 
     return res.json({ success: true, data: updated });
@@ -426,11 +357,7 @@ const setAssignmentArchived = async (req, res) => {
   }
 };
 
-/**
- * Delete an assignment created by the current teacher
- * - Deletes DB row (cascades to submissions)
- * - Best-effort deletes uploaded assignment/submission files on disk
- */
+// --- Delete an assignment ---
 const deleteAssignment = async (req, res) => {
   try {
     const teacherId = Number.parseInt(req.userId, 10);
@@ -439,36 +366,29 @@ const deleteAssignment = async (req, res) => {
     if (!Number.isInteger(teacherId)) {
       return res.status(401).json({ success: false, message: 'Ungültiger Benutzer' });
     }
-
     if (!Number.isInteger(assignmentId)) {
       return res.status(400).json({ success: false, message: 'Aufgaben-ID erforderlich' });
     }
 
-    const isTeacher = await prisma.benutzerRolle.findFirst({
-      where: { benutzer_id: teacherId, rolle_id: 2 },
+    const isTeacher = await prisma.userRole.findFirst({  // ✅ fix
+      where: { userId: teacherId, roleId: 2 },
       select: { id: true }
     });
     if (!isTeacher) {
-      return res.status(403).json({ success: false, message: 'Nur für Lehrer' });
+      return res.status(403).json({ success: false, message: 'Only for teachers' });
     }
 
-    const assignment = await prisma.aufgabe.findFirst({
-      where: { id: assignmentId, lehrer_id: teacherId },
-      select: {
-        id: true,
-        anhaenge: true,
-        abgaben: { select: { dateien: true } }
-      }
+    const assignment = await prisma.assignment.findFirst({  // ✅ fix
+      where: { id: assignmentId, teacherId: teacherId },
+      select: { id: true, attachments: true, submissions: { select: { files: true } } }
     });
-
     if (!assignment) {
-      return res.status(404).json({ success: false, message: 'Aufgabe nicht gefunden' });
+      return res.status(404).json({ success: false, message: 'Assignment not found' });
     }
 
-    // Delete assignment attachments from disk
-    if (typeof assignment.anhaenge === 'string' && assignment.anhaenge.trim() !== '') {
+    if (typeof assignment.attachments === 'string' && assignment.attachments.trim() !== '') {
       try {
-        const parsed = JSON.parse(assignment.anhaenge);
+        const parsed = JSON.parse(assignment.attachments);
         if (Array.isArray(parsed)) {
           for (const item of parsed) {
             if (typeof item === 'string') tryDeleteUploadedFile(item);
@@ -477,15 +397,12 @@ const deleteAssignment = async (req, res) => {
             }
           }
         }
-      } catch (error) {
-        console.error('Fehler beim Parsen der Anhänge:', error);
-      }
+      } catch (error) { console.error('Error parsing attachments:', error); }
     }
 
-    // Delete submission files from disk
-    if (Array.isArray(assignment.abgaben)) {
-      for (const sub of assignment.abgaben) {
-        const raw = sub?.dateien;
+    if (Array.isArray(assignment.submissions)) {
+      for (const sub of assignment.submissions) {
+        const raw = sub?.files;
         if (typeof raw === 'string' && raw.trim() !== '') {
           try {
             const parsed = JSON.parse(raw);
@@ -497,18 +414,16 @@ const deleteAssignment = async (req, res) => {
                 }
               }
             }
-          } catch (error) {
-            console.error('Fehler beim Parsen der Abgabe-Dateien:', error);
-          }
+          } catch (error) { console.error('Error parsing submission files:', error); }
         }
       }
     }
 
-    await prisma.aufgabe.delete({ where: { id: assignmentId } });
+    await prisma.assignment.delete({ where: { id: assignmentId } });  // ✅ fix
     return res.json({ success: true, data: { id: assignmentId } });
   } catch (error) {
     console.error('Fehler beim Löschen der Aufgabe:', error);
-    return res.status(500).json({ success: false, message: 'Server Fehler' });
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 

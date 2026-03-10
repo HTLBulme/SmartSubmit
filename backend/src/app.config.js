@@ -1,10 +1,10 @@
-const { PrismaClient } = require('@prisma/client');//Lädt den Prisma-Client, einen ORM (Object-Relational Mapper),als JavaScript-Objekt,für CRUD-Operationen
-const multer = require('multer');//Datei-Uploads verarbeiten middleware
+const { PrismaClient } = require('@prisma/client'); // Loads Prisma Client, an ORM (Object-Relational Mapper), as a JavaScript object for CRUD operations
+const multer = require('multer'); // Middleware for handling file uploads
 const path = require('path');
-const fs = require('fs');// Füge das fs-Modul hinzu (für Dateisystem-Operationen)
+const fs = require('fs'); // Add fs module (for filesystem operations)
 
-// ============================= Prisma Client with Docker Support =============================
-const isDocker = process.env.IS_DOCKER === 'true';//z.B. process.env.DATABASE_URL: sys-env ablesen，wenn local:IS_DOCKER=false, mit docker:IS_DOCKER=true(von yml zwingend abgelesen)
+// --- Prisma Client with Docker Support ---
+const isDocker = process.env.IS_DOCKER === 'true'; // e.g. process.env.DATABASE_URL: read sys-env, local:IS_DOCKER=false, with docker:IS_DOCKER=true (from yml)
 const databaseUrl = isDocker ? process.env.DATABASE_DOCKER_URL : process.env.DATABASE_URL;
 
 const prisma = new PrismaClient({
@@ -15,7 +15,7 @@ const prisma = new PrismaClient({
   },
 });
 
-// ============================= Upload Directories =============================
+// --- Upload Directories ---
 const UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
 const ASSIGNMENTS_DIR = path.join(UPLOAD_DIR, 'assignments');
 const SUBMISSIONS_DIR = path.join(UPLOAD_DIR, 'submissions');
@@ -34,10 +34,10 @@ function allowListedFileFilter(req, file, cb) {
   const mimetypeGeneric = mimetype === '' || mimetype === 'application/octet-stream';
 
   if (extnameOk && (mimetypeOk || mimetypeGeneric)) return cb(null, true);
-  return cb(new Error('Ungültiger Dateityp'));
+  return cb(new Error('Invalid file type'));
 }
 
-// ============================= Multer Configuration =============================
+// --- Multer Configuration ---
 const uploadMemory = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB
@@ -71,30 +71,29 @@ const uploadSubmissionsDisk = multer({
   fileFilter: allowListedFileFilter
 });
 
-// ============================= Database Init =============================
+// --- Database Init ---
 const initDatabase = async () => {
   try {
-    const roleCount = await prisma.rolle.count();
-    
+    const roleCount = await prisma.role.count();
     if (roleCount === 0) {
-      await prisma.rolle.createMany({
+      await prisma.role.createMany({
         data: [
-          { bezeichnung: 'Schüler', beschreibung: 'Schüler，kann Aufgaben abgeben' },
-          { bezeichnung: 'Lehrer', beschreibung: 'Lehrer，kann Aufgaben erstellen, bewerten und verwalten' },
-          { bezeichnung: 'Admin', beschreibung: 'Admin，kann das System Verwalten' }
+          { name: 'Student', description: 'Student can submit assignments' },
+          { name: 'Teacher', description: 'Teacher can create, grade, and manage assignments' },
+          { name: 'Admin', description: 'Admin can manage the system' }
         ]
       });
-      console.log('✅ Rollen initialisiert');
+      console.log('✅ Roles initialized');
     }
   } catch (error) {
-    console.error('❌ DB-Init Fehler:', error);
+    console.error('❌ DB init error:', error);
   }
 };
 
 module.exports = {
-  prisma,       //objekt
-  uploadMemory, //objekt
-  uploadDisk,   //objekt
-  initDatabase,  //funktion
-  uploadSubmissionsDisk
+  prisma,       // object
+  uploadMemory, // object
+  uploadDisk,   // object
+  initDatabase, // function
+  uploadSubmissionsDisk // object
 };
