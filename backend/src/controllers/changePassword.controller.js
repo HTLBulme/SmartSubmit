@@ -26,7 +26,7 @@ const changePassword = async (req, res) => {
     }
 
     // --- Find user ---
-    const user = await prisma.benutzer.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id: userId }
     });
 
@@ -37,7 +37,7 @@ const changePassword = async (req, res) => {
     }
 
     // --- Verify old password ---
-    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.passwort_hash);
+    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.passwordHash);
     
     if (!isOldPasswordValid) {
       return res.status(401).json({
@@ -47,7 +47,7 @@ const changePassword = async (req, res) => {
 
     // --- Check if new password is identical to old password ---
     /*
-    const isSamePassword = await bcrypt.compare(newPassword, user.passwort_hash);
+    const isSamePassword = await bcrypt.compare(newPassword, user.passwordHash);
     
     if (isSamePassword) {
       return res.status(400).json({
@@ -60,10 +60,10 @@ const changePassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // --- Update password ---
-    await prisma.benutzer.update({
+    await prisma.user.update({
       where: { id: userId },
       data: {
-        passwort_hash: hashedPassword
+        passwordHash: hashedPassword
       }
     });
 

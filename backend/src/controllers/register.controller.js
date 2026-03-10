@@ -17,7 +17,7 @@ const register = async (req, res) => {
 
 
     // --- 2. Check if admin already exists ---
-    const adminCount = await prisma.UserRole.count({
+    const adminCount = await prisma.userRole.count({
       where: { roleId: 3 }
     });
 
@@ -45,7 +45,7 @@ const register = async (req, res) => {
     }
 
     // --- 5. Check if email already exists ---
-    const existingUser = await prisma.User.findUnique({
+    const existingUser = await prisma.user.findUnique({
       where: { email: email }
     });
 
@@ -71,7 +71,7 @@ const register = async (req, res) => {
     // --- 8. Create user and assign role (using transaction) ---
     const newUser = await prisma.$transaction(async (tx) => {
       // --- Create user (default name: Admin) ---
-      const user = await tx.User.create({
+      const user = await tx.user.create({
         data: {
           firstName: 'Admin',
           lastName: 'System',
@@ -81,7 +81,7 @@ const register = async (req, res) => {
       });
 
       // --- Assign admin role ---
-      await tx.UserRole.create({
+      await tx.userRole.create({
         data: {
           userId: user.id,
           roleId: 3

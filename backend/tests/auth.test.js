@@ -10,28 +10,28 @@ jest.mock('bcryptjs', () => ({
 }));
 const bcrypt = require('bcryptjs');
 
-// Mock Prisma Client, um Datenbankzugriff zu verhindern.
+// Mock Prisma Client to prevent database access.
 jest.mock('@prisma/client', () => {
     // Define a stable mock user object for testing the password failure path
     const mockUser = {
         id: 1,
         email: 'tutor@smartsubmit.com',
-        passwort_hash: 'hashed-password-for-mock',
-        benutzer_rollen: [
-            { rolle_id: 1, rolle: { bezeichnung: 'Tutor' } }
+        passwordHash: 'hashed-password-for-mock',
+        userRoles: [
+            { roleId: 1, role: { name: 'Tutor' } }
         ]
         };
 
         const mockPrisma = {
-        benutzer: {
+        user: {
             findUnique: jest.fn(),
             create: jest.fn(),
             count: jest.fn().mockResolvedValue(0),
         },
-        rolle: {
+        role: {
             count: jest.fn().mockResolvedValue(0),
             create: jest.fn(),
-            findUnique: jest.fn(async ({ where }) => ({ id: 1, bezeichnung: where.bezeichnung })),
+            findUnique: jest.fn(async ({ where }) => ({ id: 1, name: where.name })),
         },
         $disconnect: jest.fn(),
         $transaction: jest.fn(async (callback) => await callback(mockPrisma)),
@@ -81,7 +81,7 @@ describe('Authentication API', () => {
     it('should return 401 for incorrect login credentials', async () => {
         
         // 1. Mock Prisma: Simulate finding a user with the given email.
-        prisma.benutzer.findUnique.mockResolvedValue(mockUser);
+        prisma.user.findUnique.mockResolvedValue(mockUser);
 
         
         // 2. Mock bcrypt: Simulate the password comparison failing (wrong password).
@@ -95,11 +95,11 @@ describe('Authentication API', () => {
             .set('Content-Type', 'application/json') 
             .send({
                 email: 'tutor@smartsubmit.com',
-                passwort: 'wrongpassword'
+                password: 'wrongpassword'
             });
 
         // Now, we expect 401 because the user was found but the password comparison failed.
         expect(response.statusCode).toBe(401);
-        expect(response.body).toHaveProperty('message', 'Falsche Anmeldedaten'); 
+        expect(response.body).toHaveProperty('message', 'Invalid credentials'); 
     });
 });

@@ -16,7 +16,7 @@ const login = async (req, res) => {
 
   // --- 2. Find user ---
   try {
-    const user = await prisma.User.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email: email },
       include: {
         userRoles: { include: { role: true } }

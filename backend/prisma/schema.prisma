@@ -42,7 +42,7 @@ model UserRole {
   role        Role     @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([userId, roleId])
-  @@map("Benutzer_Rolle")
+  @@map("User_Role")
 }
 
 model Role {
@@ -73,7 +73,7 @@ model UserClass {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([userId, classId]) 
-  @@map("Benutzer_Klasse")
+  @@map("User_Class")
 }
 
 model Subject {
@@ -94,7 +94,7 @@ model UserSubject {
   subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([userId, subjectId])
-  @@map("Benutzer_Fach")
+  @@map("User_Subject")
 }
 
 model Assignment {

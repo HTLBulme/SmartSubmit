@@ -6,8 +6,8 @@ const { validateEmail } = require('../app.utils');
 // --- Check if admin exists ---
 const checkAdminExists = async (req, res) => {
   try {
-    const adminCount = await prisma.benutzerRolle.count({
-      where: { rolle_id: 3 }
+    const adminCount = await prisma.userRole.count({
+      where: { roleId: 3 }
     });
 
     res.json({
@@ -41,64 +41,63 @@ const importStudents = async (req, res) => {
         const { vorname, nachname, email, klasse, jahrgang } = row;
 
         if (!vorname || !nachname || !email || !klasse || !jahrgang) {
-          results.failed.push({ row: row, reason: 'Missing required fields' });
+          results.failed.push({ row, reason: 'Missing required fields' });
           continue;
         }
 
         if (!validateEmail(email)) {
-          results.failed.push({ row: row, reason: 'Invalid email' });
+          results.failed.push({ row, reason: 'Invalid email' });
           continue;
         }
 
-        const existingUser = await prisma.benutzer.findUnique({ where: { email } });
+        const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
-          results.failed.push({ row: row, reason: 'Email already exists' });
+          results.failed.push({ row, reason: 'Email already exists' });
           continue;
         }
 
         const initialPassword = `${vorname}${nachname}`.toLowerCase();
         const hashedPassword = await bcrypt.hash(initialPassword, 10);
 
-        // --- Students can belong to multiple classes (separated by comma) ---
         const klasseNames = klasse.split(',').map(k => k.trim());
 
         await prisma.$transaction(async (tx) => {
           // --- 1. Create user ---
-          const user = await tx.benutzer.create({
+          const user = await tx.user.create({
             data: {
-              vorname: vorname,
-              nachname: nachname,
+              firstName: vorname,
+              lastName: nachname,
               email: email,
-              passwort_hash: hashedPassword
+              passwordHash: hashedPassword
             }
           });
 
           // --- 2. Assign student role ---
-          await tx.benutzerRolle.create({
-            data: { benutzer_id: user.id, rolle_id: 1 }
+          await tx.userRole.create({
+            data: { userId: user.id, roleId: 1 }
           });
 
           // --- 3. Create/link classes ---
           for (const klasseName of klasseNames) {
-            let klasseRecord = await tx.klasse.findFirst({
-              where: { name: klasseName, jahrgang: parseInt(jahrgang) }
+            let klasseRecord = await tx.class.findFirst({
+              where: { name: klasseName, year: parseInt(jahrgang) }
             });
 
             if (!klasseRecord) {
-              klasseRecord = await tx.klasse.create({
-                data: { name: klasseName, jahrgang: parseInt(jahrgang) }
+              klasseRecord = await tx.class.create({
+                data: { name: klasseName, year: parseInt(jahrgang) }
               });
             }
 
-            await tx.benutzerKlasse.create({
-              data: { benutzer_id: user.id, klasse_id: klasseRecord.id }
+            await tx.userClass.create({
+              data: { userId: user.id, classId: klasseRecord.id }
             });
           }
         });
 
-        results.success.push({ vorname: vorname, nachname: nachname, email: email});
+        results.success.push({ vorname, nachname, email });
       } catch (err) {
-        results.failed.push({ row: row, reason: err.message });
+        results.failed.push({ row, reason: err.message });
       }
     }
 
@@ -139,9 +138,9 @@ const importTeachers = async (req, res) => {
           continue;
         }
 
-        const existingUser = await prisma.benutzer.findUnique({ where: { email: email } });
+        const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
-          results.failed.push({ row: row, reason: 'Email already exists' });
+          results.failed.push({ row, reason: 'Email already exists' });
           continue;
         }
 
@@ -150,32 +149,37 @@ const importTeachers = async (req, res) => {
 
         await prisma.$transaction(async (tx) => {
           // --- 1. Create user ---
-          const user = await tx.benutzer.create({
-            data: { vorname, nachname, email, passwort_hash: hashedPassword }
+          const user = await tx.user.create({
+            data: {
+              firstName: vorname,
+              lastName: nachname,
+              email,
+              passwordHash: hashedPassword
+            }
           });
 
           // --- 2. Assign teacher role ---
-          await tx.benutzerRolle.create({
-            data: { benutzer_id: user.id, rolle_id: 2 }
+          await tx.userRole.create({
+            data: { userId: user.id, roleId: 2 }
           });
 
           // --- 3. Link to classes (if provided) ---
           if (klasse && jahrgang) {
             const klasseNames = klasse.split(',').map(k => k.trim());
-            
+
             for (const klasseName of klasseNames) {
-              let klasseRecord = await tx.klasse.findFirst({
-                where: { name: klasseName, jahrgang: parseInt(jahrgang) }
+              let klasseRecord = await tx.class.findFirst({
+                where: { name: klasseName, year: parseInt(jahrgang) }
               });
 
               if (!klasseRecord) {
-                klasseRecord = await tx.klasse.create({
-                  data: { name: klasseName, jahrgang: parseInt(jahrgang) }
+                klasseRecord = await tx.class.create({
+                  data: { name: klasseName, year: parseInt(jahrgang) }
                 });
               }
 
-              await tx.benutzerKlasse.create({
-                data: { benutzer_id: user.id, klasse_id: klasseRecord.id }
+              await tx.userClass.create({
+                data: { userId: user.id, classId: klasseRecord.id }
               });
             }
           }
@@ -183,40 +187,34 @@ const importTeachers = async (req, res) => {
           // --- 4. Link to subjects (if provided) ---
           if (fach_kuerzel) {
             const fachKuerzels = fach_kuerzel.split(',').map(k => k.trim());
-            
+
             for (const kuerzel of fachKuerzels) {
-              let fach = await tx.fach.findUnique({
-                where: { kuerzel: kuerzel }
+              let subject = await tx.subject.findUnique({
+                where: { code: kuerzel }
               });
 
-              if (!fach) {
-                fach = await tx.fach.create({
-                  data: { name: kuerzel, kuerzel: kuerzel }
+              if (!subject) {
+                subject = await tx.subject.create({
+                  data: { name: kuerzel, code: kuerzel }
                 });
               }
 
-              const existing = await tx.benutzerFach.findFirst({
-                where: {
-                  benutzer_id: user.id,
-                  fach_id: fach.id
-                }
+              const existing = await tx.userSubject.findFirst({
+                where: { userId: user.id, subjectId: subject.id }
               });
 
               if (!existing) {
-                await tx.benutzerFach.create({
-                  data: {
-                    benutzer_id: user.id,
-                    fach_id: fach.id
-                  }
+                await tx.userSubject.create({
+                  data: { userId: user.id, subjectId: subject.id }
                 });
               }
             }
           }
         });
 
-        results.success.push({ vorname :vorname, nachname: nachname, email: email });
+        results.success.push({ vorname, nachname, email });
       } catch (err) {
-        results.failed.push({ row: row, reason: err.message });
+        results.failed.push({ row, reason: err.message });
       }
     }
 

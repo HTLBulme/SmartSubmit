@@ -33,8 +33,8 @@ const authenticateAdmin = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Invalid token' });
     }
 
-    const userRole = await prisma.benutzerRolle.findFirst({
-      where: { benutzer_id: decoded.userId, rolle_id: 3 }
+    const userRole = await prisma.userRole.findFirst({
+      where: { userId: decoded.userId, roleId: 3 }
     });
 
     if (!userRole) {
