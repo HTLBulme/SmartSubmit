@@ -3,13 +3,11 @@ const XLSX = require('xlsx');
 const { prisma } = require('../app.config');
 const { validateEmail } = require('../app.utils');
 
-/**
- * Check if admin exists
- */
+// --- Check if admin exists ---
 const checkAdminExists = async (req, res) => {
   try {
-    const adminCount = await prisma.benutzerRolle.count({
-      where: { rolle_id: 3 }
+    const adminCount = await prisma.userRole.count({
+      where: { roleId: 3 }
     });
 
     res.json({
@@ -17,21 +15,19 @@ const checkAdminExists = async (req, res) => {
       adminExists: adminCount > 0
     });
   } catch (error) {
-    console.error('Fehler bei der Administratorprüfung', error);
+    console.error('Admin check error', error);
     res.status(500).json({
       success: false,
-      message: 'Server Fehler'
+      message: 'Server error'
     });
   }
 };
 
-/**
- * Import students from Excel
- */
+// --- Import students from Excel ---
 const importStudents = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'Keine Datei hochgeladen' });
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
     const workbook = XLSX.read(req.file.buffer);
@@ -45,85 +41,82 @@ const importStudents = async (req, res) => {
         const { vorname, nachname, email, klasse, jahrgang } = row;
 
         if (!vorname || !nachname || !email || !klasse || !jahrgang) {
-          results.failed.push({ row: row, reason: 'Fehlende Pflichtfelder' });
+          results.failed.push({ row, reason: 'Missing required fields' });
           continue;
         }
 
         if (!validateEmail(email)) {
-          results.failed.push({ row: row, reason: 'Ungültige E-Mail' });
+          results.failed.push({ row, reason: 'Invalid email' });
           continue;
         }
 
-        const existingUser = await prisma.benutzer.findUnique({ where: { email } });
+        const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
-          results.failed.push({ row: row, reason: 'E-Mail existiert bereits' });
+          results.failed.push({ row, reason: 'Email already exists' });
           continue;
         }
 
         const initialPassword = `${vorname}${nachname}`.toLowerCase();
         const hashedPassword = await bcrypt.hash(initialPassword, 10);
 
-        // Students can belong to multiple classes (separated by comma)
         const klasseNames = klasse.split(',').map(k => k.trim());
 
         await prisma.$transaction(async (tx) => {
-          // 1. Create user
-          const user = await tx.benutzer.create({
+          // --- 1. Create user ---
+          const user = await tx.user.create({
             data: {
-              vorname: vorname,
-              nachname: nachname,
+              firstName: vorname,
+              lastName: nachname,
               email: email,
-              passwort_hash: hashedPassword
+              passwordHash: hashedPassword
             }
           });
 
-          // 2. Assign student role
-          await tx.benutzerRolle.create({
-            data: { benutzer_id: user.id, rolle_id: 1 }
+          // --- 2. Assign student role ---
+          await tx.userRole.create({
+            data: { userId: user.id, roleId: 1 }
           });
 
-          // 3. Create/link classes
+          // --- 3. Create/link classes ---
           for (const klasseName of klasseNames) {
-            let klasseRecord = await tx.klasse.findFirst({
-              where: { name: klasseName, jahrgang: parseInt(jahrgang) }
+            let klasseRecord = await tx.class.findFirst({
+              where: { name: klasseName, year: parseInt(jahrgang) }
             });
 
             if (!klasseRecord) {
-              klasseRecord = await tx.klasse.create({
-                data: { name: klasseName, jahrgang: parseInt(jahrgang) }
+              klasseRecord = await tx.class.create({
+                data: { name: klasseName, year: parseInt(jahrgang) }
               });
             }
 
-            await tx.benutzerKlasse.create({
-              data: { benutzer_id: user.id, klasse_id: klasseRecord.id }
+            await tx.userClass.create({
+              data: { userId: user.id, classId: klasseRecord.id }
             });
           }
         });
 
-        results.success.push({ vorname: vorname, nachname: nachname, email: email});
+        results.success.push({ vorname, nachname, email });
       } catch (err) {
-        results.failed.push({ row: row, reason: err.message });
+        results.failed.push({ row, reason: err.message });
       }
     }
 
     res.json({
       success: true,
-      message: `${results.success.length} Schüler importiert, ${results.failed.length} fehlgeschlagen`,
+      message: `${results.success.length} students imported, ${results.failed.length} failed`,
       data: results
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Import Fehler' });
+    res.status(500).json({ success: false, message: 'Import error' });
   }
 };
 
-/**
- * Import teachers from Excel
- */
+// --- Import teachers from Excel ---
 const importTeachers = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'Keine Datei' });
+      return res.status(400).json({ success: false, message: 'No file' });
     }
 
     const workbook = XLSX.read(req.file.buffer);
@@ -136,18 +129,18 @@ const importTeachers = async (req, res) => {
         const { vorname, nachname, email, klasse, jahrgang, fach_kuerzel } = row;
 
         if (!vorname || !nachname || !email) {
-          results.failed.push({ row, reason: 'Fehlende Pflichtfelder' });
+          results.failed.push({ row, reason: 'Missing required fields' });
           continue;
         }
 
         if (!validateEmail(email)) {
-          results.failed.push({ row, reason: 'Ungültige E-Mail' });
+          results.failed.push({ row, reason: 'Invalid email' });
           continue;
         }
 
-        const existingUser = await prisma.benutzer.findUnique({ where: { email: email } });
+        const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
-          results.failed.push({ row: row, reason: 'E-Mail existiert bereits' });
+          results.failed.push({ row, reason: 'Email already exists' });
           continue;
         }
 
@@ -155,85 +148,84 @@ const importTeachers = async (req, res) => {
         const hashedPassword = await bcrypt.hash(initialPassword, 10);
 
         await prisma.$transaction(async (tx) => {
-          // 1. Create user
-          const user = await tx.benutzer.create({
-            data: { vorname, nachname, email, passwort_hash: hashedPassword }
+          // --- 1. Create user ---
+          const user = await tx.user.create({
+            data: {
+              firstName: vorname,
+              lastName: nachname,
+              email,
+              passwordHash: hashedPassword
+            }
           });
 
-          // 2. Assign teacher role
-          await tx.benutzerRolle.create({
-            data: { benutzer_id: user.id, rolle_id: 2 }
+          // --- 2. Assign teacher role ---
+          await tx.userRole.create({
+            data: { userId: user.id, roleId: 2 }
           });
 
-          // 3. Link to classes (if provided)
+          // --- 3. Link to classes (if provided) ---
           if (klasse && jahrgang) {
             const klasseNames = klasse.split(',').map(k => k.trim());
-            
+
             for (const klasseName of klasseNames) {
-              let klasseRecord = await tx.klasse.findFirst({
-                where: { name: klasseName, jahrgang: parseInt(jahrgang) }
+              let klasseRecord = await tx.class.findFirst({
+                where: { name: klasseName, year: parseInt(jahrgang) }
               });
 
               if (!klasseRecord) {
-                klasseRecord = await tx.klasse.create({
-                  data: { name: klasseName, jahrgang: parseInt(jahrgang) }
+                klasseRecord = await tx.class.create({
+                  data: { name: klasseName, year: parseInt(jahrgang) }
                 });
               }
 
-              await tx.benutzerKlasse.create({
-                data: { benutzer_id: user.id, klasse_id: klasseRecord.id }
+              await tx.userClass.create({
+                data: { userId: user.id, classId: klasseRecord.id }
               });
             }
           }
 
-          // 4. Link to subjects (if provided)
+          // --- 4. Link to subjects (if provided) ---
           if (fach_kuerzel) {
             const fachKuerzels = fach_kuerzel.split(',').map(k => k.trim());
-            
+
             for (const kuerzel of fachKuerzels) {
-              let fach = await tx.fach.findUnique({
-                where: { kuerzel: kuerzel }
+              let subject = await tx.subject.findUnique({
+                where: { code: kuerzel }
               });
 
-              if (!fach) {
-                fach = await tx.fach.create({
-                  data: { name: kuerzel, kuerzel: kuerzel }
+              if (!subject) {
+                subject = await tx.subject.create({
+                  data: { name: kuerzel, code: kuerzel }
                 });
               }
 
-              const existing = await tx.benutzerFach.findFirst({
-                where: {
-                  benutzer_id: user.id,
-                  fach_id: fach.id
-                }
+              const existing = await tx.userSubject.findFirst({
+                where: { userId: user.id, subjectId: subject.id }
               });
 
               if (!existing) {
-                await tx.benutzerFach.create({
-                  data: {
-                    benutzer_id: user.id,
-                    fach_id: fach.id
-                  }
+                await tx.userSubject.create({
+                  data: { userId: user.id, subjectId: subject.id }
                 });
               }
             }
           }
         });
 
-        results.success.push({ vorname :vorname, nachname: nachname, email: email });
+        results.success.push({ vorname, nachname, email });
       } catch (err) {
-        results.failed.push({ row: row, reason: err.message });
+        results.failed.push({ row, reason: err.message });
       }
     }
 
     res.json({
       success: true,
-      message: `${results.success.length} Lehrer importiert, ${results.failed.length} fehlgeschlagen`,
+      message: `${results.success.length} teachers imported, ${results.failed.length} failed`,
       data: results
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: 'Import Fehler' });
+    res.status(500).json({ success: false, message: 'Import error' });
   }
 };
 

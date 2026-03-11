@@ -7,7 +7,7 @@ async function main() {
   console.log('🌱 Starting database seeding...');
 
   // Check if data already exists (to avoid duplicate seeding)
-  const existingUsers = await prisma.benutzer.count();
+  const existingUsers = await prisma.user.count();
   if (existingUsers > 0) {
     console.log('Database already seeded. Skipping...');
     return;
@@ -17,136 +17,136 @@ async function main() {
 
   // Create Roles
   console.log('Creating roles...');
-  const adminRole = await prisma.rolle.create({
+  const adminRole = await prisma.role.create({
     data: {
       id: 3,
-      bezeichnung: 'Admin',
-      beschreibung: 'System Administrator mit vollen Rechten',
+      name: 'Admin',
+      description: 'System Administrator with full rights',
     },
   });
 
-  const lehrerRole = await prisma.rolle.create({
+  const teacherRole = await prisma.role.create({
     data: {
       id: 2,
-      bezeichnung: 'Lehrer',
-      beschreibung: 'Lehrkräfte können Aufgaben erstellen und bewerten',
+      name: 'Teacher',
+      description: 'Teachers can create and grade assignments',
     },
   });
 
-  const schuelerRole = await prisma.rolle.create({
+  const studentRole = await prisma.role.create({
     data: {
       id: 1,
-      bezeichnung: 'Schüler',
-      beschreibung: 'Schüler können Aufgaben ansehen und abgeben',
+      name: 'Student',
+      description: 'Students can view and submit assignments',
     },
   });
 
-  // Create Subjects (Fächer)
+  // Create Subjects
   console.log('Creating subjects...');
-  const mathematik = await prisma.fach.create({
-    data: { name: 'Mathematik', kuerzel: 'MATH' },
+  const math = await prisma.subject.create({
+    data: { name: 'Mathematics', code: 'MATH' },
   });
 
-  const deutsch = await prisma.fach.create({
-    data: { name: 'Deutsch', kuerzel: 'DE' },
+  const german = await prisma.subject.create({
+    data: { name: 'German', code: 'DE' },
   });
 
-  const englisch = await prisma.fach.create({
-    data: { name: 'Englisch', kuerzel: 'EN' },
+  const english = await prisma.subject.create({
+    data: { name: 'English', code: 'EN' },
   });
 
-  const informatik = await prisma.fach.create({
-    data: { name: 'Informatik', kuerzel: 'INF' },
+  const cs = await prisma.subject.create({
+    data: { name: 'Computer Science', code: 'CS' },
   });
 
-  const physik = await prisma.fach.create({
-    data: { name: 'Physik', kuerzel: 'PHY' },
+  const physics = await prisma.subject.create({
+    data: { name: 'Physics', code: 'PHY' },
   });
 
-  // Create Classes (Klassen)
+  // Create Classes
   console.log('Creating classes...');
-  const klasse5a = await prisma.klasse.create({
-    data: { name: '5A', jahrgang: 2024 },
+  const class5a = await prisma.class.create({
+    data: { name: '5A', year: 2024 },
   });
 
-  const klasse5b = await prisma.klasse.create({
-    data: { name: '5B', jahrgang: 2024 },
+  const class5b = await prisma.class.create({
+    data: { name: '5B', year: 2024 },
   });
 
-  const klasse4a = await prisma.klasse.create({
-    data: { name: '4A', jahrgang: 2025 },
+  const class4a = await prisma.class.create({
+    data: { name: '4A', year: 2025 },
   });
 
   // Create Admin User
   console.log('Creating admin user...');
   const hashedPasswordAdmin = await bcrypt.hash('admin123', 10);
-  const admin = await prisma.benutzer.create({
+  const admin = await prisma.user.create({
     data: {
-      vorname: 'Admin',
-      nachname: 'System',
+      firstName: 'Admin',
+      lastName: 'System',
       email: 'admin@smartsubmit.com',
-      passwort_hash: hashedPasswordAdmin,
-      aktiv: true,
+      passwordHash: hashedPasswordAdmin,
+      active: true,
     },
   });
 
-  await prisma.benutzerRolle.create({
+  await prisma.userRole.create({
     data: {
-      benutzer_id: admin.id,
-      rolle_id: adminRole.id,
+      userId: admin.id,
+      roleId: adminRole.id,
     },
   });
 
-  // Create Teachers (Lehrer)
+  // Create Teachers
   console.log('Creating teachers...');
   const hashedPasswordTeacher = await bcrypt.hash('lehrer123', 10);
 
-  const lehrer1 = await prisma.benutzer.create({
+  const teacher1 = await prisma.user.create({
     data: {
-      vorname: 'Maria',
-      nachname: 'Müller',
+      firstName: 'Maria',
+      lastName: 'Müller',
       email: 'maria.mueller@smartsubmit.com',
-      passwort_hash: hashedPasswordTeacher,
-      aktiv: true,
+      passwordHash: hashedPasswordTeacher,
+      active: true,
     },
   });
 
-  await prisma.benutzerRolle.create({
+  await prisma.userRole.create({
     data: {
-      benutzer_id: lehrer1.id,
-      rolle_id: lehrerRole.id,
+      userId: teacher1.id,
+      roleId: teacherRole.id,
     },
   });
 
   // Assign subjects to teacher
-  await prisma.benutzerFach.createMany({
+  await prisma.userSubject.createMany({
     data: [
-      { benutzer_id: lehrer1.id, fach_id: mathematik.id },
-      { benutzer_id: lehrer1.id, fach_id: informatik.id },
+      { userId: teacher1.id, subjectId: math.id },
+      { userId: teacher1.id, subjectId: cs.id },
     ],
   });
 
-  const lehrer2 = await prisma.benutzer.create({
+  const teacher2 = await prisma.user.create({
     data: {
-      vorname: 'Thomas',
-      nachname: 'Schmidt',
+      firstName: 'Thomas',
+      lastName: 'Schmidt',
       email: 'thomas.schmidt@smartsubmit.com',
-      passwort_hash: hashedPasswordTeacher,
-      aktiv: true,
+      passwordHash: hashedPasswordTeacher,
+      active: true,
     },
   });
 
-  await prisma.benutzerRolle.create({
+  await prisma.userRole.create({
     data: {
-      benutzer_id: lehrer2.id,
-      rolle_id: lehrerRole.id,
+      userId: teacher2.id,
+      roleId: teacherRole.id,
     },
   });
 
-  await prisma.benutzerFach.createMany({
+  await prisma.userSubject.createMany({
     data: [
-      { benutzer_id: lehrer2.id, fach_id: deutsch.id },
-      { benutzer_id: lehrer2.id, fach_id: englisch.id },
+      { userId: teacher2.id, subjectId: german.id },
+      { userId: teacher2.id, subjectId: english.id },
     ],
   });
 
@@ -154,118 +154,118 @@ async function main() {
   console.log('Creating students...');
   const hashedPasswordStudent = await bcrypt.hash('schueler123', 10);
 
-  const studenten = [
-    { vorname: 'Max', nachname: 'Mustermann', email: 'max.mustermann@student.com', klasse: klasse5a },
-    { vorname: 'Anna', nachname: 'Weber', email: 'anna.weber@student.com', klasse: klasse5a },
-    { vorname: 'Leon', nachname: 'Fischer', email: 'leon.fischer@student.com', klasse: klasse5a },
-    { vorname: 'Sophie', nachname: 'Wagner', email: 'sophie.wagner@student.com', klasse: klasse5b },
-    { vorname: 'Felix', nachname: 'Becker', email: 'felix.becker@student.com', klasse: klasse5b },
-    { vorname: 'Laura', nachname: 'Hoffmann', email: 'laura.hoffmann@student.com', klasse: klasse4a },
+  const students = [
+    { firstName: 'Max', lastName: 'Mustermann', email: 'max.mustermann@student.com', classObj: class5a },
+    { firstName: 'Anna', lastName: 'Weber', email: 'anna.weber@student.com', classObj: class5a },
+    { firstName: 'Leon', lastName: 'Fischer', email: 'leon.fischer@student.com', classObj: class5a },
+    { firstName: 'Sophie', lastName: 'Wagner', email: 'sophie.wagner@student.com', classObj: class5b },
+    { firstName: 'Felix', lastName: 'Becker', email: 'felix.becker@student.com', classObj: class5b },
+    { firstName: 'Laura', lastName: 'Hoffmann', email: 'laura.hoffmann@student.com', classObj: class4a },
   ];
 
-  for (const student of studenten) {
-    const schueler = await prisma.benutzer.create({
+  for (const student of students) {
+    const studentUser = await prisma.user.create({
       data: {
-        vorname: student.vorname,
-        nachname: student.nachname,
+        firstName: student.firstName,
+        lastName: student.lastName,
         email: student.email,
-        passwort_hash: hashedPasswordStudent,
-        aktiv: true,
+        passwordHash: hashedPasswordStudent,
+        active: true,
       },
     });
 
     // Assign student role
-    await prisma.benutzerRolle.create({
+    await prisma.userRole.create({
       data: {
-        benutzer_id: schueler.id,
-        rolle_id: schuelerRole.id,
+        userId: studentUser.id,
+        roleId: studentRole.id,
       },
     });
 
     // Assign to class
-    await prisma.benutzerKlasse.create({
+    await prisma.userClass.create({
       data: {
-        benutzer_id: schueler.id,
-        klasse_id: student.klasse.id,
+        userId: studentUser.id,
+        classId: student.classObj.id,
       },
     });
   }
 
-  // Create Assignments (Aufgaben)
+  // Create Assignments
   console.log('Creating assignments...');
   
-  const aufgabe1 = await prisma.aufgabe.create({
+  const assignment1 = await prisma.assignment.create({
     data: {
-      titel: 'Quadratische Gleichungen lösen',
-      beschreibung: 'Lösen Sie die Aufgaben auf Seite 45-47 im Mathematikbuch. Zeigen Sie alle Rechenschritte.',
-      anhaenge: JSON.stringify(['/uploads/mathe_aufgaben.pdf']),
-      termin: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-      klasse_id: klasse5a.id,
-      fach_id: mathematik.id,
-      lehrer_id: lehrer1.id,
+      title: 'Solving quadratic equations',
+      description: 'Solve the problems on pages 45-47 in the math book. Show all steps.',
+      attachments: JSON.stringify(['/uploads/mathe_aufgaben.pdf']),
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      classId: class5a.id,
+      subjectId: math.id,
+      teacherId: teacher1.id,
     },
   });
 
-  const aufgabe2 = await prisma.aufgabe.create({
+  const assignment2 = await prisma.assignment.create({
     data: {
-      titel: 'Einführung in Python',
-      beschreibung: 'Schreiben Sie ein Python-Programm, das die Fibonacci-Folge bis zur 10. Zahl berechnet.',
-      anhaenge: null,
-      termin: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
-      klasse_id: klasse5a.id,
-      fach_id: informatik.id,
-      lehrer_id: lehrer1.id,
+      title: 'Introduction to Python',
+      description: 'Write a Python program that calculates the Fibonacci sequence up to the 10th number.',
+      attachments: null,
+      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      classId: class5a.id,
+      subjectId: cs.id,
+      teacherId: teacher1.id,
     },
   });
 
-  const aufgabe3 = await prisma.aufgabe.create({
+  const assignment3 = await prisma.assignment.create({
     data: {
-      titel: 'Gedichtanalyse: Goethe',
-      beschreibung: 'Analysieren Sie das Gedicht "Erlkönig" von Johann Wolfgang von Goethe. Mindestens 2 Seiten.',
-      anhaenge: JSON.stringify(['/uploads/erlkoenig.pdf']),
-      termin: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
-      klasse_id: klasse5b.id,
-      fach_id: deutsch.id,
-      lehrer_id: lehrer2.id,
+      title: 'Poetry analysis: Goethe',
+      description: 'Analyze the poem "Erlkönig" by Johann Wolfgang von Goethe. At least 2 pages.',
+      attachments: JSON.stringify(['/uploads/erlkoenig.pdf']),
+      dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+      classId: class5b.id,
+      subjectId: german.id,
+      teacherId: teacher2.id,
     },
   });
 
-  // Create Sample Submissions (Abgaben)
+  // Create Sample Submissions
   console.log('Creating sample submissions...');
   
   // Get a student from class 5A
-  const schuelerInKlasse5a = await prisma.benutzer.findFirst({
+  const studentInClass5a = await prisma.user.findFirst({
     where: {
-      benutzer_klassen: {
-        some: { klasse_id: klasse5a.id }
+      userClasses: {
+        some: { classId: class5a.id }
       },
-      benutzer_rollen: {
-        some: { rolle_id: schuelerRole.id }
+      userRoles: {
+        some: { roleId: studentRole.id }
       }
     }
   });
 
-  if (schuelerInKlasse5a) {
-    await prisma.abgabe.create({
+  if (studentInClass5a) {
+    await prisma.submission.create({
       data: {
-        aufgabe_id: aufgabe1.id,
-        schueler_id: schuelerInKlasse5a.id,
-        dateien: JSON.stringify(['/uploads/max_mathe_loesung.pdf']),
-        abgabe_zeitpunkt: new Date(),
-        bewertung: 85,
-        feedback: 'Sehr gute Arbeit! Die Rechenschritte sind klar dargestellt.',
+        assignmentId: assignment1.id,
+        studentId: studentInClass5a.id,
+        files: JSON.stringify(['/uploads/max_mathe_loesung.pdf']),
+        submittedAt: new Date(),
+        grade: 85,
+        feedback: 'Very good work! All steps are clearly shown.',
       },
     });
   }
 
   console.log('Seeding completed successfully!');
   console.log('\nSummary:');
-  console.log(`   - ${await prisma.rolle.count()} Roles`);
-  console.log(`   - ${await prisma.fach.count()} Subjects`);
-  console.log(`   - ${await prisma.klasse.count()} Classes`);
-  console.log(`   - ${await prisma.benutzer.count()} Users`);
-  console.log(`   - ${await prisma.aufgabe.count()} Assignments`);
-  console.log(`   - ${await prisma.abgabe.count()} Submissions`);
+  console.log(`   - ${await prisma.role.count()} Roles`);
+  console.log(`   - ${await prisma.subject.count()} Subjects`);
+  console.log(`   - ${await prisma.class.count()} Classes`);
+  console.log(`   - ${await prisma.user.count()} Users`);
+  console.log(`   - ${await prisma.assignment.count()} Assignments`);
+  console.log(`   - ${await prisma.submission.count()} Submissions`);
   console.log('\nTest Credentials:');
   console.log('   Admin: admin@smartsubmit.com / admin123');
   console.log('   Teacher: maria.mueller@smartsubmit.com / lehrer123');

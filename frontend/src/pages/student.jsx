@@ -29,11 +29,11 @@ function getFriendlyName(userData) {
     storedUser = null;
   }
 
-  const vorname = storedUser?.vorname ?? userData?.vorname;
-  const nachname = storedUser?.nachname ?? userData?.nachname;
+  const firstName = storedUser?.firstName ?? userData?.firstName;
+  const lastName = storedUser?.lastName ?? userData?.lastName;
   const email = storedUser?.email ?? userData?.email;
 
-  const fullName = [vorname, nachname].filter(Boolean).join(" ");
+  const fullName = [firstName, lastName].filter(Boolean).join(" ");
   if (fullName.trim()) return titleCaseWords(fullName);
 
   if (userData?.name) return titleCaseWords(userData.name);
@@ -84,7 +84,6 @@ export default function StudentDashboard() {
         if (idx !== -1) return normalized.slice(idx);
       }
     }
-
     return null;
   };
 
@@ -131,7 +130,6 @@ export default function StudentDashboard() {
         if (idx !== -1) return normalized.slice(idx);
       }
     }
-
     return null;
   };
 
@@ -173,8 +171,8 @@ export default function StudentDashboard() {
 
       const submissionByAssignmentId = new Map(
         submissionsRaw
-          .filter((row) => row && typeof row.aufgabe_id === "number")
-          .map((row) => [row.aufgabe_id, row])
+          .filter((row) => row && typeof row.assignmentId === "number")
+          .map((row) => [row.assignmentId, row])
       );
 
       const getSubmission = (assignmentId) =>
@@ -183,10 +181,10 @@ export default function StudentDashboard() {
       const assignments = assignmentsRaw.map((assignment) => {
         const submission = getSubmission(assignment.id);
         const submitted = Boolean(submission);
-        const gradeValue = submission?.bewertung ?? null;
+        const gradeValue = submission?.grade ?? null;
 
         let submittedFiles = [];
-        const rawSubmittedFiles = submission?.dateien;
+        const rawSubmittedFiles = submission?.files;
         if (Array.isArray(rawSubmittedFiles)) {
           submittedFiles = rawSubmittedFiles;
         } else if (typeof rawSubmittedFiles === "string" && rawSubmittedFiles.trim() !== "") {
@@ -200,11 +198,11 @@ export default function StudentDashboard() {
 
         let attachments = [];
         if (
-          typeof assignment.anhaenge === "string" &&
-          assignment.anhaenge.trim() !== ""
+          typeof assignment.attachments === "string" &&
+          assignment.attachments.trim() !== ""
         ) {
           try {
-            attachments = JSON.parse(assignment.anhaenge);
+            attachments = JSON.parse(assignment.attachments);
           } catch {
             attachments = [];
           }
@@ -212,13 +210,13 @@ export default function StudentDashboard() {
 
         return {
           id: assignment.id,
-          title: assignment.titel,
-          description: assignment.beschreibung,
-          dueDate: assignment.termin,
+          title: assignment.title,
+          description: assignment.description,
+          dueDate: assignment.dueDate,
           submitted,
           gradeValue,
           feedback: submission?.feedback ?? null,
-          submissionTime: submission?.abgabe_zeitpunkt ?? null,
+          submittedAt: submission?.submittedAt ?? null,
           submittedText: submission?.text ?? "",
           submittedFiles,
           attachments,

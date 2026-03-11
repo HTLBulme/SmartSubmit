@@ -39,7 +39,7 @@ export default function ChangePassword() {
       return;
     }
     /*
-    // New password must not be the same as the old one
+    // New password must not be the same as old password
     if (oldPassword === newPassword) {
       setMessage(t.samePassword);
       return;
@@ -73,7 +73,7 @@ export default function ChangePassword() {
       setIsSuccess(true);
       setMessage(res.data.message || t.passwordChangeSuccess);
 
-      // Automatically redirect to home page after 3 seconds
+      // Automatically redirect to homepage after 3 seconds
       setTimeout(() => {
         const role = localStorage.getItem("role");
         if (role?.toLowerCase() === "admin") navigate("/admin");
@@ -134,7 +134,7 @@ export default function ChangePassword() {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowOldPassword((v) => !v)}
-                aria-label={showOldPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+                aria-label={showOldPassword ? "Hide password" : "Show password"}
               >
                 <EyeIcon show={showOldPassword} />
               </button>
@@ -155,7 +155,7 @@ export default function ChangePassword() {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowNewPassword((v) => !v)}
-                aria-label={showNewPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+                aria-label={showNewPassword ? "Hide password" : "Show password"}
               >
                 <EyeIcon show={showNewPassword} />
               </button>
@@ -176,7 +176,7 @@ export default function ChangePassword() {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowConfirmPassword((v) => !v)}
-                aria-label={showConfirmPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
               >
                 <EyeIcon show={showConfirmPassword} />
               </button>
