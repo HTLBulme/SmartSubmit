@@ -14,7 +14,7 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
-  flex-wrap: nowrap; /* 🚫 без переносов */
+  flex-wrap: wrap; /* allow wrapping */
   animation: fadeIn 0.4s ease-in-out;
 }
 
@@ -83,7 +83,7 @@
 /* === Кнопка Logout === */
 .btn-logout {
   border-radius: 999px;
-  padding: 0.35rem 0.9rem;
+  padding: 0.35rem 0.25rem;
   font-weight: 600;
   border: 1px solid #f0b4b4;
   color: #c73535;
@@ -96,4 +96,22 @@
   background: #dc3545;
   color: #fff;
   border-color: #dc3545;
+}
+
+@media (max-width: 768px) {
+
+  .navbar {
+    padding: 0.6rem 1rem;
+    gap: 0.5rem;
+  }
+
+  .navbar-brand {
+    width: 100%;
+  }
+
+  .navbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
 }
