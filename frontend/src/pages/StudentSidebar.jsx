@@ -7,7 +7,6 @@ export default function StudentSidebar({ userData, activeView, onViewChange }) {
   const [lang] = useLang();
   const t = T[lang] || T.en;
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [expandedMenu, setExpandedMenu] = useState("assignments");
 
   const getInitials = (userData) => {
     const firstName = userData?.firstName || userData?.vorname || "";
@@ -37,92 +36,46 @@ export default function StudentSidebar({ userData, activeView, onViewChange }) {
   };
 
   const getUserClass = (userData) => {
-    const assignment = userData?.assignments?.[0];
-    return assignment?.className || userData?.className || "---";
-  };
-
-  // Count assignments by status
-  const getAssignmentCounts = () => {
     const assignments = userData?.assignments || [];
-    const now = new Date();
-    
-    let open = 0;
-    let submitted = 0;
-    let overdue = 0;
-    
-    assignments.forEach(assignment => {
-      const dueDate = new Date(assignment.dueDate);
-      if (assignment.submitted) {
-        submitted++;
-      } else if (dueDate < now) {
-        overdue++;
-      } else {
-        open++;
-      }
-    });
-    
-    return { open, submitted, overdue, total: assignments.length };
+    if (assignments.length > 0) {
+      return assignments[0]?.className || assignments[0]?.class?.name || "—";
+    }
+    return userData?.className || userData?.class?.name || "—";
   };
 
-  const counts = getAssignmentCounts();
-
+  // Simple menu - just 3 items
   const menuItems = [
     {
-      id: "overview",
-      icon: "",
-      label: t.overview || "Overview",
-      badge: null,
-    },
-    {
-      id: "assignments",
-      icon: "",
-      label: t.myAssignments || "My Assignments",
-      badge: counts.total,
-      submenu: [
-        { id: "open", label: t.open || "Open", badge: counts.open },
-        { id: "submitted", label: t.submitted || "Submitted", badge: counts.submitted },
-        { id: "overdue", label: t.overdue || "Overdue", badge: counts.overdue },
-      ]
-    },
-    {
-      id: "submissions",
-      icon: "",
-      label: t.mySubmissions || "My Submissions",
-      badge: counts.submitted,
+      id: "dashboard",
+      icon: "🏠",
+      label: t.dashboard || "Dashboard",
     },
     {
       id: "calendar",
-      icon: "",
+      icon: "📅",
       label: t.calendar || "Calendar",
-      badge: null,
     },
     {
       id: "settings",
       icon: "⚙️",
       label: t.settings || "Settings",
-      badge: null,
     },
   ];
 
   const handleMenuClick = (itemId) => {
-    const item = menuItems.find(m => m.id === itemId);
-    if (item?.submenu) {
-      setExpandedMenu(expandedMenu === itemId ? null : itemId);
-    } else {
-      onViewChange(itemId);
-      setIsMobileOpen(false);
-    }
+    onViewChange(itemId);
+    setIsMobileOpen(false); // Close mobile menu
   };
 
   return (
     <>
-      {/* Mobile hamburger button */}
+      {/* Mobile toggle button - bottom right floating */}
       <button 
-        className="mobile-menu-btn"
+        className="sidebar-mobile-toggle"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
         aria-label="Toggle menu"
       >
-        <span className="hamburger-icon">☰</span>
+        ☰
       </button>
 
       {/* Overlay for mobile */}
@@ -138,7 +91,7 @@ export default function StudentSidebar({ userData, activeView, onViewChange }) {
         
         {/* Close button (mobile only) */}
         <button 
-          className="mobile-close-btn"
+          className="sidebar-close-btn"
           onClick={() => setIsMobileOpen(false)}
           aria-label="Close menu"
         >
@@ -147,64 +100,34 @@ export default function StudentSidebar({ userData, activeView, onViewChange }) {
 
         {/* Header */}
         <div className="sidebar-header">
-          <div className="app-logo">
-            <span className="logo-icon">📱</span>
-            <span className="logo-text">SmartSubmit</span>
+          <div className="sidebar-logo">
+            <span className="sidebar-logo-icon">📱</span>
+            <span className="sidebar-logo-text">SmartSubmit</span>
           </div>
         </div>
 
         {/* User Profile */}
         <div className="sidebar-profile">
-          <div className="profile-avatar">
+          <div className="sidebar-avatar">
             {getInitials(userData)}
           </div>
-          <div className="profile-info">
-            <div className="profile-name">{getUserName(userData)}</div>
-            <div className="profile-role">{t.student} · {getUserClass(userData)}</div>
+          <div className="sidebar-user-info">
+            <div className="sidebar-user-name">{getUserName(userData)}</div>
+            <div className="sidebar-user-role">{t.student} · {getUserClass(userData)}</div>
           </div>
         </div>
 
-        {/* Navigation Menu */}
-        <nav className="sidebar-nav">
+        {/* Navigation Menu - Simple, no submenus */}
+        <nav className="sidebar-menu">
           {menuItems.map((item) => (
-            <div key={item.id}>
-              <button
-                className={`nav-item ${activeView === item.id ? "active" : ""}`}
-                onClick={() => handleMenuClick(item.id)}
-              >
-                <span className="nav-icon">{item.icon}</span>
-                <span className="nav-label">{item.label}</span>
-                {item.badge !== null && item.badge > 0 && (
-                  <span className="nav-badge">{item.badge}</span>
-                )}
-                {item.submenu && (
-                  <span className="nav-arrow">
-                    {expandedMenu === item.id ? "▼" : "▶"}
-                  </span>
-                )}
-              </button>
-
-              {/* Submenu */}
-              {item.submenu && expandedMenu === item.id && (
-                <div className="nav-submenu">
-                  {item.submenu.map((subitem) => (
-                    <button
-                      key={subitem.id}
-                      className={`nav-subitem ${activeView === subitem.id ? "active" : ""}`}
-                      onClick={() => {
-                        onViewChange(subitem.id);
-                        setIsMobileOpen(false);
-                      }}
-                    >
-                      <span className="nav-sublabel">{subitem.label}</span>
-                      {subitem.badge !== null && subitem.badge > 0 && (
-                        <span className="nav-subbadge">{subitem.badge}</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <button
+              key={item.id}
+              className={`sidebar-menu-item ${activeView === item.id ? "active" : ""}`}
+              onClick={() => handleMenuClick(item.id)}
+            >
+              <span className="sidebar-menu-icon">{item.icon}</span>
+              <span className="sidebar-menu-label">{item.label}</span>
+            </button>
           ))}
         </nav>
 
