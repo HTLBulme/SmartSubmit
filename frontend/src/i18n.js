@@ -244,7 +244,18 @@ const T = {
       "Bei weiteren Fragen wenden Sie sich bitte an:",
       "E-Mail: support@smartsubmit.com",
       "Institution: HTL Bulme"
-    ]
+    ],
+
+    // Sidebar
+    overview: "Übersicht",
+    mySubmissions: "Meine Abgaben",
+    calendar: "Kalender",
+    settings: "Einstellungen",
+    openAssignments: "Offene Aufgaben",
+    submittedAssignments: "Abgegebene Aufgaben",
+    overdueAssignments: "Überfällige Aufgaben",
+    open: "Offen",
+
   },
 
   en: {
@@ -492,7 +503,16 @@ const T = {
       "For further questions please contact:",
       "E-Mail: support@smartsubmit.com",
       "Institution: HTL Bulme"
-    ]
+    ],
+
+    overview: "Overview",
+    mySubmissions: "My Submissions",
+    calendar: "Calendar",
+    settings: "Settings",
+    openAssignments: "Open Assignments",
+    submittedAssignments: "Submitted Assignments",
+    overdueAssignments: "Overdue Assignments",
+    open: "Open",
   },
 };
 
