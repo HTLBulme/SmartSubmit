@@ -246,15 +246,27 @@ const T = {
       "Institution: HTL Bulme"
     ],
 
-    // Sidebar
-    overview: "Übersicht",
-    mySubmissions: "Meine Abgaben",
+    dashboard: "Dashboard",
     calendar: "Kalender",
     settings: "Einstellungen",
-    openAssignments: "Offene Aufgaben",
-    submittedAssignments: "Abgegebene Aufgaben",
-    overdueAssignments: "Überfällige Aufgaben",
-    open: "Offen",
+    
+    // Calendar translations
+    urgent: "Dringend (≤2 Tage)",
+    soon: "Bald (≤7 Tage)",
+    today: "Heute",
+    tomorrow: "Morgen",
+    days: "Tage",
+    
+    // Settings translations
+    accountSettings: "Kontoeinstellungen",
+    preferences: "Einstellungen",
+    security: "Sicherheit",
+    changeLanguageHint: "Sprache im oberen Menü ändern",
+    passwordHintSettings: "Aktualisieren Sie Ihr Passwort regelmäßig",
+    needHelp: "Brauchen Sie Hilfe?",
+    contact: "Support kontaktieren",
+    language: "Sprache",
+ 
 
   },
 
@@ -505,14 +517,27 @@ const T = {
       "Institution: HTL Bulme"
     ],
 
-    overview: "Overview",
-    mySubmissions: "My Submissions",
+    dashboard: "Dashboard",
     calendar: "Calendar",
     settings: "Settings",
-    openAssignments: "Open Assignments",
-    submittedAssignments: "Submitted Assignments",
-    overdueAssignments: "Overdue Assignments",
-    open: "Open",
+    
+    // Calendar translations
+    urgent: "Urgent (≤2 days)",
+    soon: "Soon (≤7 days)",
+    today: "Today",
+    tomorrow: "Tomorrow",
+    days: "days",
+    
+    // Settings translations
+    accountSettings: "Account Settings",
+    preferences: "Preferences",
+    security: "Security",
+    changeLanguageHint: "Change language in the top menu",
+    passwordHintSettings: "Update your password regularly for security",
+    needHelp: "Need help?",
+    contact: "Contact support",
+    language: "Language",
+    
   },
 };
 

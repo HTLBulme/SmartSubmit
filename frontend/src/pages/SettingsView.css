@@ -1,0 +1,139 @@
+/* ═══════════════════════════════════════════════════════════
+   SETTINGS VIEW
+   ═══════════════════════════════════════════════════════════ */
+
+.settings-view {
+  max-width: 800px;
+}
+
+.settings-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2rem;
+}
+
+/* ─────────────────────────────────────────────
+   SETTINGS SECTIONS
+   ───────────────────────────────────────────── */
+.settings-section {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+
+.settings-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ─────────────────────────────────────────────
+   SETTINGS ITEMS
+   ───────────────────────────────────────────── */
+.settings-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.settings-item-label {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.settings-item-value {
+  color: var(--text-light);
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.settings-item-hint {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* ─────────────────────────────────────────────
+   BUTTONS
+   ───────────────────────────────────────────── */
+.settings-btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.95rem;
+}
+
+.settings-btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.settings-btn-secondary {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  padding: 0.6rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+.settings-btn-secondary:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* ─────────────────────────────────────────────
+   FOOTER
+   ───────────────────────────────────────────── */
+.settings-footer {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--bg);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.settings-footer-text {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE
+   ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .settings-view {
+    max-width: 100%;
+  }
+
+  .settings-section {
+    padding: 1rem;
+  }
+
+  .settings-title {
+    font-size: 1.25rem;
+  }
+}
