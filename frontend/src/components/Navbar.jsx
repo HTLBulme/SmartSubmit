@@ -1,14 +1,11 @@
-
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
-import { useNavigate } from "react-router-dom";
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from "react-router-dom";
 import "./Navbar.css";
 
 export default function Navbar() {
   const [lang, setLang] = useLang();
-  const t = T[lang];
-
+  const t = T[lang] || T.en;
   const navigate = useNavigate();
 
   function toggleLang(newLang) {
@@ -18,25 +15,26 @@ export default function Navbar() {
 
   function handleLogout() {
     localStorage.clear();
+    sessionStorage.clear();
     navigate("/");
   }
 
-   function handleChangePassword() {
-    window.location.href = "/change-password";//new 
+  function handleChangePassword() {
+    navigate("/change-password");
   }
 
-  
-  const isLoggedIn = localStorage.getItem("token");//new
+  const isLoggedIn = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   return (
     <nav className="navbar">
-      {/* === Логотип / Название === */}
+      {/* Brand/Logo */}
       <div className="navbar-brand">
         Smart<span>Submit</span>
       </div>
 
-      {/* === Правая часть: языки +pw ädern+ выход === */}
+      {/* Right section: languages + buttons */}
       <div className="navbar-right">
+        {/* Language switcher */}
         <div className="lang-switcher">
           <button
             className={lang === "de" ? "active" : ""}
@@ -52,21 +50,25 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* new pw ädern Button (nur nach einloggen) */}
+        {/* Show these buttons only when logged in */}
         {isLoggedIn && (
-          <button className="btn-logout" onClick={handleChangePassword}>
-            {t.changePassword || "Passwort ändern"}
-          </button>
+          <>
+            {/* Change Password button */}
+            <button className="btn-outline-light" onClick={handleChangePassword}>
+              {t.changePassword || "Change Password"}
+            </button>
+
+            {/* Help button */}
+            <Link to="/help" className="btn-outline-light">
+              {t.helpBtn || "Help"}
+            </Link>
+          </>
         )}
-        
+
+        {/* Logout button */}
         <button className="btn-logout" onClick={handleLogout}>
           {t.logout || "Logout"}
         </button>
-
-          {/* Add Help Button */}
-        <Link to="/help" className="btn btn-sm btn-outline-light me-2">
-          <i className="bi bi-question-circle"></i> {t.helpBtn}
-        </Link>
       </div>
     </nav>
   );

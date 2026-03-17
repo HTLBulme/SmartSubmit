@@ -266,7 +266,17 @@ const T = {
     needHelp: "Brauchen Sie Hilfe?",
     contact: "Support kontaktieren",
     language: "Sprache",
- 
+
+    // Teacher Sidebar
+    createAssignment: "Aufgabe erstellen",
+    accountSettings: "Kontoeinstellungen",
+    preferences: "Einstellungen",
+    security: "Sicherheit",
+    changeLanguageHint: "Sprache im oberen Menü ändern",
+    passwordHintSettings: "Aktualisieren Sie Ihr Passwort regelmäßig",
+    needHelp: "Brauchen Sie Hilfe?",
+    contact: "Support kontaktieren",
+    language: "Sprache",
 
   },
 
@@ -529,6 +539,17 @@ const T = {
     days: "days",
     
     // Settings translations
+    accountSettings: "Account Settings",
+    preferences: "Preferences",
+    security: "Security",
+    changeLanguageHint: "Change language in the top menu",
+    passwordHintSettings: "Update your password regularly for security",
+    needHelp: "Need help?",
+    contact: "Contact support",
+    language: "Language",
+
+    // Teacher Sidebar
+    createAssignment: "Create Assignment",
     accountSettings: "Account Settings",
     preferences: "Preferences",
     security: "Security",
