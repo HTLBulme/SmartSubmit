@@ -244,7 +244,40 @@ const T = {
       "Bei weiteren Fragen wenden Sie sich bitte an:",
       "E-Mail: support@smartsubmit.com",
       "Institution: HTL Bulme"
-    ]
+    ],
+
+    dashboard: "Dashboard",
+    calendar: "Kalender",
+    settings: "Einstellungen",
+    
+    // Calendar translations
+    urgent: "Dringend (≤2 Tage)",
+    soon: "Bald (≤7 Tage)",
+    today: "Heute",
+    tomorrow: "Morgen",
+    days: "Tage",
+    
+    // Settings translations
+    accountSettings: "Kontoeinstellungen",
+    preferences: "Einstellungen",
+    security: "Sicherheit",
+    changeLanguageHint: "Sprache im oberen Menü ändern",
+    passwordHintSettings: "Aktualisieren Sie Ihr Passwort regelmäßig",
+    needHelp: "Brauchen Sie Hilfe?",
+    contact: "Support kontaktieren",
+    language: "Sprache",
+
+    // Teacher Sidebar
+    createAssignment: "Aufgabe erstellen",
+    accountSettings: "Kontoeinstellungen",
+    preferences: "Einstellungen",
+    security: "Sicherheit",
+    changeLanguageHint: "Sprache im oberen Menü ändern",
+    passwordHintSettings: "Aktualisieren Sie Ihr Passwort regelmäßig",
+    needHelp: "Brauchen Sie Hilfe?",
+    contact: "Support kontaktieren",
+    language: "Sprache",
+
   },
 
   en: {
@@ -492,7 +525,40 @@ const T = {
       "For further questions please contact:",
       "E-Mail: support@smartsubmit.com",
       "Institution: HTL Bulme"
-    ]
+    ],
+
+    dashboard: "Dashboard",
+    calendar: "Calendar",
+    settings: "Settings",
+    
+    // Calendar translations
+    urgent: "Urgent (≤2 days)",
+    soon: "Soon (≤7 days)",
+    today: "Today",
+    tomorrow: "Tomorrow",
+    days: "days",
+    
+    // Settings translations
+    accountSettings: "Account Settings",
+    preferences: "Preferences",
+    security: "Security",
+    changeLanguageHint: "Change language in the top menu",
+    passwordHintSettings: "Update your password regularly for security",
+    needHelp: "Need help?",
+    contact: "Contact support",
+    language: "Language",
+
+    // Teacher Sidebar
+    createAssignment: "Create Assignment",
+    accountSettings: "Account Settings",
+    preferences: "Preferences",
+    security: "Security",
+    changeLanguageHint: "Change language in the top menu",
+    passwordHintSettings: "Update your password regularly for security",
+    needHelp: "Need help?",
+    contact: "Contact support",
+    language: "Language",
+    
   },
 };
 

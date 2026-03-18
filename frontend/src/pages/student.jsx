@@ -3,6 +3,9 @@ import T from "../i18n";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./student.css";
+import StudentSidebar from "./StudentSidebar";
+import CalendarView from "./CalendarView";
+import SettingsView from "./SettingsView";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -57,6 +60,8 @@ export default function StudentDashboard() {
   const [submitMessage, setSubmitMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOver, setIsOver] = useState(false);
+
+  const [activeView, setActiveView] = useState("dashboard");
 
   const getAttachmentUrl = (attachment) => {
     if (!attachment) return null;
@@ -317,269 +322,291 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="student-dashboard">
-      <header className="dashboard-header">
-        <h1>
-          {(t.welcome || "Welcome").trim()} {getFriendlyName(userData)}
-        </h1>
-      </header>
+   <div className="student-layout">
+    <StudentSidebar 
+      userData={userData}
+      activeView={activeView}
+      onViewChange={setActiveView}
+    />       
+    
+      <div className="student-main-content">
+        <div className="student-dashboard">
 
-      <div className="dashboard-content">
-        <div className="assignments">
-          <h2>{t.myAssignments}</h2>
-          <div className="assignments-list">
-            {userData?.assignments?.map((assignment) => (
-              <div key={assignment.id} className="assignment-item">
-                <div className="assignment-info">
-                  <div className="assignment-title">{assignment.title}</div>
-                  <div className="assignment-due">
-                    {t.dueDate}: {new Date(assignment.dueDate).toLocaleDateString()}
-                  </div>
-                  <div className="assignment-grade">
-                    <strong>{t.grade || "Grade"}:</strong>{" "}
-                    {assignment.submitted
-                      ? assignment.gradeValue ?? (t.pendingGrade || "Pending")
-                      : "—"}
-                  </div>
-                </div>
+          {activeView === "dashboard" && (
+            <div>
 
-                {(() => {
-                  const due = new Date(assignment.dueDate);
-                  const isOverdue = !assignment.submitted && !Number.isNaN(due.getTime()) && due < new Date();
-                  const statusClass = assignment.submitted
-                    ? "status-submitted"
-                    : isOverdue
-                      ? "status-not-submitted"
-                      : "status-active";
-                  const statusText = assignment.submitted
-                    ? t.submitted
-                    : isOverdue
-                      ? (t.overdue || "Overdue")
-                      : (t.active || "Active");
+              <header className="dashboard-header">
+                <h1>
+                  {(t.welcome || "Welcome").trim()} {getFriendlyName(userData)}
+                </h1>
+              </header>
 
-                  return (
-                    <span className={`assignment-status ${statusClass}`}>
-                      {statusText}
-                    </span>
-                  );
-                })()}
-
-                <button
-                  type="button"
-                  className="view-details-btn"
-                  onClick={() =>
-                    setExpandedAssignmentId((current) =>
-                      current === assignment.id ? null : assignment.id
-                    )
-                  }
-                >
-                  {expandedAssignmentId === assignment.id
-                    ? (t.hideDetails || "Hide details")
-                    : t.viewDetails}
-                </button>
-
-                {expandedAssignmentId === assignment.id && (
-                  <div className="assignment-details">
-                    {assignment.description && (
-                      <div className="assignment-details-row">
-                        <div className="assignment-details-label">{t.textLbl || "Description"}</div>
-                        <div className="assignment-details-value">{assignment.description}</div>
-                      </div>
-                    )}
-
-                    {Array.isArray(assignment.attachments) && assignment.attachments.length > 0 && (
-                      <div className="assignment-details-row">
-                        <div className="assignment-details-label">{t.filesLbl || "Files"}</div>
-                        <div className="assignment-details-value">
-                          <ul className="attachment-list">
-                            {assignment.attachments.map((att, idx) => {
-                              const url = getAttachmentUrl(att);
-                              const label = getAttachmentLabel(att);
-                              const href = url ? `${API_URL}${url}` : null;
-
-                              return (
-                                <li key={`${assignment.id}-att-${idx}`} className="attachment-item">
-                                  {href ? (
-                                    <a href={href} target="_blank" rel="noreferrer">
-                                      {label}
-                                    </a>
-                                  ) : (
-                                    <span>{label}</span>
-                                  )}
-                                </li>
-                              );
-                            })}
-                          </ul>
+              <div className="dashboard-content">
+                <div className="assignments">
+                  <h2>{t.myAssignments}</h2>
+                  <div className="assignments-list">
+                    {userData?.assignments?.map((assignment) => (
+                      <div key={assignment.id} className="assignment-item">
+                        <div className="assignment-info">
+                          <div className="assignment-title">{assignment.title}</div>
+                          <div className="assignment-due">
+                            {t.dueDate}: {new Date(assignment.dueDate).toLocaleDateString()}
+                          </div>
+                          <div className="assignment-grade">
+                            <strong>{t.grade || "Grade"}:</strong>{" "}
+                            {assignment.submitted
+                              ? assignment.gradeValue ?? (t.pendingGrade || "Pending")
+                              : "—"}
+                          </div>
                         </div>
-                      </div>
-                    )}
 
-                    {assignment.submitted && assignment.submissionTime && (
-                      <div className="assignment-details-row">
-                        <div className="assignment-details-label">{t.submitted || "Submitted"}</div>
-                        <div className="assignment-details-value">
-                          {new Date(assignment.submissionTime).toLocaleString()}
-                        </div>
-                      </div>
-                    )}
+                        {(() => {
+                          const due = new Date(assignment.dueDate);
+                          const isOverdue = !assignment.submitted && !Number.isNaN(due.getTime()) && due < new Date();
+                          const statusClass = assignment.submitted
+                            ? "status-submitted"
+                            : isOverdue
+                              ? "status-not-submitted"
+                              : "status-active";
+                          const statusText = assignment.submitted
+                            ? t.submitted
+                            : isOverdue
+                              ? (t.overdue || "Overdue")
+                              : (t.active || "Active");
 
-                    {assignment.submitted && (
-                      <>
-                        {typeof assignment.submittedText === "string" && assignment.submittedText.trim() !== "" && (
-                          <div className="assignment-details-row">
-                            <div className="assignment-details-label">{t.submittedText || "Your text"}</div>
-                            <div className="assignment-details-value">{assignment.submittedText}</div>
-                          </div>
-                        )}
+                          return (
+                            <span className={`assignment-status ${statusClass}`}>
+                              {statusText}
+                            </span>
+                          );
+                        })()}
 
-                        {Array.isArray(assignment.submittedFiles) && assignment.submittedFiles.length > 0 && (
-                          <div className="assignment-details-row">
-                            <div className="assignment-details-label">{t.submittedFiles || "Your files"}</div>
-                            <div className="assignment-details-value">
-                              <ul className="attachment-list">
-                                {assignment.submittedFiles.map((f, idx) => {
-                                  const url = getSubmissionFileUrl(f);
-                                  const label = getSubmissionFileLabel(f);
-                                  const href = url ? `${API_URL}${url}` : null;
+                        <button
+                          type="button"
+                          className="view-details-btn"
+                          onClick={() =>
+                            setExpandedAssignmentId((current) =>
+                              current === assignment.id ? null : assignment.id
+                            )
+                          }
+                        >
+                          {expandedAssignmentId === assignment.id
+                            ? (t.hideDetails || "Hide details")
+                            : t.viewDetails}
+                        </button>
 
-                                  return (
-                                    <li key={`${assignment.id}-subm-${idx}`} className="attachment-item">
-                                      {href ? (
-                                        <a href={href} target="_blank" rel="noreferrer">
-                                          {label}
-                                        </a>
-                                      ) : (
-                                        <span>{label}</span>
-                                      )}
-                                    </li>
-                                  );
-                                })}
-                              </ul>
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )}
+                        {expandedAssignmentId === assignment.id && (
+                          <div className="assignment-details">
+                            {assignment.description && (
+                              <div className="assignment-details-row">
+                                <div className="assignment-details-label">{t.textLbl || "Description"}</div>
+                                <div className="assignment-details-value">{assignment.description}</div>
+                              </div>
+                            )}
 
-                    {assignment.feedback && (
-                      <div className="assignment-details-row">
-                        <div className="assignment-details-label">{t.feedback || "Feedback"}</div>
-                        <div className="assignment-details-value">{assignment.feedback}</div>
-                      </div>
-                    )}
+                            {Array.isArray(assignment.attachments) && assignment.attachments.length > 0 && (
+                              <div className="assignment-details-row">
+                                <div className="assignment-details-label">{t.filesLbl || "Files"}</div>
+                                <div className="assignment-details-value">
+                                  <ul className="attachment-list">
+                                    {assignment.attachments.map((att, idx) => {
+                                      const url = getAttachmentUrl(att);
+                                      const label = getAttachmentLabel(att);
+                                      const href = url ? `${API_URL}${url}` : null;
 
-                    {(() => {
-                      const due = new Date(assignment.dueDate);
-                      const isActive = !Number.isNaN(due.getTime()) && due >= new Date();
-
-                      if (!isActive) {
-                        return (
-                          <div className="submission-closed">
-                            {t.submissionClosed || "Submission closed"}
-                          </div>
-                        );
-                      }
-
-                      return (
-                        <div className="submission-form">
-                          <div className="submission-form-title">
-                            {t.submitWork || "Submit work"}
-                          </div>
-
-                          <textarea
-                            className="submission-text"
-                            rows={3}
-                            value={submitText}
-                            placeholder={t.textLbl || "Text"}
-                            onChange={(e) => setSubmitText(e.target.value)}
-                          />
-
-                          <div
-                            className={`student-dnd-zone ${isOver ? "over" : ""}`}
-                            onDragOver={(e) => {
-                              e.preventDefault();
-                              setIsOver(true);
-                            }}
-                            onDragLeave={() => setIsOver(false)}
-                            onDrop={onDrop}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                document.getElementById("studentFileInput")?.click();
-                              }
-                            }}
-                            title={t.dndHint || "Press Enter to choose files"}
-                          >
-                            <div className="student-dnd-content">
-                              <div className="student-dnd-text">
-                                <strong>{t.dndTitle || "Drag files here"}</strong>
-                                <div className="student-dnd-sub">
-                                  {t.dndSubtitle || "or click to choose"}
+                                      return (
+                                        <li key={`${assignment.id}-att-${idx}`} className="attachment-item">
+                                          {href ? (
+                                            <a href={href} target="_blank" rel="noreferrer">
+                                              {label}
+                                            </a>
+                                          ) : (
+                                            <span>{label}</span>
+                                          )}
+                                        </li>
+                                      );
+                                    })}
+                                  </ul>
                                 </div>
                               </div>
-                              <button
-                                type="button"
-                                className="student-choose-btn"
-                                onClick={() => document.getElementById("studentFileInput")?.click()}
-                              >
-                                {t.chooseFile || "Choose file"}
-                              </button>
-                              <input
-                                id="studentFileInput"
-                                className="submission-files"
-                                type="file"
-                                multiple
-                                hidden
-                                onChange={(e) => addFiles(e.target.files)}
-                              />
-                            </div>
-                          </div>
+                            )}
 
-                          {submitFiles.length > 0 && (
-                            <ul className="student-file-list">
-                              {submitFiles.map((f) => (
-                                <li
-                                  key={`${f.name}_${f.size}`}
-                                  className="student-file-item"
-                                >
-                                  <span className="student-file-name">{f.name}</span>
+                            {assignment.submitted && assignment.submissionTime && (
+                              <div className="assignment-details-row">
+                                <div className="assignment-details-label">{t.submitted || "Submitted"}</div>
+                                <div className="assignment-details-value">
+                                  {new Date(assignment.submissionTime).toLocaleString()}
+                                </div>
+                              </div>
+                            )}
+
+                            {assignment.submitted && (
+                              <>
+                                {typeof assignment.submittedText === "string" && assignment.submittedText.trim() !== "" && (
+                                  <div className="assignment-details-row">
+                                    <div className="assignment-details-label">{t.submittedText || "Your text"}</div>
+                                    <div className="assignment-details-value">{assignment.submittedText}</div>
+                                  </div>
+                                )}
+
+                                {Array.isArray(assignment.submittedFiles) && assignment.submittedFiles.length > 0 && (
+                                  <div className="assignment-details-row">
+                                    <div className="assignment-details-label">{t.submittedFiles || "Your files"}</div>
+                                    <div className="assignment-details-value">
+                                      <ul className="attachment-list">
+                                        {assignment.submittedFiles.map((f, idx) => {
+                                          const url = getSubmissionFileUrl(f);
+                                          const label = getSubmissionFileLabel(f);
+                                          const href = url ? `${API_URL}${url}` : null;
+
+                                          return (
+                                            <li key={`${assignment.id}-subm-${idx}`} className="attachment-item">
+                                              {href ? (
+                                                <a href={href} target="_blank" rel="noreferrer">
+                                                  {label}
+                                                </a>
+                                              ) : (
+                                                <span>{label}</span>
+                                              )}
+                                            </li>
+                                          );
+                                        })}
+                                      </ul>
+                                    </div>
+                                  </div>
+                                )}
+                              </>
+                            )}
+
+                            {assignment.feedback && (
+                              <div className="assignment-details-row">
+                                <div className="assignment-details-label">{t.feedback || "Feedback"}</div>
+                                <div className="assignment-details-value">{assignment.feedback}</div>
+                              </div>
+                            )}
+
+                            {(() => {
+                              const due = new Date(assignment.dueDate);
+                              const isActive = !Number.isNaN(due.getTime()) && due >= new Date();
+
+                              if (!isActive) {
+                                return (
+                                  <div className="submission-closed">
+                                    {t.submissionClosed || "Submission closed"}
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <div className="submission-form">
+                                  <div className="submission-form-title">
+                                    {t.submitWork || "Submit work"}
+                                  </div>
+
+                                  <textarea
+                                    className="submission-text"
+                                    rows={3}
+                                    value={submitText}
+                                    placeholder={t.textLbl || "Text"}
+                                    onChange={(e) => setSubmitText(e.target.value)}
+                                  />
+
+                                  <div
+                                    className={`student-dnd-zone ${isOver ? "over" : ""}`}
+                                    onDragOver={(e) => {
+                                      e.preventDefault();
+                                      setIsOver(true);
+                                    }}
+                                    onDragLeave={() => setIsOver(false)}
+                                    onDrop={onDrop}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") {
+                                        document.getElementById("studentFileInput")?.click();
+                                      }
+                                    }}
+                                    title={t.dndHint || "Press Enter to choose files"}
+                                  >
+                                    <div className="student-dnd-content">
+                                      <div className="student-dnd-text">
+                                        <strong>{t.dndTitle || "Drag files here"}</strong>
+                                        <div className="student-dnd-sub">
+                                          {t.dndSubtitle || "or click to choose"}
+                                        </div>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        className="student-choose-btn"
+                                        onClick={() => document.getElementById("studentFileInput")?.click()}
+                                      >
+                                        {t.chooseFile || "Choose file"}
+                                      </button>
+                                      <input
+                                        id="studentFileInput"
+                                        className="submission-files"
+                                        type="file"
+                                        multiple
+                                        hidden
+                                        onChange={(e) => addFiles(e.target.files)}
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {submitFiles.length > 0 && (
+                                    <ul className="student-file-list">
+                                      {submitFiles.map((f) => (
+                                        <li
+                                          key={`${f.name}_${f.size}`}
+                                          className="student-file-item"
+                                        >
+                                          <span className="student-file-name">{f.name}</span>
+                                          <button
+                                            type="button"
+                                            className="student-file-remove"
+                                            onClick={() =>
+                                              setSubmitFiles((prev) =>
+                                                prev.filter((x) => x !== f)
+                                              )
+                                            }
+                                          >
+                                            {t.remove || "Remove"}
+                                          </button>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+
                                   <button
                                     type="button"
-                                    className="student-file-remove"
-                                    onClick={() =>
-                                      setSubmitFiles((prev) =>
-                                        prev.filter((x) => x !== f)
-                                      )
-                                    }
+                                    className="submission-btn"
+                                    disabled={isSubmitting}
+                                    onClick={() => handleSubmitWork(assignment.id)}
                                   >
-                                    {t.remove || "Remove"}
+                                    {isSubmitting ? (t.loading || "Loading...") : (t.submitWork || "Submit work")}
                                   </button>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
 
-                          <button
-                            type="button"
-                            className="submission-btn"
-                            disabled={isSubmitting}
-                            onClick={() => handleSubmitWork(assignment.id)}
-                          >
-                            {isSubmitting ? (t.loading || "Loading...") : (t.submitWork || "Submit work")}
-                          </button>
-
-                          {submitMessage && (
-                            <div className="submission-message">{submitMessage}</div>
-                          )}
-                        </div>
-                      );
-                    })()}
+                                  {submitMessage && (
+                                    <div className="submission-message">{submitMessage}</div>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                )}
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+          {activeView === "calendar" && (
+            <CalendarView assignments={userData?.assignments || []} />
+          )}
+          {activeView === "settings" && (
+            <SettingsView userData={userData} />
+          )}
         </div>
       </div>
     </div>

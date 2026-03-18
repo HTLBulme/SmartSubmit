@@ -6,6 +6,9 @@ import "./teacher.css";
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 
+import TeacherSidebar from "./TeacherSidebar";
+import TeacherSettingsView from "./TeacherSettingsView";
+
 // --- backend http://localhost:3000 ---
 const API_URL = import.meta.env.VITE_API_URL || "";   
 
@@ -13,6 +16,9 @@ const API_URL = import.meta.env.VITE_API_URL || "";
 export default function Teacher() {
   const [lang] = useLang();
   const t = T[lang] || T.en;
+
+  const [activeView, setActiveView] = useState("dashboard");
+  const [userData, setUserData] = useState(null);
 
   // --- Assignment form state ---
   const [klass, setKlass] = useState("");        // Class
@@ -129,6 +135,14 @@ export default function Teacher() {
   // --- Initial data load ---
   useEffect(() => {
   async function loadData() {
+    const rawUser = localStorage.getItem("user");
+    if (rawUser) {
+      try {
+        setUserData(JSON.parse(rawUser));
+      } catch (e) {
+        console.error("Error parsing user data:", e);
+      }
+    }
     try {
       const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
@@ -370,6 +384,13 @@ export default function Teacher() {
 
   // --- Render / Rendering ---
   return (
+    <div className="teacher-layout">
+    <TeacherSidebar 
+      userData={userData}
+      activeView={activeView}
+      onViewChange={setActiveView}
+    />
+    <div className="teacher-main-content">
     <div className="teacher-page">
 
       {isAssignmentsOpen && (
@@ -666,6 +687,8 @@ export default function Teacher() {
         </>
       )}
 
+           {/* Dashboard View - Assignment Form */}
+      {activeView === "dashboard" && (      
       <div className="container py-3">
 
         <div className="card shadow-lg border-0 rounded-4 p-3 mx-auto teacher-card">
@@ -858,6 +881,16 @@ export default function Teacher() {
         </div>
       </div>
     </div>
+      )}
+
+      {/* Settings View */}
+      {activeView === "settings" && (
+        <div className="container py-3">
+          <TeacherSettingsView userData={userData} />
+        </div>
+      )}
     </div>
+  </div>
+  </div>
   );
 } 
