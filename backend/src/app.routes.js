@@ -26,6 +26,12 @@ router.post('/logout', loginController.logout);
 // --- ADMIN PAGE (authenticated) ---
 router.post('/admin/import/students', authenticateAdmin, uploadMemory.single('file'), adminController.importStudents);
 router.post('/admin/import/teachers', authenticateAdmin, uploadMemory.single('file'), adminController.importTeachers);
+// NEW: routes for student/teacher management
+router.get('/admin/classes', authenticateAdmin, adminController.getClasses);
+router.get('/admin/students', authenticateAdmin, adminController.getStudentsByClass);
+router.get('/admin/subjects', authenticateAdmin, adminController.getSubjects);
+router.get('/admin/teachers', authenticateAdmin, adminController.getTeachersBySubject);
+router.delete('/admin/users/:id', authenticateAdmin, adminController.deleteUser);
 
 // --- TEACHER PAGE (authenticated) ---
 router.post('/teacher/assignments', authenticateToken, uploadDisk.array('files', 10), teacherController.createAssignment);

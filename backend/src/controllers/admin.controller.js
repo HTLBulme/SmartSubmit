@@ -229,8 +229,91 @@ const importTeachers = async (req, res) => {
   }
 };
 
+// NEW: Get all classes for dropdown
+const getClasses = async (req, res) => {
+  try {
+    const classes = await prisma.class.findMany({
+      orderBy: [{ year: 'asc' }, { name: 'asc' }]
+    });
+    res.json({ success: true, data: classes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// NEW: Get students filtered by class (all students if no classId provided)
+const getStudentsByClass = async (req, res) => {
+  try {
+    const { classId } = req.query; //req.query is an object in Express that contains the URL query parameters.
+    const users = await prisma.user.findMany({
+      where: {
+        userRoles: { some: { roleId: 1 } }, // Relation fields (arrays) require 'some' / 'every' / 'none'
+        ...(classId && {
+          userClasses: { some: { classId: parseInt(classId) } } //// Spread operator merges the result into the where object; if classId is truthy, && returns the right-hand object and its properties are merged in, otherwise nothing is added
+        })
+      },
+      include: {
+        userClasses: { include: { class: true } }
+      },
+      orderBy: { lastName: 'asc' }
+    });
+    res.json({ success: true, data: users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// NEW: Get all subjects for dropdown
+const getSubjects = async (req, res) => {
+  try {
+    const subjects = await prisma.subject.findMany({ orderBy: { name: 'asc' } });
+    res.json({ success: true, data: subjects });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// NEW: Get teachers filtered by subject (all teachers if no subjectId provided)
+const getTeachersBySubject = async (req, res) => {
+  try {
+    const { subjectId } = req.query;
+    const users = await prisma.user.findMany({
+      where: {
+        userRoles: { some: { roleId: 2 } },
+        ...(subjectId && {
+          userSubjects: { some: { subjectId: parseInt(subjectId) } }
+        })
+      },
+      include: {
+        userSubjects: { include: { subject: true } }
+      },
+      orderBy: { lastName: 'asc' }
+    });
+    res.json({ success: true, data: users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// NEW: Delete a user by id (cascades via Prisma schema)
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.user.delete({ where: { id: parseInt(id) } });
+    res.json({ success: true, message: 'User deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Delete failed' });
+  }
+};
+
 module.exports = {
   checkAdminExists,
   importStudents,
-  importTeachers
+  importTeachers,
+  // NEW: exported functions for student/teacher management
+  getClasses,
+  getStudentsByClass,
+  getSubjects,
+  getTeachersBySubject,
+  deleteUser
 };
