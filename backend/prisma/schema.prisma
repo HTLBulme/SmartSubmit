@@ -59,7 +59,7 @@ model Class {
   name       String    @db.VarChar(50)
   year       Int       
   userClasses UserClass[]
-  assignments Assignment[]
+  assignments Assignment[] //Assignments given to the class, not to individual students
   
   @@unique([name, year])
 }
@@ -101,7 +101,7 @@ model Assignment {
   id                  Int       @id @default(autoincrement())
   title               String    @db.VarChar(255)
   description         String    @db.Text
-  attachments         String?   @db.Text
+  attachments         String?   @db.Text // JSON array storing attachment paths metadata
   dueDate             DateTime  
   archived            Boolean   @default(false)
   classId             Int
@@ -109,7 +109,7 @@ model Assignment {
   teacherId           Int
   createdAt           DateTime  @default(now())
   
-  class               Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
+  class               Class     @relation(fields: [classId], references: [id], onDelete: Cascade) // Students graduate -> class is deleted -> all assignments are deleted
   subject             Subject   @relation(fields: [subjectId], references: [id])
   teacher             User      @relation("TeacherAssignments", fields: [teacherId], references: [id])
   submissions         Submission[]
@@ -122,10 +122,10 @@ model Submission {
   id                  Int       @id @default(autoincrement())
   assignmentId        Int
   studentId           Int
-  files               String?   @db.Text
-  text                String?   @db.Text
+  files               String?   @db.Text  // JSON string of file metadata array (originalName, storedName, mimeType, size, path)
+  text                String?   @db.Text  // Free text submission
   submittedAt         DateTime  @default(now())
-  grade               Int?
+  grade               Int?   // Grade (0-100)
   feedback            String?   @db.Text
   
   assignment          Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)

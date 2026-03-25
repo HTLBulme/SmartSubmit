@@ -22,19 +22,18 @@ const SUBMISSIONS_DIR = path.join(UPLOAD_DIR, 'submissions');
 
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR);
 if (!fs.existsSync(ASSIGNMENTS_DIR)) fs.mkdirSync(ASSIGNMENTS_DIR);
-if (!fs.existsSync(SUBMISSIONS_DIR)) fs.mkdirSync(SUBMISSIONS_DIR, { recursive: true });
+if (!fs.existsSync(SUBMISSIONS_DIR)) fs.mkdirSync(SUBMISSIONS_DIR);
 
 function allowListedFileFilter(req, file, cb) {
-  const allowedTypes = /\.(jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|zip|rar)$/;
-  const extnameOk = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx|ods|ppt|pptx|txt|zip|rar/; //ods
+  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedTypes.test(file.mimetype) || file.mimetype === 'application/vnd.oasis.opendocument.spreadsheet';
 
-  const allowedMimes = /^(image\/(jpeg|png|gif)|application\/pdf|text\/plain|application\/(zip|x-zip-compressed|x-rar-compressed|vnd\.rar|msword|vnd\.ms-excel|vnd\.ms-powerpoint)|application\/vnd\.openxmlformats-officedocument\.(wordprocessingml\.document|spreadsheetml\.sheet|presentationml\.presentation))$/;
-  const mimetype = (file.mimetype || '').toLowerCase();
-  const mimetypeOk = allowedMimes.test(mimetype);
-  const mimetypeGeneric = mimetype === '' || mimetype === 'application/octet-stream';
-
-  if (extnameOk && (mimetypeOk || mimetypeGeneric)) return cb(null, true);
-  return cb(new Error('Invalid file type'));
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb(new Error('Ungültiger Dateityp'));
+  }
 }
 
 // --- Multer Configuration ---

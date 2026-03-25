@@ -8,7 +8,8 @@ function tryDeleteUploadedFile(filePath) {
   if (typeof filePath !== 'string' || filePath.trim() === '') return;
   try {
     const resolved = path.resolve(filePath);
-    const allowedPrefix = UPLOADS_ROOT + path.sep;
+    // Only allow deleting files inside backend/uploads
+    const allowedPrefix = UPLOADS_ROOT + path.sep; //path.sep = /
     if (!resolved.startsWith(allowedPrefix)) return;
     if (fs.existsSync(resolved)) fs.unlinkSync(resolved);
   } catch (error) {
@@ -28,13 +29,13 @@ const createAssignment = async (req, res) => {
         message: 'Klasse, Fach und Abgabetermin sind erforderlich'
       });
     }
-
+    // Ensure title and text are strings; default to empty string if missing or wrong type
     const safeTitle = typeof title === 'string' ? title : '';
     const safeText = typeof text === 'string' ? text : '';
 
     const isTeacher = await prisma.userRole.findFirst({  // ✅ fix
       where: { userId: teacherId, roleId: 2 },
-      select: { id: true }
+      select: { id: true } // Only fetch id, existence check only
     });
 
     if (!isTeacher) {
@@ -77,8 +78,8 @@ const createAssignment = async (req, res) => {
       anhaenge = JSON.stringify(filePaths);
     }
 
-    const terminDate = new Date(dueDate);
-    if (Number.isNaN(terminDate.getTime())) {
+    const terminDate = new Date(dueDate); //String:"2025-06-15T23:59:00.000Z"-->Js-object
+    if (Number.isNaN(terminDate.getTime())) {//-> 1749945600000
       return res.status(400).json({ success: false, message: 'Ungültiges Datum-Format' });
     }
 
@@ -186,8 +187,8 @@ const getTeacherAssignments = async (req, res) => {
 // --- Get all submissions for a specific assignment ---
 const getAssignmentSubmissions = async (req, res) => {
   try {
-    const teacherId = Number.parseInt(req.userId, 10);
-    const assignmentId = Number.parseInt(req.params.assignmentId, 10);
+    const teacherId = Number.parseInt(req.userId, 10);//No conversion needed here. Because req.userId come from token its aways a number
+    const assignmentId = Number.parseInt(req.params.assignmentId, 10);//params from router.get('/assignments/:assignmentId/submissions', getAssignmentSubmissions);
 
     if (!Number.isInteger(teacherId)) {
       return res.status(401).json({ success: false, message: 'Ungültiger Benutzer' });
@@ -232,7 +233,7 @@ const getAssignmentSubmissions = async (req, res) => {
       } else if (Array.isArray(row.files)) {
         parsedFiles = row.files;
       }
-      return { ...row, files: parsedFiles };
+      return { ...row, files: parsedFiles }; // Spread row and replace dateien string with parsed array
     });
 
     return res.json({ success: true, data, assignment });
@@ -339,7 +340,7 @@ const setAssignmentArchived = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Assignment not found' });
     }
 
-    const bodyValue = req.body?.archived;
+    const bodyValue = req.body?.archived;// ?. prevents crash if req.body is null/undefined
     if (typeof bodyValue !== 'boolean') {
       return res.status(400).json({ success: false, message: 'archived (boolean) required' });
     }
