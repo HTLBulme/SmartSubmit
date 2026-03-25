@@ -25,9 +25,9 @@ if (!fs.existsSync(ASSIGNMENTS_DIR)) fs.mkdirSync(ASSIGNMENTS_DIR);
 if (!fs.existsSync(SUBMISSIONS_DIR)) fs.mkdirSync(SUBMISSIONS_DIR);
 
 function allowListedFileFilter(req, file, cb) {
-  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|zip|rar/;
+  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|xls|xlsx|ods|ppt|pptx|txt|zip|rar/; //ods
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const mimetype = allowedTypes.test(file.mimetype) || file.mimetype === 'application/vnd.oasis.opendocument.spreadsheet';
 
   if (mimetype && extname) {
     return cb(null, true);
