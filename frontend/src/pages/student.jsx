@@ -1,4 +1,4 @@
-import { useLang } from "../context/LanguageContext";
+﻿import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -218,6 +218,9 @@ export default function StudentDashboard() {
           title: assignment.title,
           description: assignment.description,
           dueDate: assignment.dueDate,
+          subject: assignment.subject,
+          class: assignment.class,
+          teacher: assignment.teacher,
           submitted,
           gradeValue,
           feedback: submission?.feedback ?? null,
@@ -335,51 +338,74 @@ export default function StudentDashboard() {
           {activeView === "dashboard" && (
             <div>
 
-              <header className="dashboard-header">
-                <h1>
+              <header className="d-flex justify-content-between align-items-center" style={{ borderBottom: "1px solid #e5e7eb", paddingBottom: "0.9rem", marginBottom: "1rem" }}>
+                <h1 className="m-0 fw-bold" style={{ fontSize: "1.75rem", color: "#1f2937" }}>
                   {(t.welcome || "Welcome").trim()} {getFriendlyName(userData)}
                 </h1>
               </header>
 
               <div className="dashboard-content">
                 <div className="assignments">
-                  <h2>{t.myAssignments}</h2>
+                  <h2 className="fs-5 fw-bold mb-3 px-1" style={{
+                    color: "#1f2937",
+                    fontSize: "1.25rem",
+                    fontWeight: "bold",
+                    margin: 0,
+                    paddingTop: "0.5rem",
+                    marginLeft: "4px"
+                  }}>{t.myAssignments || "Aufgaben"}</h2>
                   <div className="assignments-list">
-                    {userData?.assignments?.map((assignment) => (
-                      <div key={assignment.id} className="assignment-item">
+                    {userData?.assignments?.map((assignment) => {
+                      const due = new Date(assignment.dueDate);
+                      const isOverdue = !assignment.submitted && !Number.isNaN(due.getTime()) && due < new Date();
+
+                      const itemThemeClass = assignment.submitted
+                        ? "item-submitted"
+                        : isOverdue
+                          ? "item-overdue"
+                          : "item-active";
+
+                      const statusClass = assignment.submitted
+                        ? "status-submitted"
+                        : isOverdue
+                          ? "status-not-submitted"
+                          : "status-active";
+
+                      const statusText = assignment.submitted
+                        ? t.submitted
+                        : isOverdue
+                          ? (t.overdue || "Overdue")
+                          : (t.active || "Active");
+
+                      return (
+                      <div key={assignment.id} className={`assignment-item ${itemThemeClass}`}>
                         <div className="assignment-info">
-                          <div className="assignment-title">{assignment.title}</div>
-                          <div className="assignment-due">
-                            {t.dueDate}: {new Date(assignment.dueDate).toLocaleDateString()}
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "0.4rem" }}>
+                            <div className="assignment-title" style={{ margin: 0, fontWeight: 600 }}>{assignment.title}</div>
+                            {assignment.subject && assignment.subject.name && (
+                              <>
+                                <span style={{ color: "var(--text-light)", fontSize: "0.85rem" }}>•</span>
+                                <span className="assignment-subject" style={{ fontSize: "0.85rem", color: "var(--text-light)" }}>
+                                  {assignment.subject.name}
+                                </span>
+                              </>
+                            )}
+                            <span style={{ color: "var(--text-light)", fontSize: "0.85rem" }}>•</span>
+                            <span className="assignment-grade" style={{ fontSize: "0.85rem", color: "var(--text-light)" }}>
+                              <strong>{t.grade || "Note"}:</strong>{" "}
+                              {assignment.submitted
+                                ? assignment.gradeValue ?? (t.pendingGrade || "—")
+                                : "—"}
+                            </span>
                           </div>
-                          <div className="assignment-grade">
-                            <strong>{t.grade || "Grade"}:</strong>{" "}
-                            {assignment.submitted
-                              ? assignment.gradeValue ?? (t.pendingGrade || "Pending")
-                              : "—"}
+                          <div className="assignment-due" style={{ fontSize: "0.85rem", color: "var(--text-light)" }}>
+                            {t.dueDate || "Fälligkeitsdatum"}: {new Date(assignment.dueDate).toLocaleDateString()}
                           </div>
                         </div>
 
-                        {(() => {
-                          const due = new Date(assignment.dueDate);
-                          const isOverdue = !assignment.submitted && !Number.isNaN(due.getTime()) && due < new Date();
-                          const statusClass = assignment.submitted
-                            ? "status-submitted"
-                            : isOverdue
-                              ? "status-not-submitted"
-                              : "status-active";
-                          const statusText = assignment.submitted
-                            ? t.submitted
-                            : isOverdue
-                              ? (t.overdue || "Overdue")
-                              : (t.active || "Active");
-
-                          return (
-                            <span className={`assignment-status ${statusClass}`}>
-                              {statusText}
-                            </span>
-                          );
-                        })()}
+                        <span className={`assignment-status ${statusClass}`}>
+                          {statusText}
+                        </span>
 
                         <button
                           type="button"
@@ -595,7 +621,8 @@ export default function StudentDashboard() {
                           </div>
                         )}
                       </div>
-                    ))}
+                    );
+                    })}
                   </div>
                 </div>
               </div>

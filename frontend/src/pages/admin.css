@@ -5,29 +5,13 @@
 /* EN: Main container of the page */
 .upload-page {
   position: relative;
-  min-height: 100vh;
+  min-height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "Inter", "Segoe UI", sans-serif;
-  isolation: isolate; /* DE: Erstellt einen eigenen Stacking-Kontext */ /* EN: Creates its own stacking context */
-}
-
-/* DE: Vollflächiger Hintergrund-Gradient innerhalb des eigenen Kontexts */
-/* EN: Full-viewport gradient background within its own context */
-.upload-page::before {
-  content: "";
-  position: fixed;   /* DE: Deckt den gesamten Viewport ab */ /* EN: Covers the entire viewport */
-  inset: 0;
   background: linear-gradient(135deg, #f0f4ff, #fafcff);
-  z-index: -1;        /* DE: Hintergrund unter dem Inhalt */ /* EN: Background under the content */
-  pointer-events: none;
-}
-
-/* DE: Karte (weißer Block) */
-/* EN: Card (white block) */
-.upload-card {
-  background: #fff;
+  background-attachment: fixed;
+  background-size: cover;
   border: 1px solid #d7dae0;
   border-radius: 12px;
   padding: 2.5rem;

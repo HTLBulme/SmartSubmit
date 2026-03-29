@@ -8,7 +8,7 @@
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
-  z-index: 1001;
+  z-index: 1060 !important;
   background: #1d77e8;
   color: white;
   border: none;
@@ -44,7 +44,7 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  z-index: 1040 !important;
   animation: fadeIn 0.2s ease;
 }
 
@@ -248,7 +248,7 @@
 
   .teacher-sidebar.mobile-open {
     transform: translateX(0);
-    z-index: 1000;
+    z-index: 1050 !important;
   }
 
   .teacher-sidebar.mobile-open ~ .sidebar-overlay,

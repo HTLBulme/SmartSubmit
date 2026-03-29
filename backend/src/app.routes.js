@@ -47,7 +47,16 @@ router.get('/auth/google/callback',
       // Redirect back to frontend frontend login page with the token
       // You might need to change localhost:5173 to your production URL later
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-      res.redirect(`${frontendUrl}/?token=${token}&role=${roleName}`);
+        
+        const userData = encodeURIComponent(JSON.stringify({
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          roles: user.userRoles ? user.userRoles.map(ur => ({ id: ur.roleId, name: ur.role.name })) : []
+        }));
+
+        res.redirect(`${frontendUrl}/?token=${token}&role=${roleName}&user=${userData}`);
     } catch (error) {
       console.error("OAuth callback error:", error);
       res.redirect('http://localhost:5173/?error=token_generation_failed');

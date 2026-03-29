@@ -1,32 +1,27 @@
 /* Layout wrapper for sidebar */
 .teacher-layout {
   display: flex;
-  min-height: 100vh;
+  flex: 1;
+  width: 100%;
+  position: relative;
 }
-
 .teacher-main-content {
   flex: 1;
   margin-left: 280px;
   transition: margin-left 0.3s ease;
+  display: flex;
+  justify-content: center;
 }
 
 .teacher-page {
   position: relative;
-  min-height: 100vh;
   display: flex;
+  justify-content: center;
+  width: 100%;
   align-items: flex-start; /* allow content to scroll */
-  isolation: isolate;
 }
 
-.teacher-page::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(135deg, #f0f4ff, #fafcff);
-  z-index: -1;
-}
-
-.teacher-card { max-width: 1000px; background: #fff; }
+.teacher-card { width: 100%; background: #fff; }
 
 .dnd-zone {
   border: 2px dashed #c7cfe1; /*   пунктирная рамка */
@@ -594,5 +589,25 @@
   .teacher-form-compact .form-select,
   .teacher-form-compact textarea {
     font-size: 14px;
+  }
+}
+.teacher-dashboard {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+@media (max-width: 768px) {
+  .teacher-dashboard {
+    padding: 1rem !important;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 480px) {
+  .teacher-dashboard {
+    padding: 0.75rem !important;
   }
 }

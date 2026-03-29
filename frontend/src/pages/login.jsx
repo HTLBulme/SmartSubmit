@@ -28,12 +28,22 @@ export default function Login() {
     const params = new URLSearchParams(location.search);
     const token = params.get('token');
     const role = params.get('role') || localStorage.getItem("role") || "";
-    
+    const userParam = params.get('user');
+
     if (token) {
       // Save token to local and session storage
       localStorage.setItem('token', token);
       sessionStorage.setItem('token', token);
       
+      if (userParam) {
+        try {
+          const userObj = JSON.parse(decodeURIComponent(userParam));
+          localStorage.setItem('user', JSON.stringify(userObj));
+        } catch (err) {
+          console.error("Failed to parse user data from URL", err);
+        }
+      }
+
       if (role) {
         // Set active role and redirect user to the respective dashboard
         sessionStorage.setItem("activeRole", role);
@@ -198,7 +208,7 @@ async function handleLogin(e) {
 
         {/* Help Link */}
         <div className="text-center mt-3">
-          <Link to="/help" className="text-muted">
+          <Link to="/help" className="forgot-link">
             {t.helpBtn || "Help"} | {t.helpTitle || "Guide"}
           </Link>
         </div>

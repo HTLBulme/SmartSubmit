@@ -1,4 +1,4 @@
-const T = {
+﻿const T = {
   de: {
     // --- Auth & Generic ---
     title: "Anmeldung",
@@ -29,6 +29,7 @@ const T = {
     registerFail: "Registrierung fehlgeschlagen",
     goToLogin: "Zum Login",
     loginTitle: "Anmeldung",
+    loginWithGoogle: "Mit Google anmelden",
 
     // --- Teacher Panel & Assignment Creation ---
     assignmentSeed1: "Quadratische Gleichungen lösen",
@@ -83,7 +84,7 @@ const T = {
     roleStudents: "Schüler",
     roleTeachers: "Lehrer",
     welcome: "Willkommen",
-    myAssignments: "Meine Aufgaben",
+    myAssignments: "Aufgaben",
     myGrades: "Meine Noten",
     noAssignments: "Keine Aufgaben vorhanden",
     noGrades: "Keine Noten verfügbar",
@@ -310,6 +311,7 @@ const T = {
     registerFail: "Registration failed",
     goToLogin: "Go to login",
     loginTitle: "Login",
+    loginWithGoogle: "Login with Google",
 
     // --- Teacher Panel & Assignment Creation ---
     assignmentSeed1: "Solving quadratic equations",
@@ -323,6 +325,8 @@ const T = {
     classLbl: "Class",
     subjectLbl: "Subject",
     titleLbl: "Title",
+    textLbl: "Description",
+    filesLbl: "Files",
     dueLbl: "Due date",
     titlePh: "Enter assignment title",
     gradeRange: "Invalid grade (0-100)",
@@ -364,7 +368,7 @@ const T = {
     roleStudents: "Students",
     roleTeachers: "Teachers",
     welcome: "Welcome",
-    myAssignments: "My Assignments",
+    myAssignments: "Assignments",
     myGrades: "My Grades",
     noAssignments: "No assignments yet",
     noGrades: "No grades available",

@@ -10,7 +10,47 @@ import TeacherSidebar from "./TeacherSidebar";
 import TeacherSettingsView from "./TeacherSettingsView";
 
 // --- backend http://localhost:3000 ---
-const API_URL = import.meta.env.VITE_API_URL || "";   
+const API_URL = import.meta.env.VITE_API_URL || "";
+
+function titleCaseWords(value) {
+  if (typeof value !== "string") return "";
+  return value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => {
+      const [first, ...rest] = word;
+      if (!first) return "";
+      return first.toLocaleUpperCase() + rest.join("").toLocaleLowerCase();
+    })
+    .join(" ");
+}
+
+function getFriendlyName(userData) {
+  const raw = localStorage.getItem("user");
+  let storedUser = null;
+  try {
+    storedUser = raw ? JSON.parse(raw) : null;
+  } catch {
+    storedUser = null;
+  }
+
+  const firstName = userData?.firstName || storedUser?.firstName || userData?.vorname || storedUser?.vorname || "";
+  const lastName = userData?.lastName || storedUser?.lastName || userData?.nachname || storedUser?.nachname || "";
+  const email = userData?.email || storedUser?.email || "";
+
+  const fullName = [firstName, lastName].filter(Boolean).join(" ");
+  if (fullName.trim()) return titleCaseWords(fullName);
+
+  if (userData?.name) return titleCaseWords(userData.name);
+  if (storedUser?.name) return titleCaseWords(storedUser.name);
+
+  if (typeof email === "string" && email.includes("@")) {
+    return titleCaseWords(email.split("@")[0].replace(/[._-]+/g, " "));
+  }
+
+  return "Lehrer";
+}
 
 // --- Teacher page ---
 export default function Teacher() {
@@ -167,8 +207,14 @@ export default function Teacher() {
   loadData();
 }, []);
 
-  // --- Handler for submissions list ---
-  // Deprecated: use handleSubmissionsClick per assignment
+// Блокируем скролл основной страницы
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isAssignmentsOpen, isSubmissionsOpen]);
+
   function handleSubmissionsClick() {
     // kept for backwards compatibility; actual list is handled per assignment
   }
@@ -401,7 +447,7 @@ export default function Teacher() {
             aria-modal="true"
             style={{ display: "block" }}
           >
-            <div className="modal-dialog modal-xl modal-dialog-scrollable">
+            <div className="modal-dialog modal-xl modal-dialog-scrollable" style={{ maxWidth: "95vw" }}>
               <div className="modal-content">
                 <div className="modal-header">
                   <h5 className="modal-title">{t.assignmentBtn}</h5>
@@ -532,7 +578,7 @@ export default function Teacher() {
             aria-modal="true"
             style={{ display: "block" }}
           >
-            <div className="modal-dialog modal-lg modal-dialog-scrollable">
+              <div className="modal-dialog modal-xl modal-dialog-scrollable" style={{ maxWidth: "95vw" }}>
               <div className="modal-content">
                 <div className="modal-header">
                   <h5 className="modal-title">
@@ -688,20 +734,25 @@ export default function Teacher() {
       )}
 
            {/* Dashboard View - Assignment Form */}
-      {activeView === "dashboard" && (      
-      <div className="container py-3">
+      {activeView === "dashboard" && (
+      <div className="teacher-dashboard">
 
-        <div className="card shadow-lg border-0 rounded-4 p-3 mx-auto teacher-card">
-          <div className="card-body">
-          <h2 className="text-center mb-3 fw-bold">
-            {t.teacherPanel}
-          </h2>
+        <header className="d-flex justify-content-between align-items-center mb-4 pb-3" style={{ borderBottom: "1px solid #e5e7eb" }}>
+          <h1 className="m-0 fw-bold" style={{ fontSize: "1.75rem", color: "#1f2937" }}>
+            {(t.welcome || "Willkommen").trim()} {getFriendlyName(userData)}
+          </h1>
+        </header>
+
+        <h2 className="fs-5 fw-bold mb-3 px-1" style={{ color: "#1f2937" }}>{t.teacherPanel}</h2>
+
+        <div className="card shadow-sm border-0 rounded-4 p-3 mx-auto teacher-card" style={{ maxWidth: "100%" }}>
+          <div className="card-body p-1">
 
           <form onSubmit={onSubmit} className="teacher-form-compact">
             {/* Row: Select class */}
-            <div className="row g-2 align-items-center mb-2">
-              <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.classLbl}</label>
-              <div className="col-12 col-sm-10">
+            <div className="d-flex align-items-center mb-3">
+              <label className="fw-semibold me-3" style={{ minWidth: "180px" }}>{t.classLbl}</label>
+              <div className="flex-grow-1">
                 <select className="form-select" value={klass} onChange={(e)=>setKlass(e.target.value)} required>
                   <option value="">{t.selectPlaceholder}</option>
                   {Array.isArray(classes) && Array.from(new Map(classes.map(c => [c.name, c])).values()).map((c) => (
@@ -714,9 +765,9 @@ export default function Teacher() {
             </div>
 
             {/* Row: Select subject */}
-            <div className="row g-2 align-items-center mb-2">
-              <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.subjectLbl}</label>
-              <div className="col-12 col-sm-10">
+            <div className="d-flex align-items-center mb-3">
+              <label className="fw-semibold me-3" style={{ minWidth: "180px" }}>{t.subjectLbl}</label>
+              <div className="flex-grow-1">
                 <select className="form-select" value={subject} onChange={(e)=>setSubject(e.target.value)} required>
                   <option value="">{t.selectPlaceholder}</option>
                   {Array.isArray(subjects) && Array.from(new Map(subjects.map(s => [s.name, s])).values()).map((s) => (
@@ -729,9 +780,9 @@ export default function Teacher() {
             </div>
 
             {/* Row: Assignment title */}
-            <div className="row g-2 align-items-center mb-2">
-              <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.titleLbl}</label>
-              <div className="col-12 col-sm-10">
+            <div className="d-flex align-items-center mb-3">
+              <label className="fw-semibold me-3" style={{ minWidth: "180px" }}>{t.titleLbl}</label>
+              <div className="flex-grow-1">
                 <input
                   className="form-control"
                   type="text"
@@ -743,13 +794,13 @@ export default function Teacher() {
             </div>
 
             {/* Row: Due date (preset + calendar) */}
-            <div className="row g-2 align-items-center mb-2">
-              <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.dueLbl}</label>
-              <div className="col-12 col-sm-10">
-                <div className="d-flex flex-nowrap gap-2 align-items-center">
+            <div className="d-flex align-items-center mb-3">
+              <label className="fw-semibold me-3" style={{ minWidth: "180px" }}>{t.dueLbl}</label>
+              <div className="flex-grow-1">
+                <div className="d-flex flex-wrap gap-2 align-items-center">
                   <select
                     className="form-select"
-                    style={{ maxWidth: 220, flex: "0 0 220px" }}
+                    style={{ flex: "1 1 150px" }}
                     value={duePreset}
                     onChange={(e) => {
                       const v = e.target.value;
@@ -776,16 +827,16 @@ export default function Teacher() {
                     value={due}
                     onChange={(e)=>{ setDue(e.target.value); setLastDuePreset(""); }}
                     required
-                    style={{ minWidth: 220, flex: "1 1 auto" }}
+                    style={{ flex: "1 1 150px" }}
                   />
                 </div>
               </div>
             </div>
 
             {/* Row: Optional link */}
-            <div className="row g-2 align-items-center mb-2">
-              <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.linkLbl}</label>
-              <div className="col-12 col-sm-10">
+            <div className="d-flex align-items-center mb-3">
+              <label className="fw-semibold me-3" style={{ minWidth: "180px" }}>{t.linkLbl}</label>
+              <div className="flex-grow-1">
                 <input
                   className="form-control"
                   type="url"
@@ -797,9 +848,9 @@ export default function Teacher() {
             </div>
 
             {/* Row: Description text */}
-            <div className="row g-2 align-items-start mb-2">
-              <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.textLbl}</label>
-              <div className="col-12 col-sm-10">
+            <div className="d-flex align-items-start mb-3">
+              <label className="fw-semibold me-3 pt-2" style={{ minWidth: "180px" }}>{t.textLbl}</label>
+              <div className="flex-grow-1">
                 <textarea
                   className="form-control"
                   rows="3"
@@ -811,9 +862,9 @@ export default function Teacher() {
             </div>
 
             {/* Row: Files Attach files (drag & drop) */}
-            <div className="row g-2 align-items-start mb-2">
-              <label className="col-12 col-sm-2 col-form-label fw-semibold">{t.filesLbl}</label>
-              <div className="col-12 col-sm-10">
+            <div className="d-flex align-items-start mb-3">
+              <label className="fw-semibold me-3 pt-2" style={{ minWidth: "180px" }}>{t.filesLbl}</label>
+              <div className="flex-grow-1">
 
               <div
                 className={`dnd-zone ${isOver ? "over" : ""}`}
@@ -863,7 +914,7 @@ export default function Teacher() {
 
             <div className="row">
               <div className="col-12">
-                <button type="submit" className="btn btn-primary py-2 fw-semibold w-100">
+                <button type="submit" className="btn btn-primary py-2 fw-semibold w-100" style={{ backgroundColor: "#1d77e8", borderColor: "#1d77e8", color: "#fff" }}>
                   {t.saveAssgn}
                 </button>
               </div>
@@ -871,10 +922,28 @@ export default function Teacher() {
           </form>
           {/* Status message  */}  
 
-          {msg && <div className="alert alert-info text-center mt-3">{msg}</div>}
+          {msg && (
+            <div 
+              className="text-center mt-3"
+              style={{
+                backgroundColor: msg.toLowerCase().includes("error") || msg.toLowerCase().includes("fehl") ? "#fee2e2" : "#d1fae5",
+                color: msg.toLowerCase().includes("error") || msg.toLowerCase().includes("fehl") ? "#991b1b" : "#065f46",
+                padding: "0.75rem",
+                borderRadius: "8px",
+                fontWeight: "500",
+                border: "none"
+              }}
+            >
+              {msg}
+            </div>
+          )}
           {/* 'Assignments list' */}
           <div className="d-flex justify-content-center gap-3 mt-3">
-            <button type="button" className="btn btn-outline-secondary" onClick={handleAssignmentClick}>
+            <button 
+              type="button" 
+              className="btn btn-outline-primary px-4 py-2" 
+              onClick={handleAssignmentClick}
+            >
               {t.assignmentBtn}
             </button>
           </div>
