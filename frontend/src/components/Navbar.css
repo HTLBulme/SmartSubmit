@@ -1,6 +1,7 @@
 /* Main navbar */
 .navbar {
-  position: sticky;
+  position: fixed !important;
+  right: 0 !important;
   top: 0;
   left: 0;
   z-index: 1000;

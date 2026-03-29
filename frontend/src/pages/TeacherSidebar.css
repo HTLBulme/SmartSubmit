@@ -97,23 +97,6 @@
   border-bottom: 1px solid #e0e0e0;
 }
 
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.sidebar-logo-icon {
-  font-size: 1.75rem;
-  line-height: 1;
-}
-
-.sidebar-logo-text {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #333;
-}
-
 /* User Profile */
 .sidebar-profile {
   padding: 1.5rem 1.25rem;

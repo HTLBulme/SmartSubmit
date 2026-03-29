@@ -98,13 +98,9 @@ export default function StudentSidebar({ userData, activeView, onViewChange }) {
           ×
         </button>
 
-        {/* Header */}
+       {/* Header */}
         <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <span className="sidebar-logo-icon">📱</span>
-            <span className="sidebar-logo-text">SmartSubmit</span>
-          </div>
-        </div>
+        </div> 
 
         {/* User Profile */}
         <div className="sidebar-profile">
