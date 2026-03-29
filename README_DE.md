@@ -69,6 +69,7 @@ SmartSubmit ist ein modernes webbasiertes Aufgabenverwaltungssystem für Bildung
 
 ### Allgemeine Funktionen
 
+- Google OAuth 2.0 Integration für nahtlose Anmeldung (weist neuen Benutzern automatisch die Rolle 'Student' zu)
 - Mehrsprachige Unterstützung (DE und EN)
 - Responsive Design (mobil-freundlich)
 - Sichere Authentifizierung mit JWT
@@ -230,7 +231,12 @@ npm install
 
 # .env-Datei erstellen
 cp .env.example .env
-# .env mit Ihren Datenbank-Zugangsdaten bearbeiten
+# .env mit Ihren Datenbank-Zugangsdaten und Google OAuth Schlüsseln bearbeiten:
+# DATABASE_URL="..."
+# JWT_SECRET="..."
+# GOOGLE_CLIENT_ID="..."
+# GOOGLE_CLIENT_SECRET="..."
+# GOOGLE_REDIRECT_URI="http://localhost:3000/api/auth/google/callback"
 
 # MySQL-Datenbank erstellen
 mysql -u root -p
