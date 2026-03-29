@@ -76,6 +76,31 @@
   background: linear-gradient(135deg, #3f6df1, #5066e6);
 }
 
+.google-login-btn {
+  width: 100%;
+  background: white;
+  color: #333;
+  border: 1px solid #d9d9e3;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.google-login-btn:hover {
+  background: #f8f9fa;
+  border-color: #c0c0c8;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
 .error-text {
   color: #e54848;
   font-weight: 500;
