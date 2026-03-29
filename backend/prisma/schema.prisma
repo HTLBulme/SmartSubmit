@@ -19,7 +19,9 @@ model User {
   firstName       String          @db.VarChar(255)
   lastName        String          @db.VarChar(255)
   email           String          @unique @db.VarChar(255)
-  passwordHash    String          @db.VarChar(255)
+  passwordHash    String?         @db.VarChar(255)
+  provider        String?         @db.VarChar(50)
+  oauthId         String?         @db.VarChar(255)
   createdAt       DateTime        @default(now())
   active          Boolean         @default(true)
 

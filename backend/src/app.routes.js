@@ -12,6 +12,49 @@ const changePasswordController = require('./controllers/changePassword.controlle
 // --- Import middleware ---
 const { authenticateToken, authenticateAdmin } = require('./app.middleware');
 const { uploadMemory, uploadDisk, uploadSubmissionsDisk } = require('./app.config');
+const passport = require('../src/app.passport');
+const jwt = require('jsonwebtoken');
+
+// --- OAUTH 2.0 GOOGLE ROUTES ---
+// 1. Initiate Google Login
+router.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'], session: false })
+);
+
+// 2. Google Callback (where Google redirects after successful/failed login)
+router.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: 'http://localhost:5173/?error=oauth_failed', session: false }),
+  (req, res) => {
+    try {
+      const user = req.user;
+      
+      // We need to determine the single role to pass, or pass all roles
+      // For simplicity, we just take the first role's name if it exists
+      let roleName = "Student";
+      if (user.userRoles && user.userRoles.length > 0) {
+        roleName = user.userRoles[0].role.name;
+      }
+
+// Create JWT token (Must match what app.utils.js does: 'userId')
+      const token = jwt.sign(
+        { 
+          userId: user.id 
+        },
+        process.env.JWT_SECRET || 'super_secret_jwt_key_123',
+        { expiresIn: '7d' }
+      );
+
+      // Redirect back to frontend frontend login page with the token
+      // You might need to change localhost:5173 to your production URL later
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      res.redirect(`${frontendUrl}/?token=${token}&role=${roleName}`);
+    } catch (error) {
+      console.error("OAuth callback error:", error);
+      res.redirect('http://localhost:5173/?error=token_generation_failed');
+    }
+  }
+);
+
 
 // --- ADMIN CHECK (public) ---
 router.get('/admin/check', adminController.checkAdminExists);
