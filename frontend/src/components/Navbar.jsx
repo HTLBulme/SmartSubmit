@@ -26,14 +26,14 @@ export default function Navbar() {
   const isLoggedIn = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   return (
-    <nav className="navbar">
+    <nav className="app-main-navbar">
       {/* Brand/Logo */}
-      <div className="navbar-brand">
+      <div className="app-navbar-brand">
         Smart<span>Submit</span>
       </div>
 
       {/* Right section: languages + buttons */}
-      <div className="navbar-right">
+      <div className="app-navbar-right">
         {/* Language switcher */}
         <div className="lang-switcher">
           <button
@@ -54,19 +54,19 @@ export default function Navbar() {
         {isLoggedIn && (
           <>
             {/* Change Password button */}
-            <button className="btn-outline-light" onClick={handleChangePassword}>
+            <button className="app-nav-btn" onClick={handleChangePassword}>
               {t.changePassword || "Change Password"}
             </button>
 
             {/* Help button */}
-            <Link to="/help" className="btn-outline-light">
+            <Link to="/help" className="app-nav-btn">
               {t.helpBtn || "Help"}
             </Link>
           </>
         )}
 
         {/* Logout button */}
-        <button className="btn-logout" onClick={handleLogout}>
+        <button className="app-nav-logout" onClick={handleLogout}>
           {t.logout || "Logout"}
         </button>
       </div>

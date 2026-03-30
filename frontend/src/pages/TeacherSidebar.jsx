@@ -9,30 +9,38 @@ export default function TeacherSidebar({ userData, activeView, onViewChange }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const getInitials = (userData) => {
-    const firstName = userData?.firstName || userData?.vorname || "";
-    const lastName = userData?.lastName || userData?.nachname || "";
-    
+    const rawUser = localStorage.getItem("user");
+    let storedUser = null;
+    try { storedUser = rawUser ? JSON.parse(rawUser) : null; } catch (e) {}
+
+    const firstName = userData?.firstName || storedUser?.firstName || userData?.vorname || "";
+    const lastName = userData?.lastName || storedUser?.lastName || userData?.nachname || "";
+
     if (firstName && lastName) {
       return `${firstName[0]}${lastName[0]}`.toUpperCase();
     }
-    
-    const email = userData?.email || "";
+
+    const email = userData?.email || storedUser?.email || "";
     if (email) {
       return email.substring(0, 2).toUpperCase();
     }
-    
+
     return "TE";
   };
 
   const getUserName = (userData) => {
-    const firstName = userData?.firstName || userData?.vorname || "";
-    const lastName = userData?.lastName || userData?.nachname || "";
-    
+    const rawUser = localStorage.getItem("user");
+    let storedUser = null;
+    try { storedUser = rawUser ? JSON.parse(rawUser) : null; } catch (e) {}
+
+    const firstName = userData?.firstName || storedUser?.firstName || userData?.vorname || "";
+    const lastName = userData?.lastName || storedUser?.lastName || userData?.nachname || "";
+
     if (firstName && lastName) {
       return `${firstName} ${lastName}`;
     }
-    
-    return userData?.email?.split("@")[0] || "Teacher";
+
+    return userData?.email?.split("@")[0] || storedUser?.email?.split("@")[0] || "Teacher";
   };
 
   const getSubjects = (userData) => {

@@ -1,11 +1,12 @@
 /* Main navbar */
-.navbar {
-  position: fixed !important;
-  right: 0 !important;
+.app-main-navbar {
+  position: sticky;
   top: 0;
   left: 0;
-  z-index: 1000;
   width: 100%;
+  max-width: 100vw;
+  z-index: 1000;
+  margin: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -16,6 +17,7 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
   animation: fadeIn 0.4s ease-in-out;
+  
 }
 
 @keyframes fadeIn {
@@ -30,7 +32,7 @@
 }
 
 /* Brand */
-.navbar-brand {
+.app-navbar-brand {
   font-size: 1.35rem;
   font-weight: 700;
   color: #1d77e8;
@@ -40,17 +42,17 @@
   flex-shrink: 0;
 }
 
-.navbar-brand span {
+.app-navbar-brand span {
   color: #0c3b82;
 }
 
-.navbar-brand:hover {
+.app-navbar-brand:hover {
   color: #145ac9;
   text-shadow: 0 0 8px rgba(29, 119, 232, 0.2);
 }
 
 /* Right section (languages + buttons) */
-.navbar-right {
+.app-navbar-right {
   display: flex;
   align-items: center;
   gap: 0.8rem;
@@ -61,10 +63,12 @@
 .lang-switcher {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.2rem;
   background: #f1f4f8;
   border-radius: 999px;
-  padding: 3px 5px;
+  padding: 3px;
+  height: 38px;
+  box-sizing: border-box;
   flex-shrink: 0;
 }
 
@@ -73,11 +77,17 @@
   background: transparent;
   color: #555;
   font-weight: 600;
-  padding: 0.3rem 0.75rem;
+  padding: 0 0.75rem;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.25s ease;
   font-size: 0.9rem;
+  box-sizing: border-box;
+  line-height: 1;
 }
 
 .lang-switcher button:hover {
@@ -92,10 +102,14 @@
 }
 
 /* Buttons (Change Password, Logout, Help) */
-.btn-logout,
-.btn-outline-light {
+.app-nav-logout,
+.app-nav-btn {
+  box-sizing: border-box;
+  height: 38px;
+  line-height: 1;
+  font-family: inherit;
   border-radius: 8px;
-  padding: 0.4rem 0.9rem;
+  padding: 0 1rem;
   font-weight: 600;
   border: 1px solid #e0e0e0;
   background: #fff;
@@ -104,198 +118,59 @@
   font-size: 0.9rem;
   text-decoration: none;
   display: inline-flex;
+  justify-content: center;
   align-items: center;
   gap: 0.4rem;
   white-space: nowrap;
+  margin: 0;
 }
 
-.btn-logout {
+.app-nav-logout {
   color: #dc3545;
   border-color: #f0b4b4;
 }
 
-.btn-logout:hover {
+.app-nav-logout:hover {
   background: #dc3545;
   color: #fff;
   border-color: #dc3545;
 }
 
-.btn-outline-light {
+.app-nav-btn {
   color: #1d77e8;
   border-color: #1d77e8;
 }
 
-.btn-outline-light:hover {
+.app-nav-btn:hover {
   background: #1d77e8;
   color: #fff;
   border-color: #1d77e8;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   MOBILE RESPONSIVE
-   ═══════════════════════════════════════════════════════════ */
 
+/* === MOBILE NAVBAR FIXES === */
 @media (max-width: 768px) {
-  /* ─────────────────────────────────────────────
-     FORCE VERTICAL STACKING - Override Bootstrap
-     ───────────────────────────────────────────── */
+  .app-main-navbar {
+    flex-direction: column;
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+    z-index: 990; /* Lower z-index on mobile so modals can cover it */
+  }
   
-  /* Kill Bootstrap grid on mobile - force single column */
-  .teacher-form-compact .row.g-2 {
-    display: block !important; /* Use block instead of flex */
-    margin-bottom: 1.25rem !important;
+  .app-navbar-right {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
   }
- 
-  /* Make ALL columns full width */
-  .teacher-form-compact .row > * {
-    width: 100% !important;
-    max-width: 100% !important;
-    flex: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+
+  .app-nav-btn, 
+  .app-nav-logout {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
   }
- 
-  /* ─────────────────────────────────────────────
-     LABEL STYLING
-     ───────────────────────────────────────────── */
   
-  /* Labels are BLOCKS on their own line */
-  .teacher-form-compact label,
-  .teacher-form-compact .col-form-label {
-    display: block !important;
-    width: 100% !important;
-    margin-bottom: 0.5rem !important;
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    text-align: left !important;
-    line-height: 1.3 !important;
-    /* NO wrapping issues */
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
- 
-  /* For labels that MUST wrap (if too long) */
-  .teacher-form-compact .col-form-label.fw-semibold {
-    white-space: normal !important;
-    overflow: visible !important;
-    word-break: break-word !important;
-  }
- 
-  /* ─────────────────────────────────────────────
-     INPUT STYLING
-     ───────────────────────────────────────────── */
-  
-  /* Inputs are BLOCKS below labels */
-  .teacher-form-compact .form-control,
-  .teacher-form-compact .form-select,
-  .teacher-form-compact input,
-  .teacher-form-compact textarea {
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-bottom: 0 !important;
-  }
- 
-  /* ─────────────────────────────────────────────
-     SPECIFIC PROBLEMATIC FIELDS
-     ───────────────────────────────────────────── */
-  
-  /* Due date - stack the preset dropdown and date input */
-  .teacher-form-compact .d-flex.flex-nowrap {
-    display: block !important; /* Kill flexbox */
-  }
- 
-  .teacher-form-compact .d-flex.flex-nowrap > * {
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-bottom: 0.75rem !important;
-  }
- 
-  .teacher-form-compact .d-flex.flex-nowrap > *:last-child {
-    margin-bottom: 0 !important;
-  }
- 
-  /* ─────────────────────────────────────────────
-     DRAG & DROP ZONE
-     ───────────────────────────────────────────── */
-  
-  .teacher-form-compact .dnd-zone {
-    margin-top: 0.5rem !important;
-  }
- 
-  .teacher-form-compact .dnd-content {
-    display: block !important;
-    text-align: center !important;
-  }
- 
-  .teacher-form-compact .dnd-icon,
-  .teacher-form-compact .dnd-text,
-  .teacher-form-compact .dnd-content button {
-    display: block !important;
-    width: 100% !important;
-    margin: 0.5rem auto !important;
-  }
- 
-  /* ─────────────────────────────────────────────
-     REMOVE ALL BOOTSTRAP ALIGNMENT CLASSES
-     ───────────────────────────────────────────── */
-  
-  .teacher-form-compact .align-items-center,
-  .teacher-form-compact .align-items-start {
-    align-items: flex-start !important;
-  }
- 
-  /* ─────────────────────────────────────────────
-     CONTAINER & CARD SPACING
-     ───────────────────────────────────────────── */
-  
-  .container {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
- 
-  .teacher-card {
-    max-width: 100% !important;
-    padding: 1rem !important;
-    margin: 0 !important;
-  }
- 
-  .card-body {
-    padding: 1rem !important;
-  }
- 
-  /* ─────────────────────────────────────────────
-     PREVENT ANY OVERFLOW
-     ───────────────────────────────────────────── */
-  
-  .teacher-page,
-  .teacher-page *,
-  .teacher-card,
-  .teacher-card *,
-  .teacher-form-compact,
-  .teacher-form-compact * {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-  }
-}
- 
-/* ═══════════════════════════════════════════════════════════
-   VERY SMALL SCREENS (≤ 480px)
-   ═══════════════════════════════════════════════════════════ */
- 
-@media (max-width: 480px) {
-  .teacher-card {
-    padding: 0.75rem !important;
-  }
- 
-  .teacher-form-compact label {
-    font-size: 0.85rem !important;
-  }
- 
-  .teacher-form-compact .form-control,
-  .teacher-form-compact .form-select {
-    font-size: 0.9rem !important;
+  .lang-switcher {
+    margin-bottom: 0;
   }
 }

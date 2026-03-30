@@ -10,7 +10,7 @@
   position: fixed;
   bottom: 1.5rem; /* Bottom instead of top to avoid logo */
   right: 1.5rem; /* Right instead of left */
-  z-index: 1001;
+  z-index: 1060 !important;
   background: var(--primary);
   color: white;
   border: none;
@@ -48,7 +48,7 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  z-index: 1040 !important;
   animation: fadeIn 0.2s ease;
 }
 
@@ -186,12 +186,12 @@
 }
 
 .sidebar-menu-item:hover {
-  background: rgba(79, 70, 229, 0.05);
+  background: rgba(29, 119, 232, 0.05);
   border-left-color: var(--primary);
 }
 
 .sidebar-menu-item.active {
-  background: rgba(79, 70, 229, 0.1);
+  background: rgba(29, 119, 232, 0.1);
   border-left-color: var(--primary);
   color: var(--primary);
   font-weight: 600;
@@ -256,13 +256,13 @@
 }
 
 .sidebar-submenu-item:hover {
-  background: rgba(79, 70, 229, 0.05);
+  background: rgba(29, 119, 232, 0.05);
   border-left-color: var(--primary);
   color: var(--text);
 }
 
 .sidebar-submenu-item.active {
-  background: rgba(79, 70, 229, 0.08);
+  background: rgba(29, 119, 232, 0.08);
   border-left-color: var(--primary);
   color: var(--primary);
   font-weight: 600;
@@ -337,7 +337,7 @@
   /* Show sidebar when open */
   .student-sidebar.mobile-open {
     transform: translateX(0);
-    z-index: 1000;
+    z-index: 1050 !important;
   }
 
   /* Show overlay when open */

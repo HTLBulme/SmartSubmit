@@ -1,6 +1,7 @@
 .login-container {
   position: relative;
-  min-height: 100vh;
+  width: 100%;
+  min-height: calc(100vh - 85px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -20,7 +21,8 @@
   border-radius: 20px;
   padding: 2.5rem;
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
-  width: 360px;
+  width: 400px;
+  box-sizing: border-box;
   text-align: center;
   animation: fadeIn 0.8s ease;
   overflow: hidden;
@@ -29,7 +31,7 @@
 .login-form h2 {
   margin-bottom: 1.5rem;
   font-size: 1.7rem;
-  color: #2a2a5e;
+  color: #1f2937;
   font-weight: 700;
 }
 
@@ -37,7 +39,7 @@
 .login-form select {
   width: 100%;
   box-sizing: border-box;
-  padding: 0.75rem;
+  padding: 0 0.75rem;
   height: 44px;
   line-height: 44px;
   background: #fff;
@@ -56,13 +58,13 @@
 
 .login-form input:focus,
 .login-form select:focus {
-  border-color: #4f7df3;
-  box-shadow: 0 0 0 2px rgba(79, 125, 243, 0.18);
+  border-color: #1d77e8;
+  box-shadow: 0 0 0 2px rgba(29, 119, 232, 0.18);
 }
 
 .login-form button[type="submit"] {
   width: 100%;
-  background: linear-gradient(135deg, #4f7df3, #6378ff);
+  background: linear-gradient(135deg, #1d77e8, #1565c0);
   color: white;
   border: none;
   padding: 0.8rem;
@@ -73,7 +75,33 @@
 }
 
 .login-form button[type="submit"]:hover {
-  background: linear-gradient(135deg, #3f6df1, #5066e6);
+  background: linear-gradient(135deg, #1565c0, #0f4f9f);
+}
+
+.google-login-btn {
+  width: 100%;
+  background: white;
+  color: #333;
+  border: 2px solid #e2e8f0;
+  padding: 0.85rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+}
+
+.google-login-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
 .error-text {
@@ -163,4 +191,43 @@
     -webkit-text-fill-color: #333;
     border-color: #d9d9e3;
   }
+}
+
+/* Fix arrow in select dropdown */
+.login-form select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem top 50%;
+  background-size: 0.65rem auto;
+  padding-right: 2.5rem;
+  padding-left: 0.75rem; /* overrides the fix */
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  .login-form select {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  }
+}
+
+.forgot-link {
+  display: block;
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #1d77e8;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  color: #1565c0;
+  text-decoration: underline;
+}
+
+.mt-3 {
+  margin-top: 1.5rem !important;
 }

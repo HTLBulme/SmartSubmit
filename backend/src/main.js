@@ -8,6 +8,7 @@ dotenv.config();
 
 // --- Import modules ---
 const { prisma, initDatabase } = require('./app.config');
+const passport = require('./app.passport'); // Import configured passport
 const apiRoutes = require('./app.routes');
 
 // --- Create Express app ---
@@ -19,6 +20,7 @@ const app = express(); // Create Express app instance
 app.use(cors());
 app.use(express.json()); // Runs JSON req.body (js-object) parser middleware
 app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize()); // Initialize Passport middleware
 
 // --- API Routes ---
 app.use('/api', apiRoutes);
