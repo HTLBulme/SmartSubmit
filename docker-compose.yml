@@ -18,6 +18,8 @@ services:
   backend:
     # For production deployment (pulls pre-built image from GitHub)
     image: ghcr.io/htlbulme/smartsubmit-backend:latest
+    volumes:
+      - ./backend/prisma/seed.server.js:/app/backend/prisma/seed.server.js
     
     # For local development (builds from Dockerfile)    
     # build:
