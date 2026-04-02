@@ -5,12 +5,14 @@
   width: 100%;
   position: relative;
 }
+
 .teacher-main-content {
   flex: 1;
   margin-left: 280px;
   transition: margin-left 0.3s ease;
   display: flex;
   justify-content: center;
+  min-width: 0;
 }
 
 .teacher-page {
@@ -18,31 +20,118 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  align-items: flex-start; /* allow content to scroll */
+  align-items: flex-start;
+  min-width: 0;
 }
 
-.teacher-card { width: 100%; background: #fff; }
+.teacher-card {
+  width: 100%;
+  background: #fff;
+}
 
+.teacher-dashboard {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Form layout */
+.teacher-form-compact {
+  padding: 0;
+  margin: 0;
+}
+
+.teacher-field-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.teacher-field-row.align-start {
+  align-items: flex-start;
+}
+
+.teacher-label {
+  min-width: 180px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1f2937;
+  margin: 0;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  word-break: break-word;
+}
+
+.teacher-label.with-top-padding {
+  padding-top: 0.5rem;
+}
+
+.teacher-field-control {
+  flex: 1;
+  min-width: 0;
+}
+
+.teacher-field-control .form-control,
+.teacher-field-control .form-select,
+.teacher-field-control input,
+.teacher-field-control textarea,
+.teacher-field-control select {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Due date row */
+.teacher-due-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  width: 100%;
+}
+
+.teacher-due-controls .form-select,
+.teacher-due-controls .form-control {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+/* Drag & drop */
 .dnd-zone {
-  border: 2px dashed #c7cfe1; /*   пунктирная рамка */
+  border: 2px dashed #c7cfe1;
   border-radius: 12px;
   padding: 1.2rem;
   background: #fafbff;
-  transition: all .2s ease;
+  transition: all 0.2s ease;
 }
+
 .dnd-zone.over {
   border-color: #1d77e8;
   background: #eef5ff;
-  box-shadow: 0 0 0 4px rgba(29,119,232,.08) inset;
+  box-shadow: 0 0 0 4px rgba(29, 119, 232, 0.08) inset;
 }
+
 .dnd-content {
   display: grid;
   grid-template-columns: 40px 1fr auto;
   gap: 1rem;
   align-items: center;
 }
-.dnd-icon { font-size: 1.6rem; }
-.dnd-text { line-height: 1.2; }
+
+.dnd-icon {
+  font-size: 1.6rem;
+}
+
+.dnd-text {
+  line-height: 1.2;
+}
 
 /* Allow labels to wrap instead of truncating */
 .teacher-form-compact label,
@@ -51,18 +140,19 @@
   overflow: visible;
   text-overflow: clip;
   word-wrap: break-word;
-  line-height: 1.4;
 }
 
-/* ─────────────────────────────────────────────
-   Modal Backdrop 
-   ───────────────────────────────────────────── */
- 
+/* File list */
+.teacher-file-name {
+  max-width: 80%;
+}
+
+/* Modal Backdrop */
 @media (min-width: 769px) {
   .modal-backdrop {
     position: fixed !important;
     top: 0 !important;
-    left: 280px !important; /* Start after sidebar */
+    left: 280px !important;
     right: 0 !important;
     bottom: 0 !important;
     width: auto !important;
@@ -73,7 +163,7 @@
   .modal {
     position: fixed !important;
     top: 0 !important;
-    left: 280px !important; /* Start after sidebar */
+    left: 280px !important;
     right: 0 !important;
     bottom: 0 !important;
     width: auto !important;
@@ -114,15 +204,12 @@
     padding: 0 !important;
   }
 }
- 
-/* ─────────────────────────────────────────────
-   Modal Dialog - Centered, proper size
-   ───────────────────────────────────────────── */
- 
+
+/* Modal Dialog */
 .modal-dialog {
   position: relative !important;
   margin: auto !important;
-  max-width: 1200px !important; /* For modal-xl */
+  max-width: 1200px !important;
   width: 90% !important;
   max-height: 90vh !important;
 }
@@ -139,10 +226,7 @@
   max-width: 600px !important;
 }
 
-/* ─────────────────────────────────────────────
-  Modal Content - Scrollable
-  ───────────────────────────────────────────── */
-
+/* Modal Content */
 .modal-content {
   max-height: 90vh !important;
   overflow: hidden !important;
@@ -170,24 +254,208 @@
   padding: 1rem 1.25rem !important;
 }
 
-/* ─────────────────────────────────────────────
-   Make sure modal is scrollable if content is long
-   ───────────────────────────────────────────── */
- 
 .modal-dialog-scrollable .modal-body {
   overflow-y: auto !important;
-  max-height: calc(90vh - 120px) !important; /* Subtract header + footer */
+  max-height: calc(90vh - 120px) !important;
 }
- 
-/* ─────────────────────────────────────────────
-   MOBILE - Full screen modal
-   ───────────────────────────────────────────── */
- 
+
+/* Ensure modals appear above everything */
+.teacher-sidebar {
+  z-index: 100 !important;
+}
+
+.navbar {
+  z-index: 1000 !important;
+}
+
+.modal-backdrop {
+  z-index: 1050 !important;
+}
+
+.modal {
+  z-index: 1055 !important;
+}
+
+/* Desktop label space */
+@media (min-width: 769px) {
+  .teacher-form-compact .col-sm-2 {
+    min-width: 160px;
+  }
+
+  .teacher-form-compact label,
+  .teacher-form-compact .col-form-label {
+    padding-right: 1rem;
+  }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
+  body,
+  html {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .teacher-main-content {
+    margin-left: 0;
+    padding-left: 0;
+    padding-bottom: 5rem;
+  }
+
+  .teacher-page {
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .teacher-dashboard {
+    padding: 1rem !important;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .teacher-card {
+    max-width: 100%;
+    padding: 1rem !important;
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 16px !important;
+  }
+
+  .card-body {
+    padding: 0 !important;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .teacher-field-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .teacher-label {
+    min-width: 0;
+    width: 100%;
+    margin-bottom: 0;
+    padding: 0;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .teacher-label.with-top-padding {
+    padding-top: 0;
+  }
+
+  .teacher-field-control {
+    width: 100%;
+  }
+
+  .teacher-field-control .form-control,
+  .teacher-field-control .form-select,
+  .teacher-field-control input,
+  .teacher-field-control textarea,
+  .teacher-field-control select,
+  .teacher-form-compact .btn {
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .teacher-due-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .teacher-due-controls .form-select,
+  .teacher-due-controls .form-control {
+    flex: none;
+    width: 100%;
+  }
+
+  .dnd-zone {
+    padding: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .dnd-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .dnd-icon {
+    margin: 0 auto 0.25rem;
+  }
+
+  .dnd-text {
+    margin-bottom: 0;
+  }
+
+  .dnd-content button {
+    width: 100%;
+  }
+
+  .list-group {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .list-group-item {
+    padding: 0.75rem;
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+
+  .teacher-file-name {
+    max-width: 100%;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    word-break: break-word;
+  }
+
+  .btn-primary.py-2,
+  .teacher-form-compact .btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+
+  .teacher-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .teacher-actions .btn {
+    width: 100%;
+  }
+
+  .navbar {
+    left: 0;
+    width: 100%;
+    margin-left: 0;
+  }
+
   .modal {
     padding: 0 !important;
   }
- 
+
   .modal-dialog {
     width: 100% !important;
     max-width: 100% !important;
@@ -195,15 +463,28 @@
     max-height: 100vh !important;
     margin: 0 !important;
   }
- 
-  /* Modal title - wrap long text */
+
+  .modal-content {
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    height: 100vh !important;
+  }
+
+  .modal-header {
+    padding: 1rem !important;
+  }
+
   .modal-title {
     font-size: 1rem !important;
     word-break: break-word !important;
     line-height: 1.3 !important;
   }
 
-  /* Table - more compact on mobile */
+  .modal-body {
+    padding: 1rem !important;
+    max-height: calc(100vh - 120px) !important;
+  }
+
   .modal-body .table {
     min-width: 900px !important;
     font-size: 0.8rem !important;
@@ -215,399 +496,54 @@
     font-size: 0.75rem !important;
   }
 
-  /* Buttons - smaller */
   .modal-body .btn-sm {
     font-size: 0.7rem !important;
     padding: 0.25rem 0.5rem !important;
   }
 
-  /* Form controls - smaller */
   .modal-body .form-control,
   .modal-body input,
   .modal-body textarea {
     font-size: 0.8rem !important;
     padding: 0.25rem 0.5rem !important;
   }
-  
-  .modal-content {
-    max-height: 100vh !important;
-    border-radius: 0 !important;
-    height: 100vh !important;
-  }
- 
-  .modal-body {
-    max-height: calc(100vh - 120px) !important;
-  }
-}
- 
-/* ─────────────────────────────────────────────
-   Ensure modals appear above everything
-   ───────────────────────────────────────────── */
- 
-/* Z-index hierarchy:
-   - Sidebar: 100
-   - Navbar: 1000
-   - Modal backdrop: 1050
-   - Modal: 1055
-*/
- 
-.teacher-sidebar {
-  z-index: 100 !important;
-}
- 
-.navbar {
-  z-index: 1000 !important;
-}
- 
-.modal-backdrop {
-  z-index: 1050 !important;
-}
- 
-.modal {
-  z-index: 1055 !important;
-}
- 
-/* ─────────────────────────────────────────────
-   MOBILE RESPONSIVE
-   ───────────────────────────────────────────── */
- 
-@media (min-width: 769px) {
-  .teacher-form-compact .col-sm-2 {
-    min-width: 160px; /* Enough space for German words */
-  }
- 
-  .teacher-form-compact label,
-  .teacher-form-compact .col-form-label {
-    padding-right: 1rem; /* Space between label and input */
-  }
-}
- 
-/* ═════════════════════════════════════════════════════════
-   MOBILE FIX - COMPLETE REWRITE
-   ═════════════════════════════════════════════════════════ */
- 
-@media (max-width: 768px) {
- 
-  /* ─────────────────────────────────────────────
-     CRITICAL: Remove all left margins/padding
-     ───────────────────────────────────────────── */
- 
-  .teacher-main-content {
-    margin-left: 0;
-    padding-left: 0;
-    padding-bottom: 5rem;
-  }
- 
-  .teacher-page {
-    margin-left: 0;
-    padding-left: 0;
-  }
- 
-  /* ─────────────────────────────────────────────
-     Container - Full width with proper padding
-     ───────────────────────────────────────────── */
- 
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    margin-left: 0;
-    margin-right: 0;
-    max-width: 100%;
-    width: 100%;
-  }
- 
-  /* ─────────────────────────────────────────────
-     Card - No negative margins
-     ───────────────────────────────────────────── */
- 
-  .teacher-card {
-    max-width: 100%;
-    padding: 1.5rem;
-    margin-left: 0;
-    margin-right: 0;
-  }
- 
-  .card-body {
-    padding: 1rem;
-    margin-left: 0;
-    margin-right: 0;
-  }
- 
-  /* ─────────────────────────────────────────────
-     Form - Kill Bootstrap grid completely
-     ───────────────────────────────────────────── */
- 
-  .teacher-form-compact {
-    padding: 0;
-    margin: 0;
-  }
- 
-  /* Bootstrap rows - become blocks */
-  .teacher-form-compact .row,
-  .teacher-form-compact .row.g-2 {
-    display: block;
-    margin-left: 0;
-    margin-right: 0;
-    margin-bottom: 1.25rem;
-    padding-left: 0;
-    padding-right: 0;
-  }
- 
-  /* All columns - full width, no padding */
-  .teacher-form-compact .row > *,
-  .teacher-form-compact [class*="col-"] {
-    width: 100%;
-    max-width: 100%;
-    flex: none;
-    padding-left: 0;
-    padding-right: 0;
-    margin-left: 0;
-    margin-right: 0;
-  }
- 
-  /* ─────────────────────────────────────────────
-     Labels - Full width blocks
-     ───────────────────────────────────────────── */
- 
-  .teacher-form-compact label,
-  .teacher-form-compact .col-form-label,
-  .teacher-form-compact .form-label {
-    display: block;
-    width: 100%;
-    margin-bottom: 0.5rem;
-    margin-left: 0;
-    margin-right: 0;
-    padding-left: 0;
-    padding-right: 0;
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-align: left;
-    line-height: 1.4;
-    /* Allow wrapping */
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    word-wrap: break-word;
-  }
- 
-  /* ─────────────────────────────────────────────
-     Inputs - Full width
-     ───────────────────────────────────────────── */
- 
-  .teacher-form-compact .form-control,
-  .teacher-form-compact .form-select,
-  .teacher-form-compact input,
-  .teacher-form-compact textarea {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    font-size: 16px; /* Prevent iOS zoom */
-    box-sizing: border-box;
-  }
- 
-  /* ─────────────────────────────────────────────
-     Due date - Stack vertically
-     ───────────────────────────────────────────── */
- 
-  .teacher-form-compact .d-flex,
-  .teacher-form-compact .d-flex.flex-nowrap {
-    display: block;
-  }
- 
-  .teacher-form-compact .d-flex > *,
-  .teacher-form-compact .d-flex.flex-nowrap > * {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    margin-bottom: 0.75rem;
-    margin-left: 0;
-    margin-right: 0;
-  }
- 
-  .teacher-form-compact .d-flex > *:last-child {
-    margin-bottom: 0;
-  }
- 
-  /* ─────────────────────────────────────────────
-     Drag & drop zone
-     ───────────────────────────────────────────── */
- 
-  .dnd-zone {
-    padding: 1rem;
-    margin-left: 0;
-    margin-right: 0;
-  }
- 
-  .dnd-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
- 
-  .dnd-icon {
-    margin: 0 auto 0.5rem;
-  }
- 
-  .dnd-text {
-    margin-bottom: 0.75rem;
-  }
- 
-  .dnd-content button {
-    width: 100%;
-  }
- 
-  /* ─────────────────────────────────────────────
-     File list
-     ───────────────────────────────────────────── */
- 
-  .list-group {
-    margin-left: 0;
-    margin-right: 0;
-  }
- 
-  .list-group-item {
-    padding: 0.75rem;
-  }
- 
-  /* ─────────────────────────────────────────────
-     Buttons
-     ───────────────────────────────────────────── */
- 
-  .btn-primary.py-2,
-  .teacher-form-compact .btn {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-  }
- 
-  .d-flex.justify-content-center {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
- 
-  /* ─────────────────────────────────────────────
-     Prevent any overflow
-     ───────────────────────────────────────────── */
- 
-  body,
-  html {
-    overflow-x: hidden;
-    max-width: 100vw;
-  }
- 
-  .teacher-layout,
-  .teacher-main-content,
-  .teacher-page,
-  .container,
-  .teacher-card,
-  .card-body,
-  .teacher-form-compact,
-  .teacher-form-compact * {
-    max-width: 100vw;
-    overflow-x: visible;
-    box-sizing: border-box;
-  }
- 
-  /* ─────────────────────────────────────────────
-     Navbar
-     ───────────────────────────────────────────── */
- 
-  .navbar {
-    left: 0;
-    width: 100%;
-    margin-left: 0;
-  }
- 
-  /* ─────────────────────────────────────────────
-     Modal adjustments
-     ───────────────────────────────────────────── */
- 
-  .modal-dialog {
-    margin: 0.5rem;
-  }
- 
-  .modal-xl,
-  .modal-lg {
-    max-width: 100%;
-  }
- 
-  .modal-header {
-    padding: 1rem;
-  }
- 
-  .modal-title {
-    font-size: 1.1rem;
-  }
- 
-  .modal-body {
-    padding: 1rem;
-  }
- 
+
   .table-responsive {
     overflow-x: auto;
   }
- 
+
   .table {
     min-width: 800px;
     font-size: 0.85rem;
   }
 }
- 
-/* ═════════════════════════════════════════════════════════
-   VERY SMALL SCREENS (≤ 480px)
-   ═════════════════════════════════════════════════════════ */
- 
+
+/* Very small screens */
 @media (max-width: 480px) {
   .container {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
   }
- 
+
+  .teacher-dashboard {
+    padding: 0.75rem !important;
+  }
+
   .teacher-card {
-    padding: 1rem;
+    padding: 0.875rem !important;
   }
- 
-  .card-body {
-    padding: 0.75rem;
-  }
- 
+
   .card-body h2 {
     font-size: 1.1rem;
   }
- 
-  .teacher-form-compact label {
+
+  .teacher-label {
     font-size: 0.85rem;
   }
- 
-  .teacher-form-compact .form-control,
-  .teacher-form-compact .form-select,
-  .teacher-form-compact textarea {
-    font-size: 14px;
-  }
-}
-.teacher-dashboard {
-  max-width: 800px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 2rem;
-  box-sizing: border-box;
-}
-@media (max-width: 768px) {
-  .teacher-dashboard {
-    padding: 1rem !important;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-}
 
-@media (max-width: 480px) {
-  .teacher-dashboard {
-    padding: 0.75rem !important;
+  .teacher-field-control .form-control,
+  .teacher-field-control .form-select,
+  .teacher-field-control textarea {
+    font-size: 16px;
   }
 }
