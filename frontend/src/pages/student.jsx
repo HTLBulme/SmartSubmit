@@ -218,6 +218,7 @@ export default function StudentDashboard() {
           title: assignment.title,
           description: assignment.description,
           dueDate: assignment.dueDate,
+          link: assignment.link,
           subject: assignment.subject,
           class: assignment.class,
           teacher: assignment.teacher,
@@ -423,10 +424,20 @@ export default function StudentDashboard() {
 
                         {expandedAssignmentId === assignment.id && (
                           <div className="assignment-details">
+
                             {assignment.description && (
                               <div className="assignment-details-row">
                                 <div className="assignment-details-label">{t.textLbl || "Description"}</div>
                                 <div className="assignment-details-value">{assignment.description}</div>
+                              </div>
+                            )}
+
+                            {assignment.link && (
+                              <div className="assignment-details-row">
+                                <div className="assignment-details-label">{t.linkLbl || "Link"}</div>
+                                <div className="assignment-details-value">
+                                  <a href={assignment.link} target="_blank" rel="noopener noreferrer">{assignment.link}</a>
+                                </div>
                               </div>
                             )}
 

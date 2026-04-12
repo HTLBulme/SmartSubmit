@@ -1,5 +1,6 @@
 ﻿const T = {
   de: {
+      materialsLbl: "Materialien", // NEU: für die Tabelle
     // --- Auth & Generic ---
     title: "Anmeldung",
     subtitle: "Bitte melde dich in deinem Konto an",
@@ -58,6 +59,7 @@
     assgnError: "Fehler beim Speichern",
     assignmentBtn: "Aufgabenliste",
     submissionsBtn: "Abgabenliste",
+    countLbl: "Anzahl",
     submissionsTitle: "Abgabenliste",
     noSubmissions: "Keine Abgaben vorhanden",
 
@@ -91,11 +93,17 @@
     assignment: "Aufgabe",
     dueDate: "Fälligkeitsdatum",
     status: "Status",
+    student: "Schüler",
+    time: "Zeit",
     grade: "Note",
+    filesLbl: "Dateien",
+    textLbl: "Beschreibung",
     feedback: "Rückmeldung",
+    save: "Speichern",
     submitted: "Eingereicht",
     notSubmitted: "Nicht eingereicht",
     active: "Aktiv",
+    gradesFeedbackTable: "Noten & Feedback",
     overdue: "Überfällig",
     pendingGrade: "Wird bewertet",
     submittedText: "Mein Text",
@@ -202,45 +210,38 @@
     passwordHint:
       "Hinweis: Anfangspasswort für neue Benutzer ist \"vorname nachname\" in Kleinbuchstaben. Beispiel: Max Mustermann → Passwort: \"maxmustermann\"",
     
-      // --- File Upload Help ---
-    supportedFormats: "Unterstützte Dateiformate:",
-    fileFormats: [
-      "Dokumente: PDF, DOCX, DOC, TXT",
-      "Tabellen: XLSX, XLS, CSV",
-      "Bilder: JPG, JPEG, PNG, GIF",
-      "Präsentationen: PPTX, PPT",
-      "Andere: ZIP, RAR"
-    ],
-    maxFileSize: [
-    "Maximale Dateigröße:",
-    "5 MB pro Datei"
-    ],
-    multiUpload: [
-      "Mehrere Dateien hochladen:", 
-      "Sie können mehrere Dateien gleichzeitig hochladen, indem Sie sie alle auf einmal auswählen oder einzeln hinzufügen."
-    ],
-    faqPassword: [
-      "Wie ändere ich mein Passwort?",
-      "Klicken Sie auf Ihren Namen in der oberen rechten Ecke und wählen Sie \"Passwort ändern\".",
-    ],
-    faqLate: [
-      "Was passiert, wenn ich die Frist verpasse?", 
-      "Sie können die Aufgabe weiterhin abgeben, aber sie wird als verspätet markiert."
-    ],
-    faqEdit: [
-      "Kann ich eine Abgabe nach der Einreichung bearbeiten?",
-      "Nein, nach der Abgabe können Sie die Einreichung nicht mehr bearbeiten. Kontaktieren Sie Ihren Lehrer, wenn Sie Änderungen vornehmen müssen."
-    ],
-    faqMultiClass: [
-      "Kann ich eine Aufgabe mehreren Klassen zuweisen?",
-      "Als Lehrer können Sie die Klasse im Dropdown-Menü auswählen, bevor Sie eine Aufgabe erstellen.",
-    ],    
-    faqStatus: [
-      "Was bedeuten die verschiedenen Status?",
-      "Aktiv: Aufgabe ist noch offen für Abgaben.",
-      "Abgelaufen: Frist ist überschritten.",
-      "Abgegeben: Sie haben bereits abgegeben."
-    ],
+      // --- Student Panel ---
+      student: "Schüler",
+      time: "Zeit",
+      grade: "Note",
+      filesLbl: "Dateien",
+      textLbl: "Beschreibung",
+      feedback: "Rückmeldung",
+      save: "Speichern",
+      roleStudents: "Schüler",
+      roleTeachers: "Lehrer",
+      welcome: "Willkommen",
+      myAssignments: "Aufgaben",
+      myGrades: "Meine Noten",
+      noAssignments: "Keine Aufgaben vorhanden",
+      noGrades: "Keine Noten verfügbar",
+      assignment: "Aufgabe",
+      dueDate: "Fälligkeitsdatum",
+      status: "Status",
+      submitted: "Eingereicht",
+      notSubmitted: "Nicht eingereicht",
+      active: "Aktiv",
+      gradesFeedbackTable: "Noten & Feedback",
+      overdue: "Überfällig",
+      pendingGrade: "Wird bewertet",
+      submittedText: "Mein Text",
+      submittedFiles: "Meine Dateien",
+      viewDetails: "Details anzeigen",
+      hideDetails: "Details schließen",
+      submitWork: "Abgabe einreichen",
+      submissionClosed: "Abgabe geschlossen (Frist abgelaufen)",
+      submitSuccess: "Abgabe gespeichert",
+      submitError: "Fehler beim Speichern der Abgabe",
     contactText: [
       "Bei weiteren Fragen wenden Sie sich bitte an:",
       "E-Mail: support@smartsubmit.com",
@@ -282,6 +283,7 @@
   },
 
   en: {
+      materialsLbl: "Materials", // NEW: for the table
     // --- Auth & Generic ---
     title: "Login",
     subtitle: "Please sign in to your account",
@@ -291,6 +293,7 @@
     admin: "Admin",
     teacher: "Teacher",
     student: "Student",
+    time: "Time",
     login: "Login",
     forgot: "Forgot password?",
     roleError: "This role is not available for this user.",
@@ -342,6 +345,7 @@
     assgnError: "Error while saving",
     assignmentBtn: "Assignments list",
     submissionsBtn: "Submissions list",
+    countLbl: "Count",
     submissionsTitle: "Submissions",
     noSubmissions: "No submissions yet",
 

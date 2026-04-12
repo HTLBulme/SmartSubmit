@@ -498,89 +498,138 @@ export default function Teacher() {
                         <div className="text-muted">{t.noAssignments}</div>
                       ) : (
                         <div className="table-responsive">
-                          <table className="table table-bordered align-middle" style={{ minWidth: "1000px" }}>
+                          <table className="table table-bordered align-middle" style={{ minWidth: "900px" }}>
                             <thead>
                               <tr>
                                 <th>#</th>
                                 <th>{t.titleLbl}</th>
+                                <th>{t.materialsLbl || "Materials"}</th>
                                 <th>{t.classLbl}</th>
                                 <th>{t.subjectLbl}</th>
                                 <th>{t.dueLbl}</th>
                                 <th>{t.status}</th>
                                 <th>{t.submissionsBtn}</th>
-                                <th>Count</th>
-                                <th>{t.archiveTab || "Archive"}</th>
-                                <th>{t.deleteLbl || "Delete"}</th>
+                                <th>{t.countLbl}</th>
+                                <th>{t.archiveTab}</th>
+                                <th>{t.deleteLbl}</th>
                               </tr>
                             </thead>
                             <tbody>
                               {assignments
                                 .filter((a) => (assignmentsTab === "archived" ? a.archived : !a.archived))
-                                .map((a, idx) => (
-                                  <tr key={a.id}>
-                                    <td>{idx + 1}</td>
-                                    <td>{a.title}</td>
-                                    <td>{a.class}</td>
-                                    <td>{a.subject}</td>
-                                    <td>{a.dueDate ? new Date(a.dueDate).toLocaleDateString() : ""}</td>
-                                    <td>
-                                      {a.status === "active" ? (
-                                        <span className="badge bg-success">{t.active || "Active"}</span>
-                                      ) : a.status === "expired" ? (
-                                        <span className="badge bg-danger">{t.overdue || "Expired"}</span>
-                                      ) : (
-                                        <span className="badge bg-secondary">{t.archiveTab || "Archived"}</span>
-                                      )}
-                                    </td>
-                                    <td>
-                                      <button
-                                        type="button"
-                                        className="btn btn-sm btn-outline-primary"
-                                        onClick={() => openSubmissionsModal(a.id)}
-                                      >
-                                        {t.submissionsBtn}
-                                      </button>
-                                    </td>
-                                    <td>{a.submissionsCount}</td>
-                                    <td>
-                                      {a.archived ? (
+                                .map((a, idx) => {
+                                  // Combine link and files in one column
+                                  return (
+                                    <tr key={a.id}>
+                                      <td>{idx + 1}</td>
+                                      <td>{a.title}</td>
+                                      <td style={{ minWidth: 120, maxWidth: 220, wordBreak: "break-all" }}>
+                                        {/* Link */}
+                                        {a.link ? (
+                                          <div style={{ marginBottom: Array.isArray(a.attachments) && a.attachments.length > 0 ? 4 : 0 }}>
+                                            <a href={a.link} target="_blank" rel="noopener noreferrer">
+                                              {/* Показываем последний сегмент URL или сам URL */}
+                                              {(() => {
+                                                try {
+                                                  const urlObj = new URL(a.link);
+                                                  const path = urlObj.pathname;
+                                                  if (path && path !== "/") {
+                                                    return decodeURIComponent(path.split("/").pop() || a.link);
+                                                  }
+                                                  return a.link;
+                                                } catch {
+                                                  // Если невалидный URL, просто показать как есть
+                                                  return a.link;
+                                                }
+                                              })()}
+                                            </a>
+                                          </div>
+                                        ) : null}
+                                        {/* Attachments (Dokumente) */}
+                                        {Array.isArray(a.attachments) && a.attachments.length > 0 ? (
+                                          <div>
+                                            {a.attachments.map((f, i) => {
+                                              // Use only filename to build relative path
+                                              let url = f.filename ? `/uploads/assignments/${f.filename}` : null;
+                                              const label = f.originalName || f.filename || (typeof f === "string" ? f : "Datei");
+                                              return (
+                                                <div key={i}>
+                                                  {url ? (
+                                                    <a href={url} target="_blank" rel="noopener noreferrer">{label}</a>
+                                                  ) : (
+                                                    <span>{label}</span>
+                                                  )}
+                                                </div>
+                                              );
+                                            })}
+                                          </div>
+                                        ) : null}
+                                        {!a.link && (!Array.isArray(a.attachments) || a.attachments.length === 0) && (
+                                          <span className="text-muted">—</span>
+                                        )}
+                                      </td>
+                                      <td>{a.class}</td>
+                                      <td>{a.subject}</td>
+                                      <td>{a.dueDate ? new Date(a.dueDate).toLocaleDateString() : ""}</td>
+                                      <td>
+                                        {a.status === "active" ? (
+                                          <span className="badge bg-success">{t.active || "Active"}</span>
+                                        ) : a.status === "expired" ? (
+                                          <span className="badge bg-danger">{t.overdue || "Expired"}</span>
+                                        ) : (
+                                          <span className="badge bg-secondary">{t.archiveTab || "Archived"}</span>
+                                        )}
+                                      </td>
+                                      <td>
                                         <button
                                           type="button"
-                                          className="btn btn-sm btn-outline-secondary"
-                                          disabled={archiveBusyId === a.id}
-                                          onClick={() => setArchived(a.id, false)}
+                                          className="btn btn-sm btn-outline-primary"
+                                          onClick={() => openSubmissionsModal(a.id)}
                                         >
-                                          {archiveBusyId === a.id
-                                            ? t.saving || "Saving..."
-                                            : t.restore || "Restore"}
+                                          {t.submissionsBtn}
                                         </button>
-                                      ) : (
+                                      </td>
+                                      <td>{a.submissionsCount}</td>
+                                      <td>
+                                        {a.archived ? (
+                                          <button
+                                            type="button"
+                                            className="btn btn-sm btn-outline-secondary"
+                                            disabled={archiveBusyId === a.id}
+                                            onClick={() => setArchived(a.id, false)}
+                                          >
+                                            {archiveBusyId === a.id
+                                              ? t.saving || "Saving..."
+                                              : t.restore || "Restore"}
+                                          </button>
+                                        ) : (
+                                          <button
+                                            type="button"
+                                            className="btn btn-sm btn-outline-secondary"
+                                            disabled={archiveBusyId === a.id}
+                                            onClick={() => setArchived(a.id, true)}
+                                          >
+                                            {archiveBusyId === a.id
+                                              ? t.saving || "Saving..."
+                                              : t.archive || "Archive"}
+                                          </button>
+                                        )}
+                                      </td>
+                                      <td>
                                         <button
                                           type="button"
-                                          className="btn btn-sm btn-outline-secondary"
-                                          disabled={archiveBusyId === a.id}
-                                          onClick={() => setArchived(a.id, true)}
+                                          className="btn btn-sm btn-outline-danger"
+                                          disabled={deleteBusyId === a.id}
+                                          onClick={() => deleteAssignment(a.id)}
                                         >
-                                          {archiveBusyId === a.id
+                                          {deleteBusyId === a.id
                                             ? t.saving || "Saving..."
-                                            : t.archive || "Archive"}
+                                            : t.deleteLbl || "Delete"}
                                         </button>
-                                      )}
-                                    </td>
-                                    <td>
-                                      <button
-                                        type="button"
-                                        className="btn btn-sm btn-outline-danger"
-                                        disabled={deleteBusyId === a.id}
-                                        onClick={() => deleteAssignment(a.id)}
-                                      >
-                                        {deleteBusyId === a.id
-                                          ? t.saving || "Saving..."
-                                          : t.deleteLbl || "Delete"}
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
                             </tbody>
                           </table>
                         </div>
@@ -606,8 +655,7 @@ export default function Teacher() {
                   <div className="modal-content">
                     <div className="modal-header">
                       <h5 className="modal-title">
-                        {t.submissionsTitle}
-                        {submissionsMeta?.title ? `: ${submissionsMeta.title}` : ""}
+                        {t.gradesFeedbackTable || "Noten & Feedback"}
                       </h5>
                       <button
                         type="button"
@@ -630,14 +678,15 @@ export default function Teacher() {
                         <div className="table-responsive">
                           <table className="table table-sm table-bordered align-middle">
                             <thead>
+
                               <tr>
-                                <th>Student</th>
-                                <th>Time</th>
-                                <th>{t.grade || "Grade"}</th>
-                                <th>{t.filesLbl || "Files"}</th>
-                                <th>{t.textLbl || "Text"}</th>
-                                <th>{t.feedback || "Feedback"}</th>
-                                <th>{t.save || "Save"}</th>
+                                <th>{t.student}</th>
+                                <th>{t.time}</th>
+                                <th>{t.grade}</th>
+                                <th>{t.filesLbl}</th>
+                                <th>{t.textLbl}</th>
+                                <th>{t.feedback}</th>
+                                <th>{t.save}</th>
                               </tr>
                             </thead>
                             <tbody>

@@ -11,6 +11,7 @@ const Student = lazy(() => import("./pages/student"));
 const ChangePassword = lazy(() => import("./pages/ChangePassword"));//new
 const Help = lazy(() => import("./pages/help"));
 
+// --- Routenschutz ---
 function RequireAuth({ children, allowedRoles }) {
 
   // --- Prefer per-tab token (sessionStorage) so multiple accounts can run in parallel ---

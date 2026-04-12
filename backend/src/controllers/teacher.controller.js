@@ -20,7 +20,7 @@ function tryDeleteUploadedFile(filePath) {
 // --- Teacher creates assignment ---
 const createAssignment = async (req, res) => {
   try {
-    const { class: className, subject, title, text, dueDate } = req.body;
+    const { class: className, subject, title, text, dueDate, link } = req.body;
     const teacherId = req.userId;
 
     if (!className || !subject || !dueDate) {
@@ -70,7 +70,6 @@ const createAssignment = async (req, res) => {
       const filePaths = req.files.map(f => ({
         originalName: f.originalname,
         filename: f.filename,
-        path: f.path,
         size: f.size,
         mimetype: f.mimetype,
         uploadDate: new Date().toISOString()
@@ -87,6 +86,7 @@ const createAssignment = async (req, res) => {
       data: {
         title: safeTitle,
         description: safeText,
+        link: typeof link === 'string' ? link : null,
         dueDate: terminDate,
         classId: classObj.id,
         subjectId: subjectObj.id,
@@ -107,6 +107,7 @@ const createAssignment = async (req, res) => {
         id: assignment.id,
         title: assignment.title,
         description: assignment.description,
+        link: assignment.link,
         dueDate: assignment.dueDate,
         class: assignment.class.name,
         subject: assignment.subject.name,
@@ -174,7 +175,9 @@ const getTeacherAssignments = async (req, res) => {
       subject: a.subject ? a.subject.name : '',
       archived: Boolean(a.archived),
       status: a.archived ? 'archived' : (a.dueDate > now ? 'active' : 'expired'),
-      submissionsCount: Array.isArray(a.submissions) ? a.submissions.length : 0
+      submissionsCount: Array.isArray(a.submissions) ? a.submissions.length : 0,
+      link: a.link || '', 
+      attachments: a.attachments ? JSON.parse(a.attachments) : [] 
     }));
 
     return res.json({ success: true, data });

@@ -33,8 +33,6 @@ model User {
   submissions         Submission[]     @relation("StudentSubmissions")
 }
 
-
-
 model UserRole {
   id          Int      @id @default(autoincrement())
   userId      Int
@@ -103,6 +101,7 @@ model Assignment {
   id                  Int       @id @default(autoincrement())
   title               String    @db.VarChar(255)
   description         String    @db.Text
+  link                String?   @db.VarChar(1024) // URL for external resources related to the assignment
   attachments         String?   @db.Text // JSON array storing attachment paths metadata
   dueDate             DateTime  
   archived            Boolean   @default(false)

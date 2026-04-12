@@ -33,19 +33,24 @@ const getAssignments = async (req, res) => {
       return res.json({ success: true, data: [] });
     }
 
-    const assignments = await prisma.assignment.findMany({  // ✅ fix
+    const assignments = await prisma.assignment.findMany({
       where: {
         classId: { in: classIds },
         archived: false,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        dueDate: true,
+        link: true,
+        attachments: true,
         class: true,
         subject: true,
-        teacher: { select: { firstName: true, lastName: true } }
+        teacher: { select: { firstName: true, lastName: true } },
       },
-      orderBy: { dueDate: 'asc' }
+      orderBy: { dueDate: 'asc' },
     });
-
     res.json({ success: true, data: assignments });
 
   } catch (error) {
