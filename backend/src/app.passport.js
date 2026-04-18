@@ -63,36 +63,9 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
                 }
               });
             } else {
-              // 4. Create brand new user if email doesn't exist
-              
-              // Find the 'Student' role to assign it by default
-              const studentRole = await prisma.role.findUnique({ where: { name: 'Student' } });
-              
-              const userData = {
-                firstName: profile.name?.givenName || 'Google',
-                lastName: profile.name?.familyName || 'User',
-                email: email || `${profile.id}@google.oauth`,
-                provider: 'google',
-                oauthId: profile.id,
-              };
-
-              // If Student role exists in db, assign it
-              if (studentRole) {
-                userData.userRoles = {
-                  create: { roleId: studentRole.id }
-                };
-              }
-
-              user = await prisma.user.create({
-                data: userData,
-                include: {
-                  userRoles: {
-                    include: {
-                      role: true
-                    }
-                  }
-                }
-              });
+              // 4. Do NOT create a new user if email doesn't exist
+              // Instead, return an error (user must be pre-created by admin)
+              return done(null, false, { message: 'Account not found. Please contact your administrator.' });
             }
           }
           
