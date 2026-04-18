@@ -1,3 +1,11 @@
+/* Универсальный стиль для кнопок сайдбара (как у студента) */
+.teacher-sidebar button,
+.teacher-sidebar .sidebar-btn,
+.teacher-sidebar .list-group-item,
+.teacher-sidebar .nav-link,
+.teacher-sidebar .btn {
+  border-radius: 12px !important;
+}
 /* Layout wrapper for sidebar */
 .teacher-layout {
   display: flex;
