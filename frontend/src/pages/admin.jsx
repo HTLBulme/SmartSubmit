@@ -234,24 +234,26 @@ export default function UploadUsers() {
             {preview.length > 0 && (
               <>
                 <p className="preview-title">{t.previewTitle || "Preview (first 5 rows)"}</p>
-                <table className="preview-table">
-                  <thead>
-                    <tr>
-                      {Object.keys(preview[0]).map((key) => (
-                        <th key={key}>{getPreviewHeaderLabel(key, t)}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {preview.map((row, i) => (
-                      <tr key={i}>
-                        {Object.values(row).map((val, j) => (
-                          <td key={j}>{val}</td>
+                <div className="table-responsive">
+                  <table className="preview-table">
+                    <thead>
+                      <tr>
+                        {Object.keys(preview[0]).map((key) => (
+                          <th key={key}>{getPreviewHeaderLabel(key, t)}</th>
                         ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {preview.map((row, i) => (
+                        <tr key={i}>
+                          {Object.values(row).map((val, j) => (
+                            <td key={j}>{val}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </>
             )}
 
@@ -273,7 +275,7 @@ export default function UploadUsers() {
             {/* Class filter dropdown */}
             <div className="filter-row">
               <select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)}>
-                <option value="">— Alle Klassen —</option>
+                <option value="">{t.allClasses || "— Alle Klassen —"}</option>
                 {classes.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name} ({c.year})
@@ -283,47 +285,49 @@ export default function UploadUsers() {
             </div>
 
             {/* Students table */}
-            <table className="preview-table">
-              <thead>
-                <tr>
-                  <th>{t.firstName || "Vorname"}</th>
-                  <th>{t.lastName || "Nachname"}</th>
-                  <th>{t.email || "E-Mail"}</th>
-                  <th>{t.classLbl || "Klasse"}</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.length === 0 ? (
+            <div className="table-responsive">
+              <table className="preview-table">
+                <thead>
                   <tr>
-                    <td colSpan={5} style={{ textAlign: "center", color: "#999" }}>
-                      Keine Einträge
-                    </td>
+                    <th>{t.firstName || "Vorname"}</th>
+                    <th>{t.lastName || "Nachname"}</th>
+                    <th>{t.email || "E-Mail"}</th>
+                    <th>{t.classLbl || "Klasse"}</th>
+                    <th></th>
                   </tr>
-                ) : (
-                  students.map((u) => (
-                    <tr key={u.id}>
-                      <td>{u.firstName}</td>
-                      <td>{u.lastName}</td>
-                      <td>{u.email}</td>
-                      <td>
-                        {u.userClasses
-                          .map((uc) => `${uc.class.name} (${uc.class.year})`)
-                          .join(", ")}
-                      </td>
-                      <td>
-                        <button
-                          className="btn-delete"
-                          onClick={() => handleDelete(u.id, setStudents)}
-                        >
-                          🗑
-                        </button>
+                </thead>
+                <tbody>
+                  {students.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: "center", color: "#999" }}>
+                        Keine Einträge
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    students.map((u) => (
+                      <tr key={u.id}>
+                        <td>{u.firstName}</td>
+                        <td>{u.lastName}</td>
+                        <td>{u.email}</td>
+                        <td>
+                          {u.userClasses
+                            .map((uc) => `${uc.class.name} (${uc.class.year})`)
+                            .join(", ")}
+                        </td>
+                        <td>
+                          <button
+                            className="btn-delete"
+                            onClick={() => handleDelete(u.id, setStudents)}
+                          >
+                            🗑
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </>
         )}
 
@@ -345,43 +349,45 @@ export default function UploadUsers() {
             </div>
 
             {/* Teachers table */}
-            <table className="preview-table">
-              <thead>
-                <tr>
-                  <th>{t.firstName || "Vorname"}</th>
-                  <th>{t.lastName || "Nachname"}</th>
-                  <th>{t.email || "E-Mail"}</th>
-                  <th>Fächer</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {teachers.length === 0 ? (
+            <div className="table-responsive">
+              <table className="preview-table">
+                <thead>
                   <tr>
-                    <td colSpan={5} style={{ textAlign: "center", color: "#999" }}>
-                      Keine Einträge
-                    </td>
+                    <th>{t.firstName || "Vorname"}</th>
+                    <th>{t.lastName || "Nachname"}</th>
+                    <th>{t.email || "E-Mail"}</th>
+                    <th>Fächer</th>
+                    <th></th>
                   </tr>
-                ) : (
-                  teachers.map((u) => (
-                    <tr key={u.id}>
-                      <td>{u.firstName}</td>
-                      <td>{u.lastName}</td>
-                      <td>{u.email}</td>
-                      <td>{u.userSubjects.map((us) => us.subject.code).join(", ")}</td>
-                      <td>
-                        <button
-                          className="btn-delete"
-                          onClick={() => handleDelete(u.id, setTeachers)}
-                        >
-                          🗑
-                        </button>
+                </thead>
+                <tbody>
+                  {teachers.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} style={{ textAlign: "center", color: "#999" }}>
+                        Keine Einträge
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    teachers.map((u) => (
+                      <tr key={u.id}>
+                        <td>{u.firstName}</td>
+                        <td>{u.lastName}</td>
+                        <td>{u.email}</td>
+                        <td>{u.userSubjects.map((us) => us.subject.code).join(", ")}</td>
+                        <td>
+                          <button
+                            className="btn-delete"
+                            onClick={() => handleDelete(u.id, setTeachers)}
+                          >
+                            🗑
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </>
         )}
 

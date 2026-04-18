@@ -1,6 +1,7 @@
 ﻿const T = {
   de: {
-      materialsLbl: "Materialien", // NEU: für die Tabelle
+    allClasses: "— Alle Klassen —",
+    materialsLbl: "Materialien", // NEU: für die Tabelle
     // --- Auth & Generic ---
     title: "Anmeldung",
     subtitle: "Bitte melde dich in deinem Konto an",
@@ -283,7 +284,8 @@
   },
 
   en: {
-      materialsLbl: "Materials", // NEW: for the table
+    allClasses: "— All classes —",
+    materialsLbl: "Materials", // NEW: for the table
     // --- Auth & Generic ---
     title: "Login",
     subtitle: "Please sign in to your account",
