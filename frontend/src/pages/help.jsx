@@ -1,7 +1,7 @@
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n"; 
 import { useNavigate } from 'react-router-dom';
-import overviewVideo from "../assets/Overview_Instruction.mp4";
+// import overviewVideo from "../assets/Overview_Instruction.mp4";
 import HomepagePhoto from "../assets/Homepage.png";
 
 
@@ -111,7 +111,7 @@ export default function Help() {
             <div className="card-body">
               <div className="ratio ratio-16x9">
                 <video controls poster={HomepagePhoto}>
-                  <source src={overviewVideo} type="video/mp4" />
+                  <source src="/videos/Overview_Instruction.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
