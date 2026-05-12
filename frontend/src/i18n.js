@@ -154,101 +154,143 @@
       errorLoadingSubmissions: "Fehler beim Laden der Abgaben",
         
     // --- Help page ---
-    helpTitle: "Hilfe & Anleitung",
-    helpBtn: "Hilfe",
-    quickStart: "Schnellstart",
-    forAdmins: "Für Administratoren",
-    forTeachers: "Für Lehrer",
-    forStudents: "Für Schüler",
-    excelImport: "Excel-Import",
-    studentImport: "Schüler importieren",
-    teacherImport: "Lehrer importieren",
-    fileUpload: "Datei-Upload",
-    faq: "Häufig gestellte Fragen (FAQ)",
-    contact: "Kontakt & Support",
-    back: "Zurück",
+    help: {
+        title: "Hilfe & Anleitung",
+        helpBtn: "Hilfe",
+        quickStart: "Schnellstart",
+        forAdmins: "Für Administratoren",
+        forTeachers: "Für Lehrer",
+        forStudents: "Für Schüler",
+        excelImport: "Excel-Import",
+        studentImport: "Schüler importieren",
+        teacherImport: "Lehrer importieren",
+        fileUpload: "Datei-Upload",
+        faq: "Häufig gestellte Fragen (FAQ)",
+        contact: "Kontakt & Support",
+        back: "Zurück",
+        // --- Help Content ---
+        adminSteps: [
+          "Melden Sie sich mit Admin-Zugangsdaten an",
+          "Gehen Sie zum Admin-Panel",
+          "Importieren Sie Schüler und Lehrer über Excel-Dateien",
+          "Benutzer können sich nun mit ihren Zugangsdaten anmelden"
+        ],
+        teacherSteps: [
+          "Melden Sie sich mit Ihren Zugangsdaten an",
+          "Wählen Sie Klasse und Fach aus",
+          "Erstellen Sie eine neue Aufgabe",
+          "Fügen Sie Dateien hinzu (optional)",
+          "Setzen Sie eine Frist und speichern Sie",
+          "Sehen Sie Abgaben unter \"Abgabenliste\""
+        ],
+        studentSteps: [
+          "Melden Sie sich mit Ihren Zugangsdaten an",
+          "Sehen Sie alle zugewiesenen Aufgaben",
+          "Klicken Sie auf eine Aufgabe für Details",
+          "Reichen Sie Ihre Arbeit mit Text und/oder Dateien ein",
+          "Verfolgen Sie Ihre Abgaben im Dashboard"
+        ],
+        columndHint: "Excel-Datei muss folgende Spalten enthalten:",
+        excelStudentColumns: [
+          "vorname: Vorname des Schülers",
+          "nachname: Nachname des Schülers",
+          "email: E-Mail-Adresse (muss eindeutig sein)",
+          "className: Klassenname (z.B. \"5A\" oder \"5A,5B\")",
+          "jahrgang: Jahr (z.B. 2025)"
+        ],
+        excelTeacherColumns: [
+          "vorname: Vorname des Lehrers",
+          "nachname: Nachname des Lehrers",
+          "email: E-Mail-Adresse (muss eindeutig sein)",
+          "className: Klassenname (optional)",
+          "jahrgang: Jahr (optional)",
+          "subjectCode: Fachkürzel (z.B. \"MATH,DE\")"
+        ],
+        // --- Password Hint ---
+        passwordHint:
+          "Hinweis: Anfangspasswort für neue Benutzer ist \"vorname nachname\" in Kleinbuchstaben. Beispiel: Max Mustermann → Passwort: \"maxmustermann\"",
+          // --- File Upload Help ---
+        supportedFormats: "Unterstützte Dateiformate:",
+        fileFormats: [
+          "Dokumente: PDF, DOCX, DOC, TXT",
+          "Tabellen: XLSX, XLS, CSV",
+          "Bilder: JPG, JPEG, PNG, GIF",
+          "Präsentationen: PPTX, PPT",
+          "Andere: ZIP, RAR"
+        ],
+        maxFileSize: [
+          "Maximale Dateigröße:",
+          "5 MB pro Datei"
+        ],
+        multiUpload: [
+          "Mehrere Dateien hochladen:",
+          "Sie können mehrere Dateien gleichzeitig hochladen, indem Sie sie zusammen auswählen oder einzeln hinzufügen."
+        ],
+        videoTutorial: "Videoanleitung",
+        videoTutorialText:
+          "Sehen Sie sich dieses Tutorial an, um SmartSubmit kennenzulernen.",
+        faqPassword: [
+          "Wie ändere ich mein Passwort?",
+          "Klicken Sie oben rechts auf Ihren Namen und wählen Sie „Passwort ändern“."
+        ],
+        faqLate: [
+          "Was passiert, wenn ich die Frist verpasse?",
+          "Sie können die Aufgabe weiterhin abgeben, aber sie wird als verspätet markiert."
+        ],
+        faqEdit: [
+          "Kann ich eine Abgabe nachträglich bearbeiten?",
+          "Nein, nach der Abgabe kann sie nicht mehr bearbeitet werden. Kontaktieren Sie Ihren Lehrer bei Änderungen."
+        ],
+        faqMultiClass: [
+          "Kann ich eine Aufgabe mehreren Klassen zuweisen?",
+          "Als Lehrer können Sie vor dem Erstellen der Aufgabe eine Klasse aus dem Dropdown-Menü auswählen."
+        ],
+        faqStatus: [
+          "Was bedeuten die verschiedenen Status?",
+          "Aktiv: Aufgabe ist noch offen.",
+          "Abgelaufen: Frist ist vorbei.",
+          "Eingereicht: Sie haben bereits abgegeben."
+        ],        
+        // --- Student Panel ---
+        student: "Schüler",
+        time: "Zeit",
+        grade: "Note",
+        filesLbl: "Dateien",
+        textLbl: "Beschreibung",
+        feedback: "Rückmeldung",
+        save: "Speichern",
+        roleStudents: "Schüler",
+        roleTeachers: "Lehrer",
+        welcome: "Willkommen",
+        myAssignments: "Aufgaben",
+        myGrades: "Meine Noten",
+        noAssignments: "Keine Aufgaben vorhanden",
+        noGrades: "Keine Noten verfügbar",
+        assignment: "Aufgabe",
+        dueDate: "Fälligkeitsdatum",
+        status: "Status",
+        submitted: "Eingereicht",
+        notSubmitted: "Nicht eingereicht",
+        active: "Aktiv",
+        gradesFeedbackTable: "Noten & Feedback",
+        overdue: "Überfällig",
+        pendingGrade: "Wird bewertet",
+        submittedText: "Mein Text",
+        submittedFiles: "Meine Dateien",
+        viewDetails: "Details anzeigen",
+        hideDetails: "Details schließen",
+        submitWork: "Abgabe einreichen",
+        submissionClosed: "Abgabe geschlossen (Frist abgelaufen)",
+        submitSuccess: "Abgabe gespeichert",
+        submitError: "Fehler beim Speichern der Abgabe",
+        contactText: [
+          "Bei weiteren Fragen wenden Sie sich bitte an:",
+          "E-Mail: support@smartsubmit.com",
+          "Institution: HTL Bulme"
+        ],
+    },
 
-    // --- Help Content ---
-    adminSteps: [
-      "Melden Sie sich mit Admin-Zugangsdaten an",
-      "Gehen Sie zum Admin-Panel",
-      "Importieren Sie Schüler und Lehrer über Excel-Dateien",
-      "Benutzer können sich nun mit ihren Zugangsdaten anmelden"
-    ],
-    teacherSteps: [
-      "Melden Sie sich mit Ihren Zugangsdaten an",
-      "Wählen Sie Klasse und Fach aus",
-      "Erstellen Sie eine neue Aufgabe",
-      "Fügen Sie Dateien hinzu (optional)",
-      "Setzen Sie eine Frist und speichern Sie",
-      "Sehen Sie Abgaben unter \"Abgabenliste\""
-    ],
-    studentSteps: [
-      "Melden Sie sich mit Ihren Zugangsdaten an",
-      "Sehen Sie alle zugewiesenen Aufgaben",
-      "Klicken Sie auf eine Aufgabe für Details",
-      "Reichen Sie Ihre Arbeit mit Text und/oder Dateien ein",
-      "Verfolgen Sie Ihre Abgaben im Dashboard"
-    ],
-    columndHint: "Excel-Datei muss folgende Spalten enthalten:",
-    excelStudentColumns: [
-      "vorname: Vorname des Schülers",
-      "nachname: Nachname des Schülers",
-      "email: E-Mail-Adresse (muss eindeutig sein)",
-       "className: Klassenname (z.B. \"5A\" oder \"5A,5B\")",
-      "jahrgang: Jahr (z.B. 2025)"
-    ],
-    excelTeacherColumns: [
-      "vorname: Vorname des Lehrers",
-      "nachname: Nachname des Lehrers",
-      "email: E-Mail-Adresse (muss eindeutig sein)",
-       "className: Klassenname (optional)",
-      "jahrgang: Jahr (optional)",
-       "subjectCode: Fachkürzel (z.B. \"MATH,DE\")"
-    ],
-
-    // --- Password Hint ---
-    passwordHint:
-      "Hinweis: Anfangspasswort für neue Benutzer ist \"vorname nachname\" in Kleinbuchstaben. Beispiel: Max Mustermann → Passwort: \"maxmustermann\"",
-    
-      // --- Student Panel ---
-      student: "Schüler",
-      time: "Zeit",
-      grade: "Note",
-      filesLbl: "Dateien",
-      textLbl: "Beschreibung",
-      feedback: "Rückmeldung",
-      save: "Speichern",
-      roleStudents: "Schüler",
-      roleTeachers: "Lehrer",
-      welcome: "Willkommen",
-      myAssignments: "Aufgaben",
-      myGrades: "Meine Noten",
-      noAssignments: "Keine Aufgaben vorhanden",
-      noGrades: "Keine Noten verfügbar",
-      assignment: "Aufgabe",
-      dueDate: "Fälligkeitsdatum",
-      status: "Status",
-      submitted: "Eingereicht",
-      notSubmitted: "Nicht eingereicht",
-      active: "Aktiv",
-      gradesFeedbackTable: "Noten & Feedback",
-      overdue: "Überfällig",
-      pendingGrade: "Wird bewertet",
-      submittedText: "Mein Text",
-      submittedFiles: "Meine Dateien",
-      viewDetails: "Details anzeigen",
-      hideDetails: "Details schließen",
-      submitWork: "Abgabe einreichen",
-      submissionClosed: "Abgabe geschlossen (Frist abgelaufen)",
-      submitSuccess: "Abgabe gespeichert",
-      submitError: "Fehler beim Speichern der Abgabe",
-    contactText: [
-      "Bei weiteren Fragen wenden Sie sich bitte an:",
-      "E-Mail: support@smartsubmit.com",
-      "Institution: HTL Bulme"
-    ],
-
+    // Sidebar
     dashboard: "Dashboard",
     calendar: "Kalender",
     settings: "Einstellungen",
@@ -435,108 +477,111 @@
       errorLoadingSubmissions: "Error loading submissions",
 
     // --- Help page ---
-    helpTitle: "Help & Instructions",
-    helpBtn: "Help",
-    quickStart: "Quick Start",
-    forAdmins: "For Administrators",
-    forTeachers: "For Teachers",
-    forStudents: "For Students",
-    excelImport: "Excel Import",
-    studentImport: "Import Students",
-    teacherImport: "Import Teachers",
-    fileUpload: "File Upload",
-    faq: "Frequently Asked Questions (FAQ)",
-    contact: "Contact & Support",
-    back: "Back",
-
-    // --- Help Content ---
-    adminSteps: [
-      "Log in with admin credentials",
-      "Go to the admin panel",
-      "Import students and teachers via Excel files",
-      "Users can now log in with their credentials"
-    ],
-    teacherSteps: [
-      "Log in with your credentials",
-      "Select class and subject",
-      "Create a new assignment",
-      "Add files (optional)",
-      "Set a deadline and save",
-      "View submissions under \"Submission list\""
-    ],
-    studentSteps: [
-      "Log in with your credentials",
-      "View all assigned tasks",
-      "Click on an assignment for details",
-      "Submit your work with text and/or files",
-      "Track your submissions in the dashboard"
-    ],
-    columndHint: "Excel file must contain the following columns:",
-    excelStudentColumns: [
-      "vorname: First name",
-      "nachname: Last name",
-      "email: Email address (must be unique)",
-      "className: Class name (e.g. \"5A\" or \"5A,5B\")",
-      "jahrgang: Year (e.g. 2025)"
-    ],
-    excelTeacherColumns: [
-      "vorname: First name",
-      "nachname: Last name",
-      "email: Email address (must be unique)",
-      "className: Class name (optional)",
-      "jahrgang: Year (optional)",
-      "subjectCode: Subject code (e.g. \"MATH,DE\")"
-    ],
-
-    // --- Password Hint ---
-    passwordHint:
-      "Note: The initial password for new users is \"firstname lastname\" in lowercase. Example: Max Mustermann → password: \"maxmustermann\"",
+    help: {
+        title: "Help & Instructions",
+        helpBtn: "Help",
+        quickStart: "Quick Start",
+        forAdmins: "For Administrators",
+        forTeachers: "For Teachers",
+        forStudents: "For Students",
+        excelImport: "Excel Import",
+        studentImport: "Import Students",
+        teacherImport: "Import Teachers",
+        fileUpload: "File Upload",
+        faq: "Frequently Asked Questions (FAQ)",
+        contact: "Contact & Support",
+        back: "Back",
+        // --- Help Content ---
+        adminSteps: [
+          "Log in with admin credentials",
+          "Go to the admin panel",
+          "Import students and teachers via Excel files",
+          "Users can now log in with their credentials"
+        ],
+        teacherSteps: [
+          "Log in with your credentials",
+          "Select class and subject",
+          "Create a new assignment",
+          "Add files (optional)",
+          "Set a deadline and save",
+          "View submissions under \"Submission list\""
+        ],
+        studentSteps: [
+          "Log in with your credentials",
+          "View all assigned tasks",
+          "Click on an assignment for details",
+          "Submit your work with text and/or files",
+          "Track your submissions in the dashboard"
+        ],
+        columndHint: "Excel file must contain the following columns:",
+        excelStudentColumns: [
+          "vorname: First name",
+          "nachname: Last name",
+          "email: Email address (must be unique)",
+          "className: Class name (e.g. \"5A\" or \"5A,5B\")",
+          "jahrgang: Year (e.g. 2025)"
+        ],
+        excelTeacherColumns: [
+          "vorname: First name",
+          "nachname: Last name",
+          "email: Email address (must be unique)",
+          "className: Class name (optional)",
+          "jahrgang: Year (optional)",
+          "subjectCode: Subject code (e.g. \"MATH,DE\")"
+        ],
+        // --- Password Hint ---
+        passwordHint:
+          "Note: The initial password for new users is \"firstname lastname\" in lowercase. Example: Max Mustermann → password: \"maxmustermann\"",
+        // --- File Upload Help ---
+        supportedFormats: "Supported file formats:",
+        fileFormats: [
+          "Documents: PDF, DOCX, DOC, TXT",
+          "Spreadsheets: XLSX, XLS, CSV",
+          "Images: JPG, JPEG, PNG, GIF",
+          "Presentations: PPTX, PPT",
+          "Others: ZIP, RAR"
+        ],
+        maxFileSize: [
+          "Maximum file size:",
+          "5 MB per file"
+        ],
+        multiUpload: [
+          "Upload multiple files:",
+          "You can upload multiple files at once by selecting them together or adding them individually."
+        ],
+        videoTutorial: "Video Tutorial",
+        videoTutorialText:
+          "Watch this tutorial to learn how to use SmartSubmit.",
+        faqPassword: [
+          "How do I change my password?",
+          "Click on your name in the top right corner and select \"Change password\"."
+        ],
+        faqLate: [
+          "What happens if I miss the deadline?",
+          "You can still submit the assignment, but it will be marked as late."
+        ], 
+        faqEdit: [
+          "Can I edit a submission after it's been made?",
+          "No, once a submission is made, it cannot be edited. Contact your teacher if you need to make changes."
+        ],
+        faqMultiClass: [
+          "Can I assign an assignment to multiple classes?",
+          "As a teacher, you can select the class from the dropdown before creating an assignment." 
+        ],
+        faqStatus: [
+          "What do the different statuses mean?",
+          "Active: Assignment is still open.",
+          "Expired: Deadline has passed.",
+          "Submitted: You already submitted."
+        ],
+        contactText: [
+          "For further questions please contact:",
+          "E-Mail: support@smartsubmit.com",
+          "Institution: HTL Bulme"
+        ],
+    },
     
-    // --- File Upload Help ---
-    supportedFormats: "Supported file formats:",
-    fileFormats: [
-      "Documents: PDF, DOCX, DOC, TXT",
-      "Spreadsheets: XLSX, XLS, CSV",
-      "Images: JPG, JPEG, PNG, GIF",
-      "Presentations: PPTX, PPT",
-      "Others: ZIP, RAR"
-    ],
-    maxFileSize: [
-      "Maximum file size:",
-      "5 MB per file"
-    ],
-    multiUpload: [
-      "Upload multiple files:",
-      "You can upload multiple files at once by selecting them together or adding them individually."
-    ],
-    faqPassword: [
-      "How do I change my password?",
-      "Click on your name in the top right corner and select \"Change password\"."
-    ],
-    faqLate: [
-      "What happens if I miss the deadline?",
-      "You can still submit the assignment, but it will be marked as late."
-    ], 
-    faqEdit: [
-      "Can I edit a submission after it's been made?",
-      "No, once a submission is made, it cannot be edited. Contact your teacher if you need to make changes."
-    ],
-    faqMultiClass: [
-      "Can I assign an assignment to multiple classes?",
-      "As a teacher, you can select the class from the dropdown before creating an assignment." 
-    ],
-    faqStatus: [
-      "What do the different statuses mean?",
-      "Active: Assignment is still open.",
-      "Expired: Deadline has passed.",
-      "Submitted: You already submitted."
-    ],
-    contactText: [
-      "For further questions please contact:",
-      "E-Mail: support@smartsubmit.com",
-      "Institution: HTL Bulme"
-    ],
-
+    // Sidebar
     dashboard: "Dashboard",
     calendar: "Calendar",
     settings: "Settings",
