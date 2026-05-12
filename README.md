@@ -120,7 +120,7 @@ flowchart TB
 
     B["Express.js Backend<br/>(port 3000/8080)"]
 
-    B1["Routes<br/>(Login, Register, Admin, Teacher,<br/>Student, Classes, Subjects)"]
+    B1["Routes<br/>(Login, Register, User, Role,<br/>Class, Subject, Assignment, Submission)"]
 
     B2["Controllers<br/>(Business Logic)"]
 
@@ -130,7 +130,7 @@ flowchart TB
 
     C["MySQL Database<br/>(port 3306/3307)"]
 
-    C1["Tables:<br/>Benutzer, Rolle, Klasse, Fach,<br/>Aufgabe, Abgabe"]
+    C1["Tables:<br/>User, Role, Class, Subject,<br/>UserRole, UserClass, UserSubject,<br/>Assignment, Submission"]
 
     A -->|"HTTP / HTTPS"| B
 
@@ -177,7 +177,7 @@ graph TD
     A --> C[backend]
     C --> C1[src]
 
-    C1 --> C11[controllers]
+    C1 --> C11[contRollrs]
     C11 --> C111[login.controller.js]
     C11 --> C112[register.controller.js]
     C11 --> C113[admin.controller.js]
@@ -545,15 +545,15 @@ Note: Empty value uses same origin (relative URLs)
 #### 2. Import Students
 
 Prepare Excel file with columns:
-- vorname (First Name)
-- nachname (Last Name)
+- firstName (First Name)
+- lastName (Last Name)
 - email (Email)
-- klasse (Class, e.g., "5A" or multiple: "5A,5B")
+- Class (Class, e.g., "5A" or multiple: "5A,5B")
 - jahrgang (Year, e.g., 2025)
 
 **Example:**
 
-| vorname | nachname | email | klasse | jahrgang |
+| firstName | lastName | email | Class | jahrgang |
 |---------|----------|-------|--------|----------|
 | Max | Mustermann | max@school.com | 5A | 2025 |
 | Anna | Schmidt | anna@school.com | 5B | 2025 |
@@ -567,10 +567,10 @@ Steps:
 #### 3. Import Teachers
 
 Prepare Excel file with columns:
-- vorname (First Name)
-- nachname (Last Name)
+- firstName (First Name)
+- lastName (Last Name)
 - email (Email)
-- klasse (Class, optional)
+- Class (Class, optional)
 - jahrgang (Year, optional)
 - fach_kuerzel (Subject code, e.g., "MATH,DE")
 
@@ -680,7 +680,7 @@ Content-Type: application/json
 
 {
   "email": "user@example.com",
-  "passwort": "password123",
+  "password": "password123",
   "role": "Admin"
 }
 ```
@@ -775,132 +775,102 @@ Authorization: Bearer <token>
 ### Entity Relationship Diagram
 
 ```mermaid
-erDiagram
+flowchart TB
 
-    Benutzer {
-        int id PK
-        string vorname
-        string nachname
-        string email
-        string passwort
-        datetime erstellt_am
-        boolean aktiv
-    }
+    %% =====================
+    %% CORE ENTITIES
+    %% =====================
 
-    Rolle {
-        int id PK
-        string bezeichnung
-        string beschreibung
-    }
+    User["User<br/>id, firstName, lastName, email, active"]
 
-    Klasse {
-        int id PK
-        string name
-        int jahrgang
-    }
+    Role["Role<br/>id, name, description"]
 
-    Fach {
-        int id PK
-        string name
-        string kuerzel
-    }
+    Class["Class<br/>id, name, year"]
 
-    Benutzer_Rolle {
-        int id PK
-        int benutzer_id FK
-        int rolle_id FK
-    }
+    Subject["Subject<br/>id, name, code"]
 
-    Benutzer_Fach {
-        int id PK
-        int benutzer_id FK
-        int fach_id FK
-    }
+    Assignment["Assignment<br/>id, title, dueDate, classId, subjectId, teacherId"]
 
-    Benutzer_Klasse {
-        int id PK
-        int benutzer_id FK
-        int klasse_id FK
-    }
+    Submission["Submission<br/>id, assignmentId, studentId, grade"]
 
-    Aufgabe {
-        int id PK
-        string titel
-        string beschreibung
-        string anhaenge
-        datetime termin
-        int klasse_id FK
-        int fach_id FK
-        int lehrer_id FK
-        datetime erstellt_am
-    }
+    %% =====================
+    %% JUNCTION TABLES
+    %% =====================
 
-    Abgabe {
-        int id PK
-        int aufgabe_id FK
-        int schueler_id FK
-        string dateien
-        datetime zeitpunkt
-        string bewertung
-        string feedback
-    }
+    UserRole["UserRole<br/>userId, roleId"]
 
-    Benutzer ||--|| Benutzer_Rolle : hat
-    Rolle ||--|| Benutzer_Rolle : besitzt
+    UserClass["UserClass<br/>userId, classId"]
 
-    Benutzer ||--|| Benutzer_Fach : belegt
-    Fach ||--|| Benutzer_Fach : gehoert_zu
+    UserSubject["UserSubject<br/>userId, subjectId"]
 
-    Benutzer ||--|| Benutzer_Klasse : ist_in
-    Klasse ||--|| Benutzer_Klasse : enthaelt
+    %% =====================
+    %% RELATIONSHIPS
+    %% =====================
 
-    Klasse ||--|| Aufgabe : bekommt
-    Fach ||--|| Aufgabe : betrifft
-    Benutzer ||--|| Aufgabe : erstellt
+    User --> UserRole
+    Role --> UserRole
 
-    Aufgabe ||--|| Abgabe : hat
-    Benutzer ||--|| Abgabe : sendet
+    User --> UserClass
+    Class --> UserClass
+
+    User --> UserSubject
+    Subject --> UserSubject
+
+    User -->|"teacherId"| Assignment
+    Class --> Assignment
+    Subject --> Assignment
+
+    Assignment --> Submission
+    User -->|"studentId"| Submission
 ```
 
 ### Table Descriptions
 
-#### Benutzer (Users)
+#### User
 
 Stores all system users (admins, teachers, students).
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | INT | Primary key |
-| vorname | VARCHAR(255) | First name |
-| nachname | VARCHAR(255) | Last name |
+| firstName | VARCHAR(255) | First name |
+| lastName | VARCHAR(255) | Last name |
 | email | VARCHAR(255) | Unique email address |
-| passwort_hash | VARCHAR(255) | Hashed password |
-| erstellt_am | DATETIME | Creation timestamp |
-| aktiv | BOOLEAN | Active status |
+| passwordHash | VARCHAR(255) | Hashed password |
+| provider | VARCHAR(50) | OAuth provider (optional) |
+| oauthId | VARCHAR(255) | OAuth user ID (optional) |
+| createdAt | DATETIME | Creation timestamp |
+| active | BOOLEAN | Active status |
 
-#### Rolle (Roles)
+---
+
+#### Role
 
 Defines user roles in the system.
 
 | Column | Type | Description |
 |--------|------|-------------|
-| id | INT | Primary key (1=Student, 2=Teacher, 3=Admin) |
-| bezeichnung | VARCHAR(255) | Role name |
-| beschreibung | TEXT | Role description |
+| id | INT | Primary key |
+| name | VARCHAR(255) | Role name |
+| description | TEXT | Role description |
 
-#### Klasse (Classes)
+---
+
+#### Class
 
 Stores school classes.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | INT | Primary key |
-| name | VARCHAR(50) | Class name (e.g., "5A") |
-| jahrgang | INT | Year (e.g., 2025) |
+| name | VARCHAR(50) | Class name (e.g. "5A") |
+| year | INT | School year |
 
-Unique constraint: (name, jahrgang)
+**Unique constraint:** (name, year)
 
-#### Fach (Subjects)
+---
+
+#### Subject
 
 Stores school subjects.
 
@@ -908,39 +878,88 @@ Stores school subjects.
 |--------|------|-------------|
 | id | INT | Primary key |
 | name | VARCHAR(255) | Subject name |
-| kuerzel | VARCHAR(255) | Subject code (unique) |
+| code | VARCHAR(255) | Unique subject code |
 
-#### Aufgabe (Assignments)
+---
+
+#### UserRole
+
+Many-to-many relation between users and roles.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| userId | INT | FK → User |
+| roleId | INT | FK → Role |
+
+**Unique constraint:** (userId, roleId)
+
+---
+
+#### UserClass
+
+Many-to-many relation between users and classes.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| userId | INT | FK → User |
+| classId | INT | FK → Class |
+
+**Unique constraint:** (userId, classId)
+
+---
+
+#### UserSubject
+
+Many-to-many relation between users and subjects.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| userId | INT | FK → User |
+| subjectId | INT | FK → Subject |
+
+**Unique constraint:** (userId, subjectId)
+
+---
+
+#### Assignment
 
 Stores teacher-created assignments.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | INT | Primary key |
-| titel | VARCHAR(255) | Assignment title |
-| beschreibung | TEXT | Assignment description |
-| anhaenge | TEXT | Attached files (JSON) |
-| termin | DATETIME | Due date |
-| klasse_id | INT | Foreign key to Klasse |
-| fach_id | INT | Foreign key to Fach |
-| lehrer_id | INT | Foreign key to Benutzer (teacher) |
-| erstellt_am | DATETIME | Creation timestamp |
+| title | VARCHAR(255) | Assignment title |
+| description | TEXT | Assignment description |
+| link | VARCHAR(1024) | External resource link |
+| attachments | TEXT | JSON metadata of attachments |
+| dueDate | DATETIME | Due date |
+| archived | BOOLEAN | Archived status |
+| classId | INT | FK → Class |
+| subjectId | INT | FK → Subject |
+| teacherId | INT | FK → User (teacher) |
+| createdAt | DATETIME | Creation timestamp |
 
-#### Abgabe (Submissions)
+---
+
+#### Submission
 
 Stores student submissions.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | INT | Primary key |
-| aufgabe_id | INT | Foreign key to Aufgabe |
-| schueler_id | INT | Foreign key to Benutzer (student) |
-| dateien | TEXT | Submitted files (JSON) |
-| abgabe_zeitpunkt | DATETIME | Submission timestamp |
-| bewertung | INT | Grade (0-100) |
+| assignmentId | INT | FK → Assignment |
+| studentId | INT | FK → User (student) |
+| files | TEXT | JSON file metadata |
+| text | TEXT | Optional text submission |
+| submittedAt | DATETIME | Submission timestamp |
+| grade | INT | Grade (0–100) |
 | feedback | TEXT | Teacher feedback |
 
-Unique constraint: (aufgabe_id, schueler_id)
+**Unique constraint:** (assignmentId, studentId)
 
 ---
 
