@@ -548,21 +548,21 @@ Prepare Excel file with columns:
 - firstName (First Name)
 - lastName (Last Name)
 - email (Email)
-- Class (Class, e.g., "5A" or multiple: "5A,5B")
-- jahrgang (Year, e.g., 2025)
+- class (Class, e.g., "5A" or multiple: "5A,5B")
+- year (Year, e.g., 2025)
 
 **Example:**
 
-| firstName | lastName | email | Class | jahrgang |
+| firstName | lastName | email | class | year |
 |---------|----------|-------|--------|----------|
 | Max | Mustermann | max@school.com | 5A | 2025 |
 | Anna | Schmidt | anna@school.com | 5B | 2025 |
 
 Steps:
 1. Go to Admin panel
-2. Select "Schüler" (Students)
+2. Select "Students"
 3. Click "Choose File" and select Excel
-4. Click "Daten hochladen" (Upload Data)
+4. Click "Upload Data"
 
 #### 3. Import Teachers
 
@@ -570,9 +570,9 @@ Prepare Excel file with columns:
 - firstName (First Name)
 - lastName (Last Name)
 - email (Email)
-- Class (Class, optional)
-- jahrgang (Year, optional)
-- fach_kuerzel (Subject code, e.g., "MATH,DE")
+- class (Class, optional)
+- year (Year, optional)
+- subject_code (Subject code, e.g., "MATH,DE")
 
 Initial passwords: `firstnamelastname` (lowercase)
 
@@ -591,11 +591,11 @@ Users must change password on first login.
 5. Write assignment description
 6. Upload files if needed (PDF, DOCX, etc.)
 7. Set deadline
-8. Click "Aufgabe speichern" (Save Assignment)
+8. Click "Save Assignment"
 
 #### 2. View Assignments
 
-1. Click "Aufgabenliste" (Assignment List)
+1. Click "Assignment List" (Assignment List)
 2. View all created assignments
 3. See submission count
 4. Check deadline status (active/expired)
@@ -603,7 +603,7 @@ Users must change password on first login.
 #### 3. View Submissions
 
 1. Find assignment in list
-2. Click "Abgabenliste" (Submissions)
+2. Click "Submissions"
 3. View student submissions
 4. Download submitted files
 
@@ -621,12 +621,12 @@ Users must change password on first login.
 1. Click on assignment
 2. Write submission text
 3. Upload files if required
-4. Click "Abgeben" (Submit)
+4. Click "Submit"
 5. Confirmation message appears
 
 #### 3. Track Submissions
 
-1. Go to "Meine Abgaben" (My Submissions)
+1. Go to "My Submissions" (My Submissions)
 2. View submission history
 3. Check submission status
 4. Download your submitted files
@@ -992,7 +992,7 @@ npm start
 
 #### 3. Upload Fails in Docker
 
-**Problem:** Serverfehler when uploading files
+**Problem:** Server error when uploading files
 
 **Solutions:**
 - Check frontend API URL is correct (empty for Docker)
@@ -1018,7 +1018,7 @@ docker compose restart db
 
 #### 5. 403 Forbidden on Admin Routes
 
-**Problem:** Nur für Admins error
+**Problem:** Admins only error
 
 **Solution:**
 - Create admin user in Docker database
