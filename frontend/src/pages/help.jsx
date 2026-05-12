@@ -1,8 +1,6 @@
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n"; 
 import { useNavigate } from 'react-router-dom';
-// import overviewVideo from "../assets/Overview_Instruction.mp4";
-import HomepagePhoto from "../assets/Homepage.png";
 
 
 
@@ -101,20 +99,6 @@ export default function Help() {
                 <p>{t.maxFileSize[1] || "5 MB per file"}</p>
               <h4>{t.multiUpload[0] || "Upload multiple files:"}</h4>
                 <p>{t.multiUpload[1] || "You can upload multiple files at once by selecting them together or adding them individually."}</p>
-            </div>
-          </div>
-
-          <div className="card mb-4">
-            <div className="card-header bg-dark text-white">
-              <h3>{t.videoTutorial || "Video Tutorial"}</h3>
-            </div>
-            <div className="card-body">
-              <div className="ratio ratio-16x9">
-                <video controls poster={HomepagePhoto}>
-                  <source src="/videos/Overview_Instruction.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
             </div>
           </div>
 
