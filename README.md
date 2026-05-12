@@ -113,91 +113,98 @@ SmartSubmit is a modern web-based assignment management system designed for educ
 
 ### High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    Client Browser                   │
-│              (React SPA on port 5173/8080)          │
-└─────────────────────────────────────────────────────┘
-                          │
-                          │ HTTP/HTTPS
-                          ▼
-┌─────────────────────────────────────────────────────┐
-│                  Express.js Backend                 │
-│                    (port 3000/8080)                 │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Routes (Login, Register, Admin, Teacher,      │ │
-│  │          Student, Classes, Subjects)           │ │
-│  └────────────────────────────────────────────────┘ │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Controllers (Business Logic)                  │ │
-│  └────────────────────────────────────────────────┘ │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Middleware (Auth, File Upload)                │ │
-│  └────────────────────────────────────────────────┘ │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Prisma ORM (Database Access)                  │ │
-│  └────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
-                          │
-                          │ MySQL Protocol
-                          ▼
-┌─────────────────────────────────────────────────────┐
-│                  MySQL Database                     │
-│                    (port 3306/3307)                 │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Tables: Benutzer, Rolle, Klasse, Fach,        │ │
-│  │          Aufgabe, Abgabe                       │ │
-│  └────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+
+    A["Client Browser<br/>(React SPA on port 5173/8080)"]
+
+    B["Express.js Backend<br/>(port 3000/8080)"]
+
+    B1["Routes<br/>(Login, Register, Admin, Teacher,<br/>Student, Classes, Subjects)"]
+
+    B2["Controllers<br/>(Business Logic)"]
+
+    B3["Middleware<br/>(Auth, File Upload)"]
+
+    B4["Prisma ORM<br/>(Database Access)"]
+
+    C["MySQL Database<br/>(port 3306/3307)"]
+
+    C1["Tables:<br/>Benutzer, Rolle, Klasse, Fach,<br/>Aufgabe, Abgabe"]
+
+    A -->|"HTTP / HTTPS"| B
+
+    B --> B1
+    B --> B2
+    B --> B3
+    B --> B4
+
+    B -->|"MySQL Protocol"| C
+
+    C --> C1
 ```
 
 ### Project Structure
 
-```
-SmartSubmit/
-├── frontend/                  # React frontend application
-│   ├── src/
-│   │   ├── pages/            # Page components
-│   │   │   ├── login.jsx
-│   │   │   ├── register.jsx
-│   │   │   ├── admin.jsx
-│   │   │   ├── teacher.jsx
-│   │   │   └── student.jsx
-│   │   ├── context/          # React Context
-│   │   │   └── LanguageContext.jsx
-│   │   ├── i18n/             # Translations
-│   │   │   └── index.js
-│   │   ├── App.jsx           # Main app component
-│   │   └── main.jsx          # Entry point
-│   ├── public/               # Static assets
-│   ├── package.json
-│   └── vite.config.js
-│
-├── backend/                   # Node.js backend application
-│   ├── src/                  # Refactored modular structure
-│   │   ├── controllers/      # Business logic
-│   │   │   ├── login.controller.js
-│   │   │   ├── register.controller.js
-│   │   │   ├── admin.controller.js
-│   │   │   ├── teacher.controller.js
-│   │   │   └── student.controller.js
-│   │   ├── main.js           # Server entry point
-│   │   ├── app.config.js     # Configuration & Prisma
-│   │   ├── app.routes.js     # Route definitions
-│   │   ├── app.middleware.js # Authentication middleware
-│   │   └── app.utils.js      # Utility functions
-│   ├── prisma/               # Database schema & migrations
-│   │   ├── schema.prisma     # Database schema
-│   │   ├── migrations/       # Migration history
-│   │   └── seed.js           # Database seeding
-│   ├── uploads/              # File upload directory
-│   │   └── assignments/      # Assignment files
-│   ├── package.json
-│   └── .env                  # Environment variables
-│
-├── docker-compose.yml        # Docker orchestration
-├── Dockerfile                # Backend container definition
-└── README.md
+```mermaid
+graph TD
+    A[SmartSubmit]
+
+    %% Frontend
+    A --> B[frontend]
+    B --> B1[src]
+    B1 --> B11[pages]
+    B11 --> B111[login.jsx]
+    B11 --> B112[register.jsx]
+    B11 --> B113[admin.jsx]
+    B11 --> B114[teacher.jsx]
+    B11 --> B115[student.jsx]
+
+    B1 --> B12[context]
+    B12 --> B121[LanguageContext.jsx]
+
+    B1 --> B13[i18n]
+    B13 --> B131[index.js]
+
+    B1 --> B14[App.jsx]
+    B1 --> B15[main.jsx]
+
+    B --> B2[public]
+    B --> B3[package.json]
+    B --> B4[vite.config.js]
+
+    %% Backend
+    A --> C[backend]
+    C --> C1[src]
+
+    C1 --> C11[controllers]
+    C11 --> C111[login.controller.js]
+    C11 --> C112[register.controller.js]
+    C11 --> C113[admin.controller.js]
+    C11 --> C114[teacher.controller.js]
+    C11 --> C115[student.controller.js]
+
+    C1 --> C12[main.js]
+    C1 --> C13[app.config.js]
+    C1 --> C14[app.routes.js]
+    C1 --> C15[app.middleware.js]
+    C1 --> C16[app.utils.js]
+
+    C --> C2[prisma]
+    C2 --> C21[schema.prisma]
+    C2 --> C22[migrations]
+    C2 --> C23[seed.js]
+
+    C --> C3[uploads]
+    C3 --> C31[assignments]
+
+    C --> C4[package.json]
+    C --> C5[.env]
+
+    %% Root files
+    A --> D[docker-compose.yml]
+    A --> E[Dockerfile]
+    A --> F[README.md]
 ```
 
 ---
@@ -767,51 +774,92 @@ Authorization: Bearer <token>
 
 ### Entity Relationship Diagram
 
-```
-┌─────────────┐       ┌─────────────┐       ┌─────────────┐
-│   Benutzer  │       │    Rolle    │       │   Klasse    │
-├─────────────┤       ├─────────────┤       ├─────────────┤
-│ id (PK)     │       │ id (PK)     │       │ id (PK)     │
-│ vorname     │       │ bezeichnung │       │ name        │
-│ nachname    │       │ beschreibung│       │ jahrgang    │
-│ email (UQ)  │       └─────────────┘       └─────────────┘
-│ passwort    │              ▲                     ▲
-│ erstellt_am │              │                     │
-│ aktiv       │              │                     │
-└─────────────┘              │                     │
-      │                      │                     │
-      ├──────────────────────┼─────────────────────┤
-      ▼                      ▼                     ▼
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│Benutzer_Rolle│    │Benutzer_Fach │    │Benutzer_Klasse│
-├──────────────┤    ├──────────────┤    ├──────────────┤
-│ id (PK)      │    │ id (PK)      │    │ id (PK)      │
-│ benutzer_id  │    │ benutzer_id  │    │ benutzer_id  │
-│ rolle_id     │    │ fach_id      │    │ klasse_id    │
-└──────────────┘    └──────────────┘    └──────────────┘
-                            ▲
-                            │
-                    ┌───────────────┐
-                    │     Fach      │
-                    ├───────────────┤
-                    │ id (PK)       │
-                    │ name          │
-                    │ kuerzel (UQ)  │
-                    └───────────────┘
+```mermaid
+erDiagram
 
-┌─────────────┐              ┌─────────────┐
-│   Aufgabe   │              │   Abgabe    │
-├─────────────┤              ├─────────────┤
-│ id (PK)     │◄─────────────│ aufgabe_id  │
-│ titel       │              │ schueler_id │
-│ beschreibung│              │ dateien     │
-│ anhaenge    │              │ zeitpunkt   │
-│ termin      │              │ bewertung   │
-│ klasse_id   │              │ feedback    │
-│ fach_id     │              └─────────────┘
-│ lehrer_id   │
-│ erstellt_am │
-└─────────────┘
+    Benutzer {
+        int id PK
+        string vorname
+        string nachname
+        string email
+        string passwort
+        datetime erstellt_am
+        boolean aktiv
+    }
+
+    Rolle {
+        int id PK
+        string bezeichnung
+        string beschreibung
+    }
+
+    Klasse {
+        int id PK
+        string name
+        int jahrgang
+    }
+
+    Fach {
+        int id PK
+        string name
+        string kuerzel
+    }
+
+    Benutzer_Rolle {
+        int id PK
+        int benutzer_id FK
+        int rolle_id FK
+    }
+
+    Benutzer_Fach {
+        int id PK
+        int benutzer_id FK
+        int fach_id FK
+    }
+
+    Benutzer_Klasse {
+        int id PK
+        int benutzer_id FK
+        int klasse_id FK
+    }
+
+    Aufgabe {
+        int id PK
+        string titel
+        string beschreibung
+        string anhaenge
+        datetime termin
+        int klasse_id FK
+        int fach_id FK
+        int lehrer_id FK
+        datetime erstellt_am
+    }
+
+    Abgabe {
+        int id PK
+        int aufgabe_id FK
+        int schueler_id FK
+        string dateien
+        datetime zeitpunkt
+        string bewertung
+        string feedback
+    }
+
+    Benutzer ||--|| Benutzer_Rolle : hat
+    Rolle ||--|| Benutzer_Rolle : besitzt
+
+    Benutzer ||--|| Benutzer_Fach : belegt
+    Fach ||--|| Benutzer_Fach : gehoert_zu
+
+    Benutzer ||--|| Benutzer_Klasse : ist_in
+    Klasse ||--|| Benutzer_Klasse : enthaelt
+
+    Klasse ||--|| Aufgabe : bekommt
+    Fach ||--|| Aufgabe : betrifft
+    Benutzer ||--|| Aufgabe : erstellt
+
+    Aufgabe ||--|| Abgabe : hat
+    Benutzer ||--|| Abgabe : sendet
 ```
 
 ### Table Descriptions
