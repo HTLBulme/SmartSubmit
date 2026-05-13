@@ -8,3 +8,6 @@ backend/node_modules/
 frontend/node_modules/
 
 .*pdf
+
+prisma/seed.js
+prisma/seed.server.js
