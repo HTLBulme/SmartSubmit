@@ -117,6 +117,8 @@
     submissionClosed: "Abgabe geschlossen (Frist abgelaufen)",
     submitSuccess: "Abgabe gespeichert",
     submitError: "Fehler beim Speichern der Abgabe",
+    notifyWhenGraded: "Bei Bewertung benachrichtigen",
+    notifyWhenGradedDesc: "Standardmäßig aktiviert. Deaktiviere es, um keine E-Mail zu erhalten.",
 
     // --- Password Change (New) ---
     changePassword: "Passwort ändern",
@@ -440,8 +442,8 @@
     submitWork: "Submit Work",
     submissionClosed: "Submission closed (deadline passed)",
     submitSuccess: "Submission saved",
-    submitError: "Failed to save submission",
-
+    submitError: "Failed to save submission",    notifyWhenGraded: "Notify me when graded",
+    notifyWhenGradedDesc: "Enabled by default. Uncheck to skip the email notification.",
     // --- Password Change (New) ---
     changePassword: "Change Password",
     changePasswordTitle: "Change Password",

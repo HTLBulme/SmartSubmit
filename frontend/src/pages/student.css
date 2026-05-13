@@ -348,6 +348,31 @@
   color-scheme: light;
 }
 
+.submission-notify-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.submission-notify-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.submission-notify-label input {
+  width: 1rem;
+  height: 1rem;
+}
+
+.submission-notify-hint {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
 .submission-files {
   width: 100%;
   margin-bottom: 0.5rem;

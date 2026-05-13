@@ -47,6 +47,26 @@ async function ensureStudentRole(studentId) {
   return Boolean(isStudent);
 }
 
+const NOTIFY_FLAG_REGEX = /\s*\[notifyOnGrade:(true|false)\]\s*$/i;
+
+function stripNotifyMarker(text) {
+  if (typeof text !== 'string' || text.trim() === '') return '';
+  return text.replace(NOTIFY_FLAG_REGEX, '').trim();
+}
+
+function parseNotifyFlag(text) {
+  if (typeof text !== 'string') return true;
+  const match = text.match(NOTIFY_FLAG_REGEX);
+  if (!match) return true;
+  return match[1].toLowerCase() === 'true';
+}
+
+function buildSubmissionText(text, notifyWhenGraded) {
+  const cleaned = stripNotifyMarker(text || '');
+  const marker = `[notifyOnGrade:${notifyWhenGraded ? 'true' : 'false'}]`;
+  return cleaned ? `${cleaned}\n${marker}` : marker;
+}
+
 // == Get all assignments for a student
 const getAssignments = async (req, res) => {
   try {
@@ -149,8 +169,10 @@ const submitAssignment = async (req, res) => {
     }
 
     const files = Array.isArray(req.files) ? req.files : [];
-    const cleanText = typeof text === 'string' ? text.trim() : '';
+    const rawText = typeof text === 'string' ? text.trim() : '';
+    const cleanText = stripNotifyMarker(rawText);
     const hasText = cleanText.length > 0;
+    const notifyWhenGraded = req.body.notifyWhenGraded === 'false' || req.body.notifyWhenGraded === '0' ? false : true;
 
     if (!hasText && files.length === 0) {
       return res.status(400).json({
@@ -173,13 +195,15 @@ const submitAssignment = async (req, res) => {
       select: { id: true }
     });
 
+    const submissionText = buildSubmissionText(cleanText, notifyWhenGraded);
+
     const saved = existing
       ? await prisma.submission.update({  // ✅ fix
           where: { id: existing.id },
           data: {
             submittedAt: new Date(),
             files: JSON.stringify(fileMeta),
-            text: hasText ? cleanText : null,
+            text: submissionText,
             grade: null,
             feedback: null
           }
@@ -190,7 +214,7 @@ const submitAssignment = async (req, res) => {
             studentId: studentId,
             submittedAt: new Date(),
             files: JSON.stringify(fileMeta),
-            text: hasText ? cleanText : null,
+            text: submissionText,
             grade: null,
             feedback: null
           }
@@ -255,7 +279,8 @@ const getMySubmissions = async (req, res) => {
       if (typeof row.files === 'string' && row.files.trim() !== '') {
         try { parsed = JSON.parse(row.files); } catch (error) { console.error('Error parsing files:', error); }
       }
-      return { ...row, files: parsed };
+      const cleanedText = stripNotifyMarker(row.text || '');
+      return { ...row, files: parsed, text: cleanedText };
     });
 
     return res.json({ success: true, data, message: 'Submissions loaded' });

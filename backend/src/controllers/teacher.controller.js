@@ -4,6 +4,15 @@ const { prisma } = require('../app.config');
 const { sendGradeNotification } = require('../app.email');
 
 const UPLOADS_ROOT = path.resolve(__dirname, '..', '..', 'uploads');
+const NOTIFY_FLAG_REGEX = /\s*\[notifyOnGrade:(true|false)\]\s*$/i;
+
+function parseNotifyFlag(text) {
+  if (typeof text !== 'string') return true;
+  const match = text.match(NOTIFY_FLAG_REGEX);
+  if (!match) return true;
+  return match[1].toLowerCase() === 'true';
+}
+
 
 function tryDeleteUploadedFile(filePath) {
   if (typeof filePath !== 'string' || filePath.trim() === '') return;
@@ -320,7 +329,8 @@ const gradeSubmission = async (req, res) => {
         select: { title: true }
       });
 
-      if (student && student.email && assignment) {
+      const shouldNotify = parseNotifyFlag(updated.text);
+      if (shouldNotify && student && student.email && assignment) {
         const studentName = `${student.firstName} ${student.lastName}`.trim();
         await sendGradeNotification(student.email, studentName, assignment.title, updated.grade, updated.feedback);
       }

@@ -60,6 +60,7 @@ export default function StudentDashboard() {
   const [submitMessage, setSubmitMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOver, setIsOver] = useState(false);
+  const [notifyWhenGraded, setNotifyWhenGraded] = useState(true);
 
   const [activeView, setActiveView] = useState("dashboard");
 
@@ -285,6 +286,7 @@ export default function StudentDashboard() {
     setSubmitFiles([]);
     setSubmitMessage("");
     setIsOver(false);
+    setNotifyWhenGraded(true);
   }, [expandedAssignmentId]);
 
   const addFiles = (fileList) => {
@@ -314,6 +316,7 @@ export default function StudentDashboard() {
       const fd = new FormData();
       fd.append("assignmentId", String(assignmentId));
       fd.append("text", submitText);
+      fd.append("notifyWhenGraded", String(notifyWhenGraded));
       submitFiles.forEach((file) => fd.append("files", file));
 
       const res = await axios.post(`${API_URL}/api/student/submit`, fd, {
@@ -506,6 +509,20 @@ export default function StudentDashboard() {
                                       placeholder={t.textLbl || "Text"}
                                       onChange={(e) => setSubmitText(e.target.value)}
                                     />
+
+                                    <div className="submission-notify-row">
+                                      <label className="submission-notify-label">
+                                        <input
+                                          type="checkbox"
+                                          checked={notifyWhenGraded}
+                                          onChange={(e) => setNotifyWhenGraded(e.target.checked)}
+                                        />
+                                        <span>{t.notifyWhenGraded || "Bei Bewertung benachrichtigen"}</span>
+                                      </label>
+                                      <div className="submission-notify-hint">
+                                        {t.notifyWhenGradedDesc || "Standardmäßig aktiviert. Deaktiviere es, um keine E-Mail zu erhalten."}
+                                      </div>
+                                    </div>
 
                                     <div
                                       className={`student-dnd-zone ${isOver ? "over" : ""}`}
