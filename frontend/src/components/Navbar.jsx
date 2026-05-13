@@ -60,7 +60,7 @@ export default function Navbar() {
 
             {/* Help button */}
             <Link to="/help" className="app-nav-btn">
-              {t.helpBtn || "Help"}
+              {t.help?.helpBtn || "Help"}
             </Link>
           </>
         )}

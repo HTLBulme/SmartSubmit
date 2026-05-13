@@ -113,91 +113,101 @@ SmartSubmit ist ein modernes webbasiertes Aufgabenverwaltungssystem für Bildung
 
 ### Hochstufige Architektur
 
-```
-┌─────────────────────────────────────────────────────┐
-│                  Client-Browser                     │
-│              (React SPA auf Port 5173/8080)         │
-└─────────────────────────────────────────────────────┘
-                          │
-                          │ HTTP/HTTPS
-                          ▼
-┌─────────────────────────────────────────────────────┐
-│                  Express.js Backend                 │
-│                    (Port 3000/8080)                 │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Routen (Login, Register, Admin, Lehrer,       │ │
-│  │          Schüler, Klassen, Fächer)             │ │
-│  └────────────────────────────────────────────────┘ │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Controller (Geschäftslogik)                   │ │
-│  └────────────────────────────────────────────────┘ │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Middleware (Auth, Datei-Upload)               │ │
-│  └────────────────────────────────────────────────┘ │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Prisma ORM (Datenbankzugriff)                 │ │
-│  └────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
-                          │
-                          │ MySQL-Protokoll
-                          ▼
-┌─────────────────────────────────────────────────────┐
-│                  MySQL-Datenbank                    │
-│                    (Port 3306/3307)                 │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Tabellen: Benutzer, Rolle, Klasse, Fach,      │ │
-│  │            Aufgabe, Abgabe                     │ │
-│  └────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+
+    A["Client-Browser<br/>(React SPA auf Port 5173/8080)"]
+
+    B["Express.js Backend<br/>(Port 3000/8080)"]
+
+    B1["Routen<br/>(Login, Register, Admin, Lehrer,<br/>Schüler, Klassen, Fächer)"]
+
+    B2["Controller<br/>(Geschäftslogik)"]
+
+    B3["Middleware<br/>(Auth, Datei-Upload)"]
+
+    B4["Prisma ORM<br/>(Datenbankzugriff)"]
+
+    C["MySQL-Datenbank<br/>(Port 3306/3307)"]
+
+    C1["Tabellen:<br/>Benutzer, Rolle, Klasse,<br/>Fach, Aufgabe, Abgabe"]
+
+    A -->|"HTTP/HTTPS"| B
+
+    B --> B1
+    B --> B2
+    B --> B3
+    B --> B4
+
+    B -->|"MySQL-Protokoll"| C
+
+    C --> C1
 ```
 
 ### Projektstruktur
 
-```
-SmartSubmit/
-├── frontend/                  # React-Frontend-Anwendung
-│   ├── src/
-│   │   ├── pages/            # Seitenkomponenten
-│   │   │   ├── login.jsx
-│   │   │   ├── register.jsx
-│   │   │   ├── admin.jsx
-│   │   │   ├── teacher.jsx
-│   │   │   └── student.jsx
-│   │   ├── context/          # React Context
-│   │   │   └── LanguageContext.jsx
-│   │   ├── i18n/             # Übersetzungen
-│   │   │   └── index.js
-│   │   ├── App.jsx           # Hauptkomponente
-│   │   └── main.jsx          # Einstiegspunkt
-│   ├── public/               # Statische Ressourcen
-│   ├── package.json
-│   └── vite.config.js
-│
-├── backend/                   # Node.js-Backend-Anwendung
-│   ├── src/                  # Refaktorierte modulare Struktur
-│   │   ├── controllers/      # Geschäftslogik
-│   │   │   ├── login.controller.js
-│   │   │   ├── register.controller.js
-│   │   │   ├── admin.controller.js
-│   │   │   ├── teacher.controller.js
-│   │   │   └── student.controller.js
-│   │   ├── main.js           # Server-Einstiegspunkt
-│   │   ├── app.config.js     # Konfiguration & Prisma
-│   │   ├── app.routes.js     # Routendefinitionen
-│   │   ├── app.middleware.js # Authentifizierungs-Middleware
-│   │   └── app.utils.js      # Hilfsfunktionen
-│   ├── prisma/               # Datenbankschema & Migrationen
-│   │   ├── schema.prisma     # Datenbankschema
-│   │   ├── migrations/       # Migrationshistorie
-│   │   └── seed.js           # Datenbank-Seeding
-│   ├── uploads/              # Datei-Upload-Verzeichnis
-│   │   └── assignments/      # Aufgabendateien
-│   ├── package.json
-│   └── .env                  # Umgebungsvariablen
-│
-├── docker-compose.yml        # Docker-Orchestrierung
-├── Dockerfile                # Backend-Container-Definition
-└── README.md
+```mermaid
+graph TD
+    A[SmartSubmit]
+
+    %% Frontend
+    A --> B[frontend<br/>React-Frontend-Anwendung]
+
+    B --> B1[src]
+
+    B1 --> B11[pages<br/>Seitenkomponenten]
+    B11 --> B111[login.jsx]
+    B11 --> B112[register.jsx]
+    B11 --> B113[admin.jsx]
+    B11 --> B114[teacher.jsx]
+    B11 --> B115[student.jsx]
+
+    B1 --> B12[context<br/>React Context]
+    B12 --> B121[LanguageContext.jsx]
+
+    B1 --> B13[i18n<br/>Übersetzungen]
+    B13 --> B131[index.js]
+
+    B1 --> B14[App.jsx<br/>Hauptkomponente]
+    B1 --> B15[main.jsx<br/>Einstiegspunkt]
+
+    B --> B2[public<br/>Statische Ressourcen]
+    B --> B3[package.json]
+    B --> B4[vite.config.js]
+
+    %% Backend
+    A --> C[backend<br/>Node.js-Backend-Anwendung]
+
+    C --> C1[src<br/>Refaktorierte modulare Struktur]
+
+    C1 --> C11[controllers<br/>Geschäftslogik]
+    C11 --> C111[login.controller.js]
+    C11 --> C112[register.controller.js]
+    C11 --> C113[admin.controller.js]
+    C11 --> C114[teacher.controller.js]
+    C11 --> C115[student.controller.js]
+
+    C1 --> C12[main.js<br/>Server-Einstiegspunkt]
+    C1 --> C13[app.config.js<br/>Konfiguration & Prisma]
+    C1 --> C14[app.routes.js<br/>Routendefinitionen]
+    C1 --> C15[app.middleware.js<br/>Authentifizierungs-Middleware]
+    C1 --> C16[app.utils.js<br/>Hilfsfunktionen]
+
+    C --> C2[prisma<br/>Datenbankschema & Migrationen]
+    C2 --> C21[schema.prisma<br/>Datenbankschema]
+    C2 --> C22[migrations<br/>Migrationshistorie]
+    C2 --> C23[seed.js<br/>Datenbank-Seeding]
+
+    C --> C3[uploads<br/>Datei-Upload-Verzeichnis]
+    C3 --> C31[assignments<br/>Aufgabendateien]
+
+    C --> C4[package.json]
+    C --> C5[.env<br/>Umgebungsvariablen]
+
+    %% Root
+    A --> D[docker-compose.yml<br/>Docker-Orchestrierung]
+    A --> E[Dockerfile<br/>Backend-Container-Definition]
+    A --> F[README.md]
 ```
 
 ---
@@ -767,132 +777,192 @@ Authorization: Bearer <token>
 
 ### Entity-Relationship-Diagramm
 
-```
-┌─────────────┐       ┌─────────────┐       ┌─────────────┐
-│   Benutzer  │       │    Rolle    │       │   Klasse    │
-├─────────────┤       ├─────────────┤       ├─────────────┤
-│ id (PK)     │       │ id (PK)     │       │ id (PK)     │
-│ vorname     │       │ bezeichnung │       │ name        │
-│ nachname    │       │ beschreibung│       │ jahrgang    │
-│ email (UQ)  │       └─────────────┘       └─────────────┘
-│ passwort    │              ▲                     ▲
-│ erstellt_am │              │                     │
-│ aktiv       │              │                     │
-└─────────────┘              │                     │
-      │                      │                     │
-      ├──────────────────────┼─────────────────────┤
-      ▼                      ▼                     ▼
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│Benutzer_Rolle│    │Benutzer_Fach │    │Benutzer_Klasse│
-├──────────────┤    ├──────────────┤    ├──────────────┤
-│ id (PK)      │    │ id (PK)      │    │ id (PK)      │
-│ benutzer_id  │    │ benutzer_id  │    │ benutzer_id  │
-│ rolle_id     │    │ fach_id      │    │ klasse_id    │
-└──────────────┘    └──────────────┘    └──────────────┘
-                            ▲
-                            │
-                    ┌───────────────┐
-                    │     Fach      │
-                    ├───────────────┤
-                    │ id (PK)       │
-                    │ name          │
-                    │ kuerzel (UQ)  │
-                    └───────────────┘
+```mermaid
+flowchart TB
 
-┌─────────────┐              ┌─────────────┐
-│   Aufgabe   │              │   Abgabe    │
-├─────────────┤              ├─────────────┤
-│ id (PK)     │◄─────────────│ aufgabe_id  │
-│ titel       │              │ schueler_id │
-│ beschreibung│              │ dateien     │
-│ anhaenge    │              │ zeitpunkt   │
-│ termin      │              │ bewertung   │
-│ klasse_id   │              │ feedback    │
-│ fach_id     │              └─────────────┘
-│ lehrer_id   │
-│ erstellt_am │
-└─────────────┘
+    %% =====================
+    %% CORE ENTITIES
+    %% =====================
+
+    User["User<br/>id, firstName, lastName, email, active"]
+
+    Role["Role<br/>id, name, description"]
+
+    Class["Class<br/>id, name, year"]
+
+    Subject["Subject<br/>id, name, code"]
+
+    Assignment["Assignment<br/>id, title, dueDate, classId, subjectId, teacherId"]
+
+    Submission["Submission<br/>id, assignmentId, studentId, grade"]
+
+    %% =====================
+    %% JUNCTION TABLES
+    %% =====================
+
+    UserRole["UserRole<br/>userId, roleId"]
+
+    UserClass["UserClass<br/>userId, classId"]
+
+    UserSubject["UserSubject<br/>userId, subjectId"]
+
+    %% =====================
+    %% RELATIONSHIPS
+    %% =====================
+
+    User --> UserRole
+    Role --> UserRole
+
+    User --> UserClass
+    Class --> UserClass
+
+    User --> UserSubject
+    Subject --> UserSubject
+
+    User -->|"teacherId"| Assignment
+    Class --> Assignment
+    Subject --> Assignment
+
+    Assignment --> Submission
+    User -->|"studentId"| Submission
 ```
 
 ### Tabellenbeschreibungen
 
-#### Benutzer
+#### User
 
-Speichert alle Systembenutzer (Administratoren, Lehrer, Schüler).
+Speichert alle Systembenutzer (Admins, Lehrer, Schüler).
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
+| Column | Type | Beschreibung |
+|--------|------|-------------|
 | id | INT | Primärschlüssel |
-| vorname | VARCHAR(255) | Vorname |
-| nachname | VARCHAR(255) | Nachname |
+| firstName | VARCHAR(255) | Vorname |
+| lastName | VARCHAR(255) | Nachname |
 | email | VARCHAR(255) | Eindeutige E-Mail-Adresse |
-| passwort_hash | VARCHAR(255) | Gehashtes Passwort |
-| erstellt_am | DATETIME | Erstellungszeitstempel |
-| aktiv | BOOLEAN | Aktiv-Status |
+| passwordHash | VARCHAR(255) | Gehashtes Passwort |
+| provider | VARCHAR(50) | OAuth Provider (optional) |
+| oauthId | VARCHAR(255) | OAuth Benutzer-ID (optional) |
+| createdAt | DATETIME | Erstellungszeitpunkt |
+| active | BOOLEAN | Aktiv-Status |
 
-#### Rolle
+---
+
+#### Role
 
 Definiert Benutzerrollen im System.
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
-| id | INT | Primärschlüssel (1=Schüler, 2=Lehrer, 3=Admin) |
-| bezeichnung | VARCHAR(255) | Rollenname |
-| beschreibung | TEXT | Rollenbeschreibung |
+| Column | Type | Beschreibung |
+|--------|------|-------------|
+| id | INT | Primärschlüssel |
+| name | VARCHAR(255) | Rollenname |
+| description | TEXT | Rollenbeschreibung |
 
-#### Klasse
+---
+
+#### Class
 
 Speichert Schulklassen.
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
+| Column | Type | Beschreibung |
+|--------|------|-------------|
 | id | INT | Primärschlüssel |
-| name | VARCHAR(50) | Klassenname (z.B. "5A") |
-| jahrgang | INT | Jahr (z.B. 2025) |
+| name | VARCHAR(50) | Klassenname (z. B. "5A") |
+| year | INT | Schuljahr |
 
-Eindeutige Einschränkung: (name, jahrgang)
+**Eindeutige Einschränkung:** (name, year)
 
-#### Fach
+---
+
+#### Subject
 
 Speichert Schulfächer.
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
+| Column | Type | Beschreibung |
+|--------|------|-------------|
 | id | INT | Primärschlüssel |
 | name | VARCHAR(255) | Fachname |
-| kuerzel | VARCHAR(255) | Fachkürzel (eindeutig) |
+| code | VARCHAR(255) | Eindeutiger Fachcode |
 
-#### Aufgabe
+---
+
+#### UserRole
+
+Many-to-Many Beziehung zwischen User und Role.
+
+| Column | Type | Beschreibung |
+|--------|------|-------------|
+| id | INT | Primärschlüssel |
+| userId | INT | FK → User |
+| roleId | INT | FK → Role |
+
+**Eindeutige Einschränkung:** (userId, roleId)
+
+---
+
+#### UserClass
+
+Many-to-Many Beziehung zwischen User und Class.
+
+| Column | Type | Beschreibung |
+|--------|------|-------------|
+| id | INT | Primärschlüssel |
+| userId | INT | FK → User |
+| classId | INT | FK → Class |
+
+**Eindeutige Einschränkung:** (userId, classId)
+
+---
+
+#### UserSubject
+
+Many-to-Many Beziehung zwischen User und Subject.
+
+| Column | Type | Beschreibung |
+|--------|------|-------------|
+| id | INT | Primärschlüssel |
+| userId | INT | FK → User |
+| subjectId | INT | FK → Subject |
+
+**Eindeutige Einschränkung:** (userId, subjectId)
+
+---
+
+#### Assignment
 
 Speichert von Lehrern erstellte Aufgaben.
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
+| Column | Type | Beschreibung |
+|--------|------|-------------|
 | id | INT | Primärschlüssel |
-| titel | VARCHAR(255) | Aufgabentitel |
-| beschreibung | TEXT | Aufgabenbeschreibung |
-| anhaenge | TEXT | Angehängte Dateien (JSON) |
-| termin | DATETIME | Fälligkeitsdatum |
-| klasse_id | INT | Fremdschlüssel zu Klasse |
-| fach_id | INT | Fremdschlüssel zu Fach |
-| lehrer_id | INT | Fremdschlüssel zu Benutzer (Lehrer) |
-| erstellt_am | DATETIME | Erstellungszeitstempel |
+| title | VARCHAR(255) | Aufgabentitel |
+| description | TEXT | Aufgabenbeschreibung |
+| link | VARCHAR(1024) | Externer Ressourcen-Link |
+| attachments | TEXT | JSON-Metadaten der Anhänge |
+| dueDate | DATETIME | Abgabefrist |
+| archived | BOOLEAN | Archivstatus |
+| classId | INT | FK → Class |
+| subjectId | INT | FK → Subject |
+| teacherId | INT | FK → User (Lehrer) |
+| createdAt | DATETIME | Erstellungszeitpunkt |
 
-#### Abgabe
+---
+
+#### Submission
 
 Speichert Schülerabgaben.
 
-| Spalte | Typ | Beschreibung |
-|--------|-----|--------------|
+| Column | Type | Beschreibung |
+|--------|------|-------------|
 | id | INT | Primärschlüssel |
-| aufgabe_id | INT | Fremdschlüssel zu Aufgabe |
-| schueler_id | INT | Fremdschlüssel zu Benutzer (Schüler) |
-| dateien | TEXT | Eingereichte Dateien (JSON) |
-| abgabe_zeitpunkt | DATETIME | Abgabezeitstempel |
-| bewertung | INT | Note (0-100) |
-| feedback | TEXT | Lehrer-Feedback |
+| assignmentId | INT | FK → Assignment |
+| studentId | INT | FK → User (Schüler) |
+| files | TEXT | JSON-Dateimetadaten |
+| text | TEXT | Optionale Texteingabe |
+| submittedAt | DATETIME | Abgabezeitpunkt |
+| grade | INT | Bewertung (0–100) |
+| feedback | TEXT | Rückmeldung vom Lehrer |
 
-Eindeutige Einschränkung: (aufgabe_id, schueler_id)
+**Eindeutige Einschränkung:** (assignmentId, studentId)
 
 ---
 

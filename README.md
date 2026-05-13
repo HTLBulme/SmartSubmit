@@ -113,91 +113,98 @@ SmartSubmit is a modern web-based assignment management system designed for educ
 
 ### High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    Client Browser                   │
-│              (React SPA on port 5173/8080)          │
-└─────────────────────────────────────────────────────┘
-                          │
-                          │ HTTP/HTTPS
-                          ▼
-┌─────────────────────────────────────────────────────┐
-│                  Express.js Backend                 │
-│                    (port 3000/8080)                 │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Routes (Login, Register, Admin, Teacher,      │ │
-│  │          Student, Classes, Subjects)           │ │
-│  └────────────────────────────────────────────────┘ │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Controllers (Business Logic)                  │ │
-│  └────────────────────────────────────────────────┘ │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Middleware (Auth, File Upload)                │ │
-│  └────────────────────────────────────────────────┘ │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Prisma ORM (Database Access)                  │ │
-│  └────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
-                          │
-                          │ MySQL Protocol
-                          ▼
-┌─────────────────────────────────────────────────────┐
-│                  MySQL Database                     │
-│                    (port 3306/3307)                 │
-│  ┌────────────────────────────────────────────────┐ │
-│  │  Tables: Benutzer, Rolle, Klasse, Fach,        │ │
-│  │          Aufgabe, Abgabe                       │ │
-│  └────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+
+    A["Client Browser<br/>(React SPA on port 5173/8080)"]
+
+    B["Express.js Backend<br/>(port 3000/8080)"]
+
+    B1["Routes<br/>(Login, Register, User, Role,<br/>Class, Subject, Assignment, Submission)"]
+
+    B2["Controllers<br/>(Business Logic)"]
+
+    B3["Middleware<br/>(Auth, File Upload)"]
+
+    B4["Prisma ORM<br/>(Database Access)"]
+
+    C["MySQL Database<br/>(port 3306/3307)"]
+
+    C1["Tables:<br/>User, Role, Class, Subject,<br/>UserRole, UserClass, UserSubject,<br/>Assignment, Submission"]
+
+    A -->|"HTTP / HTTPS"| B
+
+    B --> B1
+    B --> B2
+    B --> B3
+    B --> B4
+
+    B -->|"MySQL Protocol"| C
+
+    C --> C1
 ```
 
 ### Project Structure
 
-```
-SmartSubmit/
-├── frontend/                  # React frontend application
-│   ├── src/
-│   │   ├── pages/            # Page components
-│   │   │   ├── login.jsx
-│   │   │   ├── register.jsx
-│   │   │   ├── admin.jsx
-│   │   │   ├── teacher.jsx
-│   │   │   └── student.jsx
-│   │   ├── context/          # React Context
-│   │   │   └── LanguageContext.jsx
-│   │   ├── i18n/             # Translations
-│   │   │   └── index.js
-│   │   ├── App.jsx           # Main app component
-│   │   └── main.jsx          # Entry point
-│   ├── public/               # Static assets
-│   ├── package.json
-│   └── vite.config.js
-│
-├── backend/                   # Node.js backend application
-│   ├── src/                  # Refactored modular structure
-│   │   ├── controllers/      # Business logic
-│   │   │   ├── login.controller.js
-│   │   │   ├── register.controller.js
-│   │   │   ├── admin.controller.js
-│   │   │   ├── teacher.controller.js
-│   │   │   └── student.controller.js
-│   │   ├── main.js           # Server entry point
-│   │   ├── app.config.js     # Configuration & Prisma
-│   │   ├── app.routes.js     # Route definitions
-│   │   ├── app.middleware.js # Authentication middleware
-│   │   └── app.utils.js      # Utility functions
-│   ├── prisma/               # Database schema & migrations
-│   │   ├── schema.prisma     # Database schema
-│   │   ├── migrations/       # Migration history
-│   │   └── seed.js           # Database seeding
-│   ├── uploads/              # File upload directory
-│   │   └── assignments/      # Assignment files
-│   ├── package.json
-│   └── .env                  # Environment variables
-│
-├── docker-compose.yml        # Docker orchestration
-├── Dockerfile                # Backend container definition
-└── README.md
+```mermaid
+graph TD
+    A[SmartSubmit]
+
+    %% Frontend
+    A --> B[frontend]
+    B --> B1[src]
+    B1 --> B11[pages]
+    B11 --> B111[login.jsx]
+    B11 --> B112[register.jsx]
+    B11 --> B113[admin.jsx]
+    B11 --> B114[teacher.jsx]
+    B11 --> B115[student.jsx]
+
+    B1 --> B12[context]
+    B12 --> B121[LanguageContext.jsx]
+
+    B1 --> B13[i18n]
+    B13 --> B131[index.js]
+
+    B1 --> B14[App.jsx]
+    B1 --> B15[main.jsx]
+
+    B --> B2[public]
+    B --> B3[package.json]
+    B --> B4[vite.config.js]
+
+    %% Backend
+    A --> C[backend]
+    C --> C1[src]
+
+    C1 --> C11[contRollrs]
+    C11 --> C111[login.controller.js]
+    C11 --> C112[register.controller.js]
+    C11 --> C113[admin.controller.js]
+    C11 --> C114[teacher.controller.js]
+    C11 --> C115[student.controller.js]
+
+    C1 --> C12[main.js]
+    C1 --> C13[app.config.js]
+    C1 --> C14[app.routes.js]
+    C1 --> C15[app.middleware.js]
+    C1 --> C16[app.utils.js]
+
+    C --> C2[prisma]
+    C2 --> C21[schema.prisma]
+    C2 --> C22[migrations]
+    C2 --> C23[seed.js]
+
+    C --> C3[uploads]
+    C3 --> C31[assignments]
+
+    C --> C4[package.json]
+    C --> C5[.env]
+
+    %% Root files
+    A --> D[docker-compose.yml]
+    A --> E[Dockerfile]
+    A --> F[README.md]
 ```
 
 ---
@@ -538,34 +545,34 @@ Note: Empty value uses same origin (relative URLs)
 #### 2. Import Students
 
 Prepare Excel file with columns:
-- vorname (First Name)
-- nachname (Last Name)
+- firstName (First Name)
+- lastName (Last Name)
 - email (Email)
-- klasse (Class, e.g., "5A" or multiple: "5A,5B")
-- jahrgang (Year, e.g., 2025)
+- class (Class, e.g., "5A" or multiple: "5A,5B")
+- year (Year, e.g., 2025)
 
 **Example:**
 
-| vorname | nachname | email | klasse | jahrgang |
+| firstName | lastName | email | class | year |
 |---------|----------|-------|--------|----------|
 | Max | Mustermann | max@school.com | 5A | 2025 |
 | Anna | Schmidt | anna@school.com | 5B | 2025 |
 
 Steps:
 1. Go to Admin panel
-2. Select "Schüler" (Students)
+2. Select "Students"
 3. Click "Choose File" and select Excel
-4. Click "Daten hochladen" (Upload Data)
+4. Click "Upload Data"
 
 #### 3. Import Teachers
 
 Prepare Excel file with columns:
-- vorname (First Name)
-- nachname (Last Name)
+- firstName (First Name)
+- lastName (Last Name)
 - email (Email)
-- klasse (Class, optional)
-- jahrgang (Year, optional)
-- fach_kuerzel (Subject code, e.g., "MATH,DE")
+- class (Class, optional)
+- year (Year, optional)
+- subject_code (Subject code, e.g., "MATH,DE")
 
 Initial passwords: `firstnamelastname` (lowercase)
 
@@ -584,11 +591,11 @@ Users must change password on first login.
 5. Write assignment description
 6. Upload files if needed (PDF, DOCX, etc.)
 7. Set deadline
-8. Click "Aufgabe speichern" (Save Assignment)
+8. Click "Save Assignment"
 
 #### 2. View Assignments
 
-1. Click "Aufgabenliste" (Assignment List)
+1. Click "Assignment List" (Assignment List)
 2. View all created assignments
 3. See submission count
 4. Check deadline status (active/expired)
@@ -596,7 +603,7 @@ Users must change password on first login.
 #### 3. View Submissions
 
 1. Find assignment in list
-2. Click "Abgabenliste" (Submissions)
+2. Click "Submissions"
 3. View student submissions
 4. Download submitted files
 
@@ -614,12 +621,12 @@ Users must change password on first login.
 1. Click on assignment
 2. Write submission text
 3. Upload files if required
-4. Click "Abgeben" (Submit)
+4. Click "Submit"
 5. Confirmation message appears
 
 #### 3. Track Submissions
 
-1. Go to "Meine Abgaben" (My Submissions)
+1. Go to "My Submissions" (My Submissions)
 2. View submission history
 3. Check submission status
 4. Download your submitted files
@@ -673,7 +680,7 @@ Content-Type: application/json
 
 {
   "email": "user@example.com",
-  "passwort": "password123",
+  "password": "password123",
   "role": "Admin"
 }
 ```
@@ -767,92 +774,103 @@ Authorization: Bearer <token>
 
 ### Entity Relationship Diagram
 
-```
-┌─────────────┐       ┌─────────────┐       ┌─────────────┐
-│   Benutzer  │       │    Rolle    │       │   Klasse    │
-├─────────────┤       ├─────────────┤       ├─────────────┤
-│ id (PK)     │       │ id (PK)     │       │ id (PK)     │
-│ vorname     │       │ bezeichnung │       │ name        │
-│ nachname    │       │ beschreibung│       │ jahrgang    │
-│ email (UQ)  │       └─────────────┘       └─────────────┘
-│ passwort    │              ▲                     ▲
-│ erstellt_am │              │                     │
-│ aktiv       │              │                     │
-└─────────────┘              │                     │
-      │                      │                     │
-      ├──────────────────────┼─────────────────────┤
-      ▼                      ▼                     ▼
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│Benutzer_Rolle│    │Benutzer_Fach │    │Benutzer_Klasse│
-├──────────────┤    ├──────────────┤    ├──────────────┤
-│ id (PK)      │    │ id (PK)      │    │ id (PK)      │
-│ benutzer_id  │    │ benutzer_id  │    │ benutzer_id  │
-│ rolle_id     │    │ fach_id      │    │ klasse_id    │
-└──────────────┘    └──────────────┘    └──────────────┘
-                            ▲
-                            │
-                    ┌───────────────┐
-                    │     Fach      │
-                    ├───────────────┤
-                    │ id (PK)       │
-                    │ name          │
-                    │ kuerzel (UQ)  │
-                    └───────────────┘
+```mermaid
+flowchart TB
 
-┌─────────────┐              ┌─────────────┐
-│   Aufgabe   │              │   Abgabe    │
-├─────────────┤              ├─────────────┤
-│ id (PK)     │◄─────────────│ aufgabe_id  │
-│ titel       │              │ schueler_id │
-│ beschreibung│              │ dateien     │
-│ anhaenge    │              │ zeitpunkt   │
-│ termin      │              │ bewertung   │
-│ klasse_id   │              │ feedback    │
-│ fach_id     │              └─────────────┘
-│ lehrer_id   │
-│ erstellt_am │
-└─────────────┘
+    %% =====================
+    %% CORE ENTITIES
+    %% =====================
+
+    User["User<br/>id, firstName, lastName, email, active"]
+
+    Role["Role<br/>id, name, description"]
+
+    Class["Class<br/>id, name, year"]
+
+    Subject["Subject<br/>id, name, code"]
+
+    Assignment["Assignment<br/>id, title, dueDate, classId, subjectId, teacherId"]
+
+    Submission["Submission<br/>id, assignmentId, studentId, grade"]
+
+    %% =====================
+    %% JUNCTION TABLES
+    %% =====================
+
+    UserRole["UserRole<br/>userId, roleId"]
+
+    UserClass["UserClass<br/>userId, classId"]
+
+    UserSubject["UserSubject<br/>userId, subjectId"]
+
+    %% =====================
+    %% RELATIONSHIPS
+    %% =====================
+
+    User --> UserRole
+    Role --> UserRole
+
+    User --> UserClass
+    Class --> UserClass
+
+    User --> UserSubject
+    Subject --> UserSubject
+
+    User -->|"teacherId"| Assignment
+    Class --> Assignment
+    Subject --> Assignment
+
+    Assignment --> Submission
+    User -->|"studentId"| Submission
 ```
 
 ### Table Descriptions
 
-#### Benutzer (Users)
+#### User
 
 Stores all system users (admins, teachers, students).
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | INT | Primary key |
-| vorname | VARCHAR(255) | First name |
-| nachname | VARCHAR(255) | Last name |
+| firstName | VARCHAR(255) | First name |
+| lastName | VARCHAR(255) | Last name |
 | email | VARCHAR(255) | Unique email address |
-| passwort_hash | VARCHAR(255) | Hashed password |
-| erstellt_am | DATETIME | Creation timestamp |
-| aktiv | BOOLEAN | Active status |
+| passwordHash | VARCHAR(255) | Hashed password |
+| provider | VARCHAR(50) | OAuth provider (optional) |
+| oauthId | VARCHAR(255) | OAuth user ID (optional) |
+| createdAt | DATETIME | Creation timestamp |
+| active | BOOLEAN | Active status |
 
-#### Rolle (Roles)
+---
+
+#### Role
 
 Defines user roles in the system.
 
 | Column | Type | Description |
 |--------|------|-------------|
-| id | INT | Primary key (1=Student, 2=Teacher, 3=Admin) |
-| bezeichnung | VARCHAR(255) | Role name |
-| beschreibung | TEXT | Role description |
+| id | INT | Primary key |
+| name | VARCHAR(255) | Role name |
+| description | TEXT | Role description |
 
-#### Klasse (Classes)
+---
+
+#### Class
 
 Stores school classes.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | INT | Primary key |
-| name | VARCHAR(50) | Class name (e.g., "5A") |
-| jahrgang | INT | Year (e.g., 2025) |
+| name | VARCHAR(50) | Class name (e.g. "5A") |
+| year | INT | School year |
 
-Unique constraint: (name, jahrgang)
+**Unique constraint:** (name, year)
 
-#### Fach (Subjects)
+---
+
+#### Subject
 
 Stores school subjects.
 
@@ -860,39 +878,88 @@ Stores school subjects.
 |--------|------|-------------|
 | id | INT | Primary key |
 | name | VARCHAR(255) | Subject name |
-| kuerzel | VARCHAR(255) | Subject code (unique) |
+| code | VARCHAR(255) | Unique subject code |
 
-#### Aufgabe (Assignments)
+---
+
+#### UserRole
+
+Many-to-many relation between users and roles.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| userId | INT | FK → User |
+| roleId | INT | FK → Role |
+
+**Unique constraint:** (userId, roleId)
+
+---
+
+#### UserClass
+
+Many-to-many relation between users and classes.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| userId | INT | FK → User |
+| classId | INT | FK → Class |
+
+**Unique constraint:** (userId, classId)
+
+---
+
+#### UserSubject
+
+Many-to-many relation between users and subjects.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| userId | INT | FK → User |
+| subjectId | INT | FK → Subject |
+
+**Unique constraint:** (userId, subjectId)
+
+---
+
+#### Assignment
 
 Stores teacher-created assignments.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | INT | Primary key |
-| titel | VARCHAR(255) | Assignment title |
-| beschreibung | TEXT | Assignment description |
-| anhaenge | TEXT | Attached files (JSON) |
-| termin | DATETIME | Due date |
-| klasse_id | INT | Foreign key to Klasse |
-| fach_id | INT | Foreign key to Fach |
-| lehrer_id | INT | Foreign key to Benutzer (teacher) |
-| erstellt_am | DATETIME | Creation timestamp |
+| title | VARCHAR(255) | Assignment title |
+| description | TEXT | Assignment description |
+| link | VARCHAR(1024) | External resource link |
+| attachments | TEXT | JSON metadata of attachments |
+| dueDate | DATETIME | Due date |
+| archived | BOOLEAN | Archived status |
+| classId | INT | FK → Class |
+| subjectId | INT | FK → Subject |
+| teacherId | INT | FK → User (teacher) |
+| createdAt | DATETIME | Creation timestamp |
 
-#### Abgabe (Submissions)
+---
+
+#### Submission
 
 Stores student submissions.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | id | INT | Primary key |
-| aufgabe_id | INT | Foreign key to Aufgabe |
-| schueler_id | INT | Foreign key to Benutzer (student) |
-| dateien | TEXT | Submitted files (JSON) |
-| abgabe_zeitpunkt | DATETIME | Submission timestamp |
-| bewertung | INT | Grade (0-100) |
+| assignmentId | INT | FK → Assignment |
+| studentId | INT | FK → User (student) |
+| files | TEXT | JSON file metadata |
+| text | TEXT | Optional text submission |
+| submittedAt | DATETIME | Submission timestamp |
+| grade | INT | Grade (0–100) |
 | feedback | TEXT | Teacher feedback |
 
-Unique constraint: (aufgabe_id, schueler_id)
+**Unique constraint:** (assignmentId, studentId)
 
 ---
 
@@ -925,7 +992,7 @@ npm start
 
 #### 3. Upload Fails in Docker
 
-**Problem:** Serverfehler when uploading files
+**Problem:** Server error when uploading files
 
 **Solutions:**
 - Check frontend API URL is correct (empty for Docker)
@@ -951,7 +1018,7 @@ docker compose restart db
 
 #### 5. 403 Forbidden on Admin Routes
 
-**Problem:** Nur für Admins error
+**Problem:** Admins only error
 
 **Solution:**
 - Create admin user in Docker database
