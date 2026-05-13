@@ -37,6 +37,7 @@ const deleteSubmissionFile = async (req, res) => {
   }
 };
 const { prisma } = require('../app.config');
+const { sendSubmissionConfirmation } = require('../app.email');
 
 async function ensureStudentRole(studentId) {
   const isStudent = await prisma.userRole.findFirst({  // ✅ fix
@@ -120,7 +121,7 @@ const submitAssignment = async (req, res) => {
 
     const assignment = await prisma.assignment.findUnique({  // ✅ fix
       where: { id: assigmentIdNum },
-      select: { id: true, classId: true, dueDate: true }
+      select: { id: true, title: true, classId: true, dueDate: true }
     });
 
     if (!assignment) {
@@ -194,6 +195,22 @@ const submitAssignment = async (req, res) => {
             feedback: null
           }
         });
+
+    // --- Send confirmation email ---
+    try {
+      const student = await prisma.user.findUnique({
+        where: { id: studentId },
+        select: { email: true, firstName: true, lastName: true }
+      });
+
+      if (student && student.email) {
+        const studentName = `${student.firstName} ${student.lastName}`.trim();
+        await sendSubmissionConfirmation(student.email, studentName, assignment.title, new Date());
+      }
+    } catch (emailError) {
+      console.error('Failed to send submission confirmation email:', emailError);
+      // Don't fail the submission if email fails
+    }
 
     return res.json({
       success: true,
