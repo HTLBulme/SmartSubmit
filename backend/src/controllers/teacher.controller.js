@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { prisma } = require('../app.config');
+const { sendGradeNotification } = require('../app.email');
 
 const UPLOADS_ROOT = path.resolve(__dirname, '..', '..', 'uploads');
 
@@ -306,6 +307,27 @@ const gradeSubmission = async (req, res) => {
         submittedAt: true, grade: true, feedback: true, text: true, files: true
       }
     });
+
+    // --- Send grade notification email ---
+    try {
+      const student = await prisma.user.findUnique({
+        where: { id: updated.studentId },
+        select: { email: true, firstName: true, lastName: true }
+      });
+
+      const assignment = await prisma.assignment.findUnique({
+        where: { id: updated.assignmentId },
+        select: { title: true }
+      });
+
+      if (student && student.email && assignment) {
+        const studentName = `${student.firstName} ${student.lastName}`.trim();
+        await sendGradeNotification(student.email, studentName, assignment.title, updated.grade, updated.feedback);
+      }
+    } catch (emailError) {
+      console.error('Failed to send grade notification email:', emailError);
+      // Don't fail the grading if email fails
+    }
 
     return res.json({ success: true, data: updated });
   } catch (error) {
