@@ -432,7 +432,7 @@ const deleteAssignment = async (req, res) => {
 };
 
 // --- DOWNLOAD SUBMISSIONS AS ZIP ---
-const { ZipArchive } = require('archiver');
+const archiver = require('archiver');
 
 const downloadSubmissionsAsZip = async (req, res) => {
   try {
@@ -466,7 +466,7 @@ const downloadSubmissionsAsZip = async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="${zipName}"`);
     res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
 
-    const archive = new ZipArchive({ zlib: { level: 9 } });
+    const archive = archiver('zip', { zlib: { level: 9 } });
     archive.on('error', err => { throw err; });
     archive.pipe(res);
 
