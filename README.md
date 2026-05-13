@@ -54,6 +54,7 @@ SmartSubmit is a modern web-based assignment management system designed for educ
 - Create assignments with file attachments
 - Set deadlines and assign to classes
 - View assignment submissions
+- Download all submissions as a ZIP archive
 - Grade submissions and provide feedback
 - Track submission statistics
 - Manage multiple classes and subjects

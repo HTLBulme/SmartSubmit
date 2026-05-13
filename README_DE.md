@@ -54,6 +54,7 @@ SmartSubmit ist ein modernes webbasiertes Aufgabenverwaltungssystem für Bildung
 - Aufgaben mit Dateianhängen erstellen
 - Fristen setzen und Klassen zuweisen
 - Aufgabenabgaben anzeigen
+- Alle Abgaben als ZIP-Archiv herunterladen
 - Abgaben bewerten und Feedback geben
 - Abgabestatistiken verfolgen
 - Mehrere Klassen und Fächer verwalten
