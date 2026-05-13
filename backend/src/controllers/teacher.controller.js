@@ -431,12 +431,79 @@ const deleteAssignment = async (req, res) => {
   }
 };
 
+// --- DOWNLOAD SUBMISSIONS AS ZIP ---
+const { ZipArchive } = require('archiver');
+
+const downloadSubmissionsAsZip = async (req, res) => {
+  try {
+    const teacherId = Number.parseInt(req.userId, 10);
+    const assignmentId = Number.parseInt(req.params.assignmentId, 10);
+
+    const isTeacher = await prisma.userRole.findFirst({
+      where: { userId: teacherId, roleId: 2 },
+    });
+    if (!isTeacher) return res.status(403).json({ success: false, message: 'Nur für Lehrer' });
+
+    const assignment = await prisma.assignment.findFirst({
+      where: { id: assignmentId, teacherId: teacherId },
+      include: {
+        class: true,
+        subject: true,
+        submissions: {
+          include: { student: true }
+        }
+      }
+    });
+
+    if (!assignment) return res.status(404).json({ success: false, message: 'Aufgabe nicht gefunden' });
+
+    const className = assignment.class ? assignment.class.name.replace(/[^a-z0-9а-яё-]/gi, '_') : 'Class';
+    const subjectName = assignment.subject ? assignment.subject.name.replace(/[^a-z0-9а-яё-]/gi, '_') : 'Subject';
+    const dueDateStr = assignment.dueDate ? new Date(assignment.dueDate).toISOString().split('T')[0] : 'NoDate';
+    const zipName = `${className}_${subjectName}_${dueDateStr}.zip`;
+
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${zipName}"`);
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+
+    const archive = new ZipArchive({ zlib: { level: 9 } });
+    archive.on('error', err => { throw err; });
+    archive.pipe(res);
+
+    for (const sub of assignment.submissions) {
+      if (!sub.files || sub.files.trim() === '') continue;
+      try {
+        const files = JSON.parse(sub.files);
+        const studentName = `${sub.student.firstName}_${sub.student.lastName}`.replace(/[^a-z0-9]/gi, '_');
+        
+        for (const file of files) {
+          const filePath = file.path ? path.resolve(__dirname, '../../', file.path) : null;
+          if (filePath && fs.existsSync(filePath)) {
+            const fileName = file.originalname || path.basename(filePath);
+            archive.file(filePath, { name: `${studentName}/${fileName}` });
+          }
+        }
+      } catch (e) {
+        console.error('Fehler beim Parsen der Abgabedateien:', e);
+      }
+    }
+
+    await archive.finalize();
+  } catch (error) {
+    console.error('Fehler beim Erstellen der ZIP-Datei:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, message: 'Server Fehler bei ZIP-Erstellung: ' + error.message + ' | stack: ' + error.stack });
+    }
+  }
+};
+
 module.exports = {
   createAssignment,
   getClasses,
   getSubjects,
   getTeacherAssignments,
   getAssignmentSubmissions,
+  downloadSubmissionsAsZip,
   gradeSubmission,
   setAssignmentArchived,
   deleteAssignment

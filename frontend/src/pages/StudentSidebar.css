@@ -66,6 +66,7 @@
   left: 0;
   width: 280px;
   height: 100vh;
+  height: 100dvh;
   background: var(--card-bg);
   border-right: 1px solid var(--border);
   display: flex;

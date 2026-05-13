@@ -60,6 +60,8 @@
   left: 0;
   width: 280px;
   height: 100vh;
+  /* Use dvh for mobile address bars */
+  height: 100dvh;
   background: white;
   border-right: 1px solid #e0e0e0;
   display: flex;

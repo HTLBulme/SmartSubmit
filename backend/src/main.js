@@ -33,16 +33,17 @@ app.use('/uploads', express.static(UPLOADS_PATH));
 // --- Error Handling ---
 app.use((err, req, res, next) => {
   if (!err) return next();
+  console.error("Global Error Handler caught:", err);
 
   if (err.name === 'MulterError') {
     return res.status(400).json({ success: false, message: err.message });
   }
 
-  if (typeof err.message === 'string' && err.message.includes('Invalid file type')) {
+  if (typeof err.message === 'string' && (err.message.includes('Invalid') || err.message.includes('Ungültig'))) {
     return res.status(400).json({ success: false, message: err.message });
   }
 
-  return res.status(500).json({ success: false, message: 'Server error' });
+  return res.status(500).json({ success: false, message: 'Server error: ' + err.message });
 });
 
 // --- Frontend Serving ---

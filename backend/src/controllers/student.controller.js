@@ -1,3 +1,41 @@
+// == Delete a file from student's submission (before graded)
+const deleteSubmissionFile = async (req, res) => {
+  try {
+    const studentId = Number.parseInt(req.userId, 10);
+    const { assignmentId, fileName } = req.body;
+    if (!Number.isInteger(studentId)) {
+      return res.status(401).json({ success: false, message: 'Invalid user' });
+    }
+    if (!assignmentId || !fileName) {
+      return res.status(400).json({ success: false, message: 'Assignment ID and fileName required' });
+    }
+    const submission = await prisma.submission.findFirst({
+      where: { assignmentId: Number(assignmentId), studentId },
+    });
+    if (!submission) {
+      return res.status(404).json({ success: false, message: 'Submission not found' });
+    }
+    if (submission.grade !== null) {
+      return res.status(403).json({ success: false, message: 'Cannot delete file after grading' });
+    }
+    let filesArr = [];
+    if (typeof submission.files === 'string' && submission.files.trim() !== '') {
+      try { filesArr = JSON.parse(submission.files); } catch {}
+    }
+    const filtered = filesArr.filter(f => f.storedName !== fileName && f.filename !== fileName);
+    if (filtered.length === filesArr.length) {
+      return res.status(404).json({ success: false, message: 'File not found in submission' });
+    }
+    await prisma.submission.update({
+      where: { id: submission.id },
+      data: { files: JSON.stringify(filtered) }
+    });
+    return res.json({ success: true, message: 'File deleted', files: filtered });
+  } catch (error) {
+    console.error('Error deleting submission file:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
 const { prisma } = require('../app.config');
 
 async function ensureStudentRole(studentId) {
@@ -165,7 +203,7 @@ const submitAssignment = async (req, res) => {
 
   } catch (error) {
     console.error('Error saving submission:', error);
-    return res.status(500).json({ success: false, message: 'Server error' });
+    return res.status(500).json({ success: false, message: 'Server error: ' + error.message });
   }
 };
 
@@ -214,5 +252,6 @@ const getMySubmissions = async (req, res) => {
 module.exports = {
   getAssignments,
   submitAssignment,
-  getMySubmissions
+  getMySubmissions,
+  deleteSubmissionFile
 };

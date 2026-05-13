@@ -246,6 +246,8 @@ export default function Teacher() {
     setIsAssignmentsOpen(false);
   }
 
+
+  // Polling for submissions when modal is open
   async function openSubmissionsModal(assignmentId) {
     const shouldRestore = isAssignmentsOpen;
     setRestoreAssignmentsOnClose(shouldRestore);
@@ -255,6 +257,19 @@ export default function Teacher() {
     setIsSubmissionsOpen(true);
     await fetchSubmissions(assignmentId);
   }
+
+  // Polling effect for submissions modal
+  useEffect(() => {
+    let intervalId = null;
+    if (isSubmissionsOpen && selectedAssignmentId) {
+      intervalId = setInterval(() => {
+        fetchSubmissions(selectedAssignmentId);
+      }, 5000); // 5 секунд
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isSubmissionsOpen, selectedAssignmentId]);
 
   async function setArchived(assignmentId, archived) {
     try {
@@ -675,9 +690,53 @@ export default function Teacher() {
                       )}
 
                       {!submissionsLoading && !submissionsError && submissions.length > 0 && (
-                        <div className="table-responsive">
-                          <table className="table table-sm table-bordered align-middle">
-                            <thead>
+ 
+ <>
+                          <div className="d-flex justify-content-end mb-2">
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-success"
+                              onClick={async () => {
+                                try {
+                                  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+                                  const response = await fetch(`${API_URL}/api/teacher/assignments/${selectedAssignmentId}/submissions/download`, {
+                                    headers: { Authorization: `Bearer ${token}` }
+                                  });
+                                  if (!response.ok) throw new Error("Fehler beim Herunterladen");
+                                  const blob = await response.blob();
+                                  
+                                  let filename = `abgaben_aufgabe_${selectedAssignmentId}.zip`;
+                                  const disposition = response.headers.get("Content-Disposition");
+                                  if (disposition && disposition.indexOf("filename=") !== -1) {
+                                    const matches = /filename="([^"]+)"/.exec(disposition);
+                                    if (matches && matches[1]) {
+                                      filename = matches[1];
+                                    } else {
+                                      const fallback = /filename=([^;]+)/.exec(disposition);
+                                      if (fallback && fallback[1]) filename = fallback[1];
+                                    }
+                                  }
+
+                                  const url = window.URL.createObjectURL(blob);
+                                  const a = document.createElement("a");
+                                  a.href = url;
+                                  a.download = filename;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  a.remove();
+                                  window.URL.revokeObjectURL(url);
+                                } catch (err) {
+                                  console.error(err);
+                                  alert(t.downloadFailed || "Download fehlgeschlagen");
+                                }
+                              }}
+                            >
+                              ZIP {t.download || "Herunterladen"}
+                            </button>
+                          </div>
+                          <div className="table-responsive">
+                            <table className="table table-sm table-bordered align-middle">
+                              <thead>
 
                               <tr>
                                 <th>{t.student}</th>
@@ -739,11 +798,43 @@ export default function Teacher() {
                                             const href = getSubmissionFileUrl(f);
                                             const label = getSubmissionFileLabel(f);
                                             return (
-                                              <li key={`${s.id}-f-${idx}`}>
+                                              <li key={`${s.id}-f-${idx}`} className="mb-2 d-flex align-items-center">
                                                 {href ? (
-                                                  <a href={href} target="_blank" rel="noreferrer">
-                                                    {label}
-                                                  </a>
+                                                  <>
+                                                    <a href={href} target="_blank" rel="noreferrer" className="text-decoration-none me-2">
+                                                      {label}
+                                                    </a>
+                                                    <a
+                                                      href={href}
+                                                      onClick={async (e) => {
+                                                        e.preventDefault();
+                                                        try {
+                                                          const response = await fetch(href);
+                                                          if (!response.ok) throw new Error("Network error");
+                                                          const blob = await response.blob();
+                                                          const blobUrl = window.URL.createObjectURL(blob);
+                                                          const aTag = document.createElement("a");
+                                                          aTag.href = blobUrl;
+                                                          aTag.download = label;
+                                                          document.body.appendChild(aTag);
+                                                          aTag.click();
+                                                          aTag.remove();
+                                                          window.URL.revokeObjectURL(blobUrl);
+                                                        } catch (err) {
+                                                          console.error(err);
+                                                          alert(t.downloadFailed || "Download fehlgeschlagen");
+                                                        }
+                                                      }}
+                                                      title={t.download || "Herunterladen"}
+                                                      className="text-secondary d-flex align-items-center justify-content-center"
+                                                      style={{ padding: "4px", borderRadius: "50%", backgroundColor: "#f3f4f6", border: "1px solid #e5e7eb", cursor: "pointer" }}
+                                                    >
+                                                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                                                      </svg>
+                                                    </a>
+                                                  </>
                                                 ) : (
                                                   <span>{label}</span>
                                                 )}
@@ -802,6 +893,7 @@ export default function Teacher() {
                             </tbody>
                           </table>
                         </div>
+                        </>
                       )}
                     </div>
 

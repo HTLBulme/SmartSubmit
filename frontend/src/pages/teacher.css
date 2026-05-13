@@ -14,6 +14,7 @@
   position: relative;
 }
 
+
 .teacher-main-content {
   flex: 1;
   margin-left: 280px;
@@ -21,6 +22,8 @@
   display: flex;
   justify-content: center;
   min-width: 0;
+  height: calc(100vh - 70px);
+  overflow-y: auto;
 }
 
 .teacher-page {
@@ -30,6 +33,8 @@
   width: 100%;
   align-items: flex-start;
   min-width: 0;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .teacher-card {

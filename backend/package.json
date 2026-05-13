@@ -2,7 +2,6 @@
   "name": "smartsubmit-backend",
   "version": "1.0.0",
   "main": "index.js",
- 
   "scripts": {
     "start": "node --watch src/main.js",
     "seed": "prisma db seed",
@@ -14,11 +13,13 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.19.0",
+    "archiver": "^8.0.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
+    "form-data": "^4.0.5",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
     "mysql2": "^3.15.1",

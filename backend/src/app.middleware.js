@@ -14,7 +14,7 @@ const authenticateToken = async (req, res, next) => {
     if (err) {
       return res.status(403).json({ success: false, message: 'Invalid token' });
     }
-    req.userId = decoded.userId;
+    req.userId = decoded.userId || decoded.id;
     next();
   });
 };

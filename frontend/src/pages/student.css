@@ -1,4 +1,35 @@
-﻿.student-layout {
+﻿.attachment-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.attachment-item {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 0.25rem;
+}
+
+.attachment-item:last-child {
+  margin-bottom: 0;
+}
+
+.attachment-item a {
+  color: var(--primary);
+  text-decoration: underline;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+
+.attachment-item a:hover {
+  color: var(--primary-hover);
+}
+.student-layout {
   display: flex;
   flex: 1;
   width: 100%;
@@ -220,12 +251,32 @@
   border-left: 4px solid var(--primary);
 }
 
+
 .assignment-details {
   grid-column: 1 / -1;
   margin-top: 0.75rem;
   padding-top: 0.75rem;
   border-top: 1px solid var(--border);
   color: var(--text);
+}
+
+/* Цветные блоки для секций */
+.assignment-section-teacher {
+  background: #f0f6ff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px 0 rgb(29 119 232 / 0.06);
+  padding: 18px 18px 10px 18px;
+  margin-bottom: 12px;
+  border: 1px solid #e0eaff;
+}
+.assignment-section-student {
+  background: #f9f9f6;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px 0 rgb(31 41 55 / 0.04);
+  padding: 0 18px 10px 18px;
+  margin-bottom: 0;
+  border: 1px solid #ececec;
+  border-top: none;
 }
 
 .assignment-details-row {

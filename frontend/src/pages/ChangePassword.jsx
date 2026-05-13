@@ -49,7 +49,7 @@ export default function ChangePassword() {
     setIsLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
       
       if (!token) {
         setMessage(t.notLoggedIn);
@@ -75,7 +75,7 @@ export default function ChangePassword() {
 
       // Automatically redirect to homepage after 3 seconds
       setTimeout(() => {
-        const role = localStorage.getItem("role");
+        const role = sessionStorage.getItem("role") || localStorage.getItem("role");
         if (role?.toLowerCase() === "admin") navigate("/admin");
         else if (role?.toLowerCase() === "lehrer") navigate("/teacher");
         else navigate("/student");

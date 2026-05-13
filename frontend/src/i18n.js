@@ -19,6 +19,8 @@
     logout: "Abmelden",
     fetchError: "Fehler beim Laden der Daten",
     loading: "Wird geladen...",
+    download: "Herunterladen",
+    downloadFailed: "Download fehlgeschlagen",
     success: "✅ Import erfolgreich!",
     uploadError: "❌ Fehler beim Hochladen",
 
@@ -282,7 +284,6 @@
     language: "Sprache",
 
   },
-
   en: {
     allClasses: "— All classes —",
     materialsLbl: "Materials", // NEW: for the table
@@ -304,6 +305,8 @@
     logout: "Logout",
     fetchError: "Error loading data",
     loading: "Loading...",
+    download: "Download",
+    downloadFailed: "Download failed",
     success: "✅ Import successful!",
     uploadError: "❌ Upload failed",
 
@@ -450,20 +453,20 @@
     back: "Back",
 
     // --- Help Content ---
-    adminSteps: [
-      "Log in with admin credentials",
-      "Go to the admin panel",
-      "Import students and teachers via Excel files",
-      "Users can now log in with their credentials"
-    ],
-    teacherSteps: [
-      "Log in with your credentials",
-      "Select class and subject",
-      "Create a new assignment",
-      "Add files (optional)",
-      "Set a deadline and save",
-      "View submissions under \"Submission list\""
-    ],
+adminSteps: [
+  "Log in with admin credentials",
+  "Go to the admin panel",
+  "Import students and teachers via Excel files",
+  "Users can now log in with their credentials"
+],
+teacherSteps: [
+  "Log in with your credentials",
+  "Select class and subject",
+  "Create a new assignment",
+  "Add files (optional)",
+  "Set a deadline and save",
+  "View submissions under \"Submission list\""
+],
     studentSteps: [
       "Log in with your credentials",
       "View all assigned tasks",
