@@ -33,16 +33,31 @@ const authenticateAdmin = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Invalid token' });
     }
 
-    const userRole = await prisma.userRole.findFirst({
-      where: { userId: decoded.userId, roleId: 3 }
-    });
+    try {
+      // Query Admin role by name (more robust than hard-coded roleId)
+      const adminRole = await prisma.role.findFirst({
+        where: { name: 'Admin' },
+        select: { id: true }
+      });
 
-    if (!userRole) {
-      return res.status(403).json({ success: false, message: 'Admins only' });
-    } 
+      if (!adminRole) {
+        return res.status(403).json({ success: false, message: 'Admin role not configured' });
+      }
 
-    req.userId = decoded.userId;
-    next();
+      const userRole = await prisma.userRole.findFirst({
+        where: { userId: decoded.userId, roleId: adminRole.id }
+      });
+
+      if (!userRole) {
+        return res.status(403).json({ success: false, message: 'Admins only' });
+      } 
+
+      req.userId = decoded.userId;
+      next();
+    } catch (error) {
+      console.error('Error checking admin role:', error);
+      return res.status(500).json({ success: false, message: 'Server error' });
+    }
   });
 };
 
