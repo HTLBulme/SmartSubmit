@@ -64,6 +64,11 @@ export default function StudentDashboard() {
 
   const [activeView, setActiveView] = useState("dashboard");
 
+  const openAssignmentDetail = (assignmentId) => {
+    setActiveView("dashboard");
+    setExpandedAssignmentId(assignmentId);
+  };
+
   const getAttachmentUrl = (attachment) => {
     if (!attachment) return null;
 
@@ -253,7 +258,6 @@ export default function StudentDashboard() {
       if (showLoading) setLoading(false);
     }
   };
-
 
   // First polling
   useEffect(() => {
@@ -656,7 +660,7 @@ export default function StudentDashboard() {
                                                         headers: { Authorization: `Bearer ${token}` }
                                                       });
                                                       await fetchStudentData({ showLoading: false });
-                                                    } catch (err) {
+                                                    } catch {
                                                       alert(t.deleteFileError || 'Error deleting file');
                                                     }
                                                   }}
@@ -691,7 +695,10 @@ export default function StudentDashboard() {
             </div>
           )}
           {activeView === "calendar" && (
-            <CalendarView assignments={userData?.assignments || []} />
+            <CalendarView
+              assignments={userData?.assignments || []}
+              onAssignmentClick={openAssignmentDetail}
+            />
           )}
           {activeView === "settings" && (
             <SettingsView userData={userData} />

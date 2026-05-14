@@ -305,6 +305,9 @@
     today: "Heute",
     tomorrow: "Morgen",
     days: "Tage",
+    week: "Woche",
+    month: "Monat",
+    year: "Jahr",
     
     // Settings translations
     accountSettings: "Kontoeinstellungen",
@@ -440,6 +443,9 @@
     viewDetails: "View Details",
     hideDetails: "Hide details",
     submitWork: "Submit Work",
+    week: "Week",
+    month: "Month",
+    year: "Year",
     submissionClosed: "Submission closed (deadline passed)",
     submitSuccess: "Submission saved",
     submitError: "Failed to save submission",    notifyWhenGraded: "Notify me when graded",
