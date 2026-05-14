@@ -6,6 +6,30 @@ const { sendGradeNotification } = require('../app.email');
 const UPLOADS_ROOT = path.resolve(__dirname, '..', '..', 'uploads');
 const NOTIFY_FLAG_REGEX = /\s*\[notifyOnGrade:(true|false)\]\s*$/i;
 
+async function ensureTeacherRole(teacherId) {
+  try {
+    // Query Teacher role by name (more robust than hard-coded roleId)
+    const teacherRole = await prisma.role.findFirst({
+      where: { name: 'Teacher' },
+      select: { id: true }
+    });
+    
+    if (!teacherRole) {
+      console.error('Teacher role not found in database');
+      return false;
+    }
+
+    const isTeacher = await prisma.userRole.findFirst({
+      where: { userId: teacherId, roleId: teacherRole.id },
+      select: { id: true }
+    });
+    return Boolean(isTeacher);
+  } catch (error) {
+    console.error('Error checking teacher role:', error);
+    return false;
+  }
+}
+
 function parseNotifyFlag(text) {
   if (typeof text !== 'string') return true;
   const match = text.match(NOTIFY_FLAG_REGEX);
@@ -43,10 +67,7 @@ const createAssignment = async (req, res) => {
     const safeTitle = typeof title === 'string' ? title : '';
     const safeText = typeof text === 'string' ? text : '';
 
-    const isTeacher = await prisma.userRole.findFirst({  // ✅ fix
-      where: { userId: teacherId, roleId: 2 },
-      select: { id: true } // Only fetch id, existence check only
-    });
+    const isTeacher = await ensureTeacherRole(teacherId);
 
     if (!isTeacher) {
       return res.status(403).json({ success: false, message: 'Only for teachers' });
@@ -210,10 +231,7 @@ const getAssignmentSubmissions = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Aufgaben-ID erforderlich' });
     }
 
-    const isTeacher = await prisma.userRole.findFirst({  // ✅ fix
-      where: { userId: teacherId, roleId: 2 },
-      select: { id: true }
-    });
+    const isTeacher = await ensureTeacherRole(teacherId);
     if (!isTeacher) {
       return res.status(403).json({ success: false, message: 'Only for teachers' });
     }
@@ -269,10 +287,7 @@ const gradeSubmission = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Abgabe-ID erforderlich' });
     }
 
-    const isTeacher = await prisma.userRole.findFirst({  // ✅ fix
-      where: { userId: teacherId, roleId: 2 },
-      select: { id: true }
-    });
+    const isTeacher = await ensureTeacherRole(teacherId);
     if (!isTeacher) {
       return res.status(403).json({ success: false, message: 'Only for teachers' });
     }
@@ -359,10 +374,7 @@ const setAssignmentArchived = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Aufgaben-ID erforderlich' });
     }
 
-    const isTeacher = await prisma.userRole.findFirst({  // ✅ fix
-      where: { userId: teacherId, roleId: 2 },
-      select: { id: true }
-    });
+    const isTeacher = await ensureTeacherRole(teacherId);
     if (!isTeacher) {
       return res.status(403).json({ success: false, message: 'Only for teachers' });
     }
@@ -406,10 +418,7 @@ const deleteAssignment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Aufgaben-ID erforderlich' });
     }
 
-    const isTeacher = await prisma.userRole.findFirst({  // ✅ fix
-      where: { userId: teacherId, roleId: 2 },
-      select: { id: true }
-    });
+    const isTeacher = await ensureTeacherRole(teacherId);
     if (!isTeacher) {
       return res.status(403).json({ success: false, message: 'Only for teachers' });
     }
@@ -471,9 +480,7 @@ const downloadSubmissionsAsZip = async (req, res) => {
     const teacherId = Number.parseInt(req.userId, 10);
     const assignmentId = Number.parseInt(req.params.assignmentId, 10);
 
-    const isTeacher = await prisma.userRole.findFirst({
-      where: { userId: teacherId, roleId: 2 },
-    });
+    const isTeacher = await ensureTeacherRole(teacherId);
     if (!isTeacher) return res.status(403).json({ success: false, message: 'Nur für Lehrer' });
 
     const assignment = await prisma.assignment.findFirst({

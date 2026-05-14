@@ -40,11 +40,27 @@ const { prisma } = require('../app.config');
 const { sendSubmissionConfirmation } = require('../app.email');
 
 async function ensureStudentRole(studentId) {
-  const isStudent = await prisma.userRole.findFirst({  // ✅ fix
-    where: { userId: studentId, roleId: 1 },
-    select: { id: true }
-  });
-  return Boolean(isStudent);
+  try {
+    // Query Student role by name (more robust than hard-coded roleId)
+    const studentRole = await prisma.role.findFirst({
+      where: { name: 'Student' },
+      select: { id: true }
+    });
+    
+    if (!studentRole) {
+      console.error('Student role not found in database');
+      return false;
+    }
+
+    const isStudent = await prisma.userRole.findFirst({
+      where: { userId: studentId, roleId: studentRole.id },
+      select: { id: true }
+    });
+    return Boolean(isStudent);
+  } catch (error) {
+    console.error('Error checking student role:', error);
+    return false;
+  }
 }
 
 const NOTIFY_FLAG_REGEX = /\s*\[notifyOnGrade:(true|false)\]\s*$/i;

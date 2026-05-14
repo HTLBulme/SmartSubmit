@@ -263,10 +263,12 @@ export default function StudentDashboard() {
   useEffect(() => {
     let isMounted = true;
     let intervalId = null;
+    let lastError = null;
 
     const run = async () => {
       try {
         await fetchStudentData({ showLoading: true });
+        lastError = null;
       } finally {
         // no-op
       }
@@ -274,10 +276,12 @@ export default function StudentDashboard() {
 
     run();
 
-    // Polling: refresh assignments every 5 seconds
+    // Polling: refresh assignments every 10 seconds, but skip if last request failed
     intervalId = setInterval(() => {
-      if (isMounted) fetchStudentData({ showLoading: false });
-    }, 5000);
+      if (isMounted && !lastError) {
+        fetchStudentData({ showLoading: false });
+      }
+    }, 10000);
 
     return () => {
       isMounted = false;
