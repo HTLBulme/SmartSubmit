@@ -1,10 +1,16 @@
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 import "./TeacherSettingsView.css";
+import { useNavigate } from "react-router-dom";
 
 export default function TeacherSettingsView({ userData }) {
   const [lang] = useLang();
   const t = T[lang] || T.en;
+  const navigate = useNavigate();
+  
+  const handleChangePassword = () => {
+    navigate("/change-password");
+  };
 
   return (
     <div className="teacher-settings-view">
@@ -61,7 +67,7 @@ export default function TeacherSettingsView({ userData }) {
         
         <div className="settings-item">
           <div className="settings-item-label">{t.password || "Password"}</div>
-          <button className="settings-btn-secondary">
+          <button className="settings-btn-secondary" onClick={handleChangePassword}>
             {t.changePassword || "Change Password"}
           </button>
           <div className="settings-item-hint">
