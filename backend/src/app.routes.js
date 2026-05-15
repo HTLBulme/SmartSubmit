@@ -97,6 +97,7 @@ router.patch('/teacher/submissions/:submissionId', authenticateToken, teacherCon
 // --- STUDENT PAGE (authenticated) ---
 router.get('/student/assignments', authenticateToken, studentController.getAssignments);
 router.post('/student/submit', authenticateToken, uploadSubmissionsDisk.array('files', 10), studentController.submitAssignment);
+router.post('/student/delete-file', authenticateToken, studentController.deleteSubmissionFile);
 router.get('/student/submissions', authenticateToken, studentController.getMySubmissions);
 
 // --- CHANGE PASSWORD ---

@@ -489,6 +489,17 @@ export default function StudentDashboard() {
                                   </div>
                                 </div>
                               )}
+
+                              {assignment.feedback && (
+                                <div className="assignment-details-row mt-3" style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.75rem' }}>
+                                  <div className="assignment-details-label" style={{ color: '#4b5563' }}>
+                                    {t.feedbackFromTeacher || "Rückmeldung der Lehrkraft"}
+                                  </div>
+                                  <div className="assignment-details-value" style={{ whiteSpace: 'pre-wrap', color: '#1f2937' }}>
+                                    {assignment.feedback}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                             {/* --- Student's part --- */}
                             <div className="assignment-section-student">
@@ -550,6 +561,7 @@ export default function StudentDashboard() {
                                       title={t.dndHint || "Press Enter to choose files"}
                                     >
                                       <div className="student-dnd-content">
+                                        <div className="dnd-icon" style={{ fontSize: "1.6rem" }}>📂</div>
                                         <div className="student-dnd-text">
                                           <strong>{t.dndTitle || "Drag files here"}</strong>
                                           <div className="student-dnd-sub">
@@ -679,13 +691,6 @@ export default function StudentDashboard() {
                                     </div>
                                   )}
                                 </>
-                              )}
-
-                              {assignment.feedback && (
-                                <div className="assignment-details-row">
-                                  <div className="assignment-details-label">{t.feedback || "Feedback"}</div>
-                                  <div className="assignment-details-value">{assignment.feedback}</div>
-                                </div>
                               )}
                             </div>
                           </div>

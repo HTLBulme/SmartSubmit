@@ -264,7 +264,8 @@ const getAssignmentSubmissions = async (req, res) => {
       } else if (Array.isArray(row.files)) {
         parsedFiles = row.files;
       }
-      return { ...row, files: parsedFiles }; // Spread row and replace dateien string with parsed array
+      const cleanText = row.text ? row.text.replace(NOTIFY_FLAG_REGEX, '').trim() : row.text;
+      return { ...row, files: parsedFiles, text: cleanText }; // Spread row and replace dateien string with parsed array
     });
 
     return res.json({ success: true, data, assignment });
