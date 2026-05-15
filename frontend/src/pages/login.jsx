@@ -1,3 +1,4 @@
+import React from "react";
 import { useLang } from "../context/LanguageContext";
 import T from "../i18n";
 import { useEffect, useState } from "react";
