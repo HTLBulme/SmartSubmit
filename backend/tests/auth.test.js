@@ -15,8 +15,12 @@ jest.mock('@prisma/client', () => {
     // Define a stable mock user object for testing the password failure path
     const mockUser = {
         id: 1,
+        firstname: 'Test',
+        lastname: 'Tutor',
         email: 'tutor@smartsubmit.com',
         passwordHash: 'hashed-password-for-mock',
+        provider: 'local',
+        active: true,
         userRoles: [
             { roleId: 1, role: { name: 'Tutor' } }
         ]

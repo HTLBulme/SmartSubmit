@@ -102,7 +102,7 @@ describe('Backend API Integration Tests', () => {
         id: 1,
         title: 'Test Assignment',
         description: 'Test Description',
-        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toDateString(),
         link: '',
         attachments: '[]',
         class: { name: '5A' },
