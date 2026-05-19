@@ -148,67 +148,43 @@ flowchart TB
 ### Projektstruktur
 
 ```mermaid
-graph TD
-    A[SmartSubmit]
+graph LR
+  A[SmartSubmit] --> B[backend/]
+  A --> C[frontend/]
+  A --> D[docker-compose.yml]
+  A --> E[Dockerfile]
+  A --> F[README.md]
 
-    %% Frontend
-    A --> B[frontend<br/>React-Frontend-Anwendung]
+  %% Backend (stacked vertically on the right of backend node)
+  B --> B_src[src/]
+  B --> B_prisma[prisma/]
+  B --> B_uploads[uploads/]
 
-    B --> B1[src]
+  B_src --> main[main.js]
+  B_src --> routes[app.routes.js]
+  B_src --> middleware[app.middleware.js]
+  B_src --> controllers[controllers/]
 
-    B1 --> B11[pages<br/>Seitenkomponenten]
-    B11 --> B111[login.jsx]
-    B11 --> B112[register.jsx]
-    B11 --> B113[admin.jsx]
-    B11 --> B114[teacher.jsx]
-    B11 --> B115[student.jsx]
+  controllers --> admin_ctrl[admin.controller.js]
+  controllers --> login_ctrl[login.controller.js]
+  controllers --> register_ctrl[register.controller.js]
+  controllers --> student_ctrl[student.controller.js]
+  controllers --> teacher_ctrl[teacher.controller.js]
 
-    B1 --> B12[context<br/>React Context]
-    B12 --> B121[LanguageContext.jsx]
+  %% Frontend
+  C --> C_src[src/]
+  C --> C_public[public/]
 
-    B1 --> B13[i18n<br/>Übersetzungen]
-    B13 --> B131[index.js]
+  C_src --> appjsx[App.jsx]
+  C_src --> mainjsx[main.jsx]
+  C_src --> pages[pages/]
 
-    B1 --> B14[App.jsx<br/>Hauptkomponente]
-    B1 --> B15[main.jsx<br/>Einstiegspunkt]
+  pages --> p_login[login.jsx]
+  pages --> p_register[register.jsx]
+  pages --> p_admin[admin.jsx]
+  pages --> p_teacher[teacher.jsx]
+  pages --> p_student[student.jsx]
 
-    B --> B2[public<br/>Statische Ressourcen]
-    B --> B3[package.json]
-    B --> B4[vite.config.js]
-
-    %% Backend
-    A --> C[backend<br/>Node.js-Backend-Anwendung]
-
-    C --> C1[src<br/>Refaktorierte modulare Struktur]
-
-    C1 --> C11[controllers<br/>Geschäftslogik]
-    C11 --> C111[login.controller.js]
-    C11 --> C112[register.controller.js]
-    C11 --> C113[admin.controller.js]
-    C11 --> C114[teacher.controller.js]
-    C11 --> C115[student.controller.js]
-
-    C1 --> C12[main.js<br/>Server-Einstiegspunkt]
-    C1 --> C13[app.config.js<br/>Konfiguration & Prisma]
-    C1 --> C14[app.routes.js<br/>Routendefinitionen]
-    C1 --> C15[app.middleware.js<br/>Authentifizierungs-Middleware]
-    C1 --> C16[app.utils.js<br/>Hilfsfunktionen]
-
-    C --> C2[prisma<br/>Datenbankschema & Migrationen]
-    C2 --> C21[schema.prisma<br/>Datenbankschema]
-    C2 --> C22[migrations<br/>Migrationshistorie]
-    C2 --> C23[seed.js<br/>Datenbank-Seeding]
-
-    C --> C3[uploads<br/>Datei-Upload-Verzeichnis]
-    C3 --> C31[assignments<br/>Aufgabendateien]
-
-    C --> C4[package.json]
-    C --> C5[.env<br/>Umgebungsvariablen]
-
-    %% Root
-    A --> D[docker-compose.yml<br/>Docker-Orchestrierung]
-    A --> E[Dockerfile<br/>Backend-Container-Definition]
-    A --> F[README.md]
 ```
 
 ---

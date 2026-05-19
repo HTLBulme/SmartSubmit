@@ -148,64 +148,43 @@ flowchart TB
 ### Project Structure
 
 ```mermaid
-graph TD
-    A[SmartSubmit]
+graph LR
+  A[SmartSubmit] --> B[backend/]
+  A --> C[frontend/]
+  A --> D[docker-compose.yml]
+  A --> E[Dockerfile]
+  A --> F[README.md]
 
-    %% Frontend
-    A --> B[frontend]
-    B --> B1[src]
-    B1 --> B11[pages]
-    B11 --> B111[login.jsx]
-    B11 --> B112[register.jsx]
-    B11 --> B113[admin.jsx]
-    B11 --> B114[teacher.jsx]
-    B11 --> B115[student.jsx]
+  %% Backend (stacked vertically on the right of backend node)
+  B --> B_src[src/]
+  B --> B_prisma[prisma/]
+  B --> B_uploads[uploads/]
 
-    B1 --> B12[context]
-    B12 --> B121[LanguageContext.jsx]
+  B_src --> main[main.js]
+  B_src --> routes[app.routes.js]
+  B_src --> middleware[app.middleware.js]
+  B_src --> controllers[controllers/]
 
-    B1 --> B13[i18n]
-    B13 --> B131[index.js]
+  controllers --> admin_ctrl[admin.controller.js]
+  controllers --> login_ctrl[login.controller.js]
+  controllers --> register_ctrl[register.controller.js]
+  controllers --> student_ctrl[student.controller.js]
+  controllers --> teacher_ctrl[teacher.controller.js]
 
-    B1 --> B14[App.jsx]
-    B1 --> B15[main.jsx]
+  %% Frontend
+  C --> C_src[src/]
+  C --> C_public[public/]
 
-    B --> B2[public]
-    B --> B3[package.json]
-    B --> B4[vite.config.js]
+  C_src --> appjsx[App.jsx]
+  C_src --> mainjsx[main.jsx]
+  C_src --> pages[pages/]
 
-    %% Backend
-    A --> C[backend]
-    C --> C1[src]
+  pages --> p_login[login.jsx]
+  pages --> p_register[register.jsx]
+  pages --> p_admin[admin.jsx]
+  pages --> p_teacher[teacher.jsx]
+  pages --> p_student[student.jsx]
 
-    C1 --> C11[contRollrs]
-    C11 --> C111[login.controller.js]
-    C11 --> C112[register.controller.js]
-    C11 --> C113[admin.controller.js]
-    C11 --> C114[teacher.controller.js]
-    C11 --> C115[student.controller.js]
-
-    C1 --> C12[main.js]
-    C1 --> C13[app.config.js]
-    C1 --> C14[app.routes.js]
-    C1 --> C15[app.middleware.js]
-    C1 --> C16[app.utils.js]
-
-    C --> C2[prisma]
-    C2 --> C21[schema.prisma]
-    C2 --> C22[migrations]
-    C2 --> C23[seed.js]
-
-    C --> C3[uploads]
-    C3 --> C31[assignments]
-
-    C --> C4[package.json]
-    C --> C5[.env]
-
-    %% Root files
-    A --> D[docker-compose.yml]
-    A --> E[Dockerfile]
-    A --> F[README.md]
 ```
 
 ---
