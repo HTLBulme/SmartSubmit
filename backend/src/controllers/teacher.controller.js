@@ -236,9 +236,15 @@ const getAssignmentSubmissions = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Only for teachers' });
     }
 
-    const assignment = await prisma.assignment.findFirst({  // ✅ fix
+    const assignment = await prisma.assignment.findFirst({
       where: { id: assignmentId, teacherId: teacherId },
-      select: { id: true, title: true, dueDate: true }
+      select: {
+        id: true,
+        title: true,
+        dueDate: true,
+        class: { select: { name: true } },
+        subject: { select: { name: true } }
+      }
     });
     if (!assignment) {
       return res.status(404).json({ success: false, message: 'Assignment not found' });

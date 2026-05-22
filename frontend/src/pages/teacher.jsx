@@ -62,6 +62,246 @@ function getFriendlyName(userData) {
   return "Lehrer";
 }
 
+
+function sanitizeZipPart(value, fallback = "datei") {
+  const cleaned = String(value || "")
+    .normalize("NFKC")
+    .replace(/[\\/:*?"<>|\x00-\x1f]/g, "_")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^\.+|\.+$/g, "");
+
+  return cleaned || fallback;
+}
+
+function getSubmissionStudentFolderName(submission) {
+  const firstName = submission?.student?.firstName || "";
+  const lastName = submission?.student?.lastName || "";
+  const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
+
+  if (fullName) return sanitizeZipPart(titleCaseWords(fullName), "student");
+
+  const email = submission?.student?.email;
+  if (typeof email === "string" && email.includes("@")) {
+    return sanitizeZipPart(email.split("@")[0].replace(/[._-]+/g, " "), "student");
+  }
+
+  return sanitizeZipPart(`student_${submission?.id || "files"}`, "student");
+}
+
+
+function formatSubmissionDateParts(value) {
+  if (!value) return { date: "", time: "" };
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return { date: "", time: "" };
+
+  return {
+    date: date.toLocaleDateString(),
+    time: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+  };
+}
+
+function getSubmissionStudentDisplayName(submission) {
+  const firstName = submission?.student?.firstName || "";
+  const lastName = submission?.student?.lastName || "";
+  const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
+
+  if (fullName) return fullName;
+
+  const email = submission?.student?.email;
+  if (typeof email === "string" && email.includes("@")) return email.split("@")[0];
+
+  return "—";
+}
+
+function addFileNameSuffix(fileName, suffix) {
+  const dotIndex = fileName.lastIndexOf(".");
+  if (dotIndex <= 0) return `${fileName}${suffix}`;
+  return `${fileName.slice(0, dotIndex)}${suffix}${fileName.slice(dotIndex)}`;
+}
+
+function makeUniqueZipPath(folderName, fileName, usedPaths) {
+  let candidateName = fileName;
+  let candidatePath = `${folderName}/${candidateName}`;
+  let counter = 2;
+
+  while (usedPaths.has(candidatePath.toLocaleLowerCase())) {
+    candidateName = addFileNameSuffix(fileName, `_${counter}`);
+    candidatePath = `${folderName}/${candidateName}`;
+    counter += 1;
+  }
+
+  usedPaths.add(candidatePath.toLocaleLowerCase());
+  return candidatePath;
+}
+
+function downloadBlob(blob, filename) {
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+}
+
+function getFilenameFromContentDisposition(disposition, fallback) {
+  if (!disposition || !disposition.includes("filename=")) return fallback;
+
+  const quoted = /filename="([^"]+)"/.exec(disposition);
+  if (quoted?.[1]) return quoted[1];
+
+  const unquoted = /filename=([^;]+)/.exec(disposition);
+  if (unquoted?.[1]) return unquoted[1].trim();
+
+  return fallback;
+}
+
+async function fetchFileBlob(href) {
+  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+
+  if (token) {
+    try {
+      const response = await fetch(href, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) return response.blob();
+    } catch {
+      // Static upload routes can be configured without auth/CORS headers.
+      // In that case, retry the same download exactly like the single-file link did before.
+    }
+  }
+
+  const fallbackResponse = await fetch(href);
+  if (!fallbackResponse.ok) throw new Error("Network error");
+  return fallbackResponse.blob();
+}
+
+let crcTable = null;
+
+function getCrcTable() {
+  if (crcTable) return crcTable;
+
+  crcTable = new Uint32Array(256);
+  for (let n = 0; n < 256; n += 1) {
+    let c = n;
+    for (let k = 0; k < 8; k += 1) {
+      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    }
+    crcTable[n] = c >>> 0;
+  }
+  return crcTable;
+}
+
+function crc32(bytes) {
+  const table = getCrcTable();
+  let crc = 0xffffffff;
+
+  for (let i = 0; i < bytes.length; i += 1) {
+    crc = table[(crc ^ bytes[i]) & 0xff] ^ (crc >>> 8);
+  }
+
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function writeUint16(bytes, offset, value) {
+  bytes[offset] = value & 0xff;
+  bytes[offset + 1] = (value >>> 8) & 0xff;
+}
+
+function writeUint32(bytes, offset, value) {
+  bytes[offset] = value & 0xff;
+  bytes[offset + 1] = (value >>> 8) & 0xff;
+  bytes[offset + 2] = (value >>> 16) & 0xff;
+  bytes[offset + 3] = (value >>> 24) & 0xff;
+}
+
+function getDosDateTime(date = new Date()) {
+  const year = Math.max(date.getFullYear(), 1980);
+  const dosTime =
+    (date.getHours() << 11) |
+    (date.getMinutes() << 5) |
+    Math.floor(date.getSeconds() / 2);
+  const dosDate =
+    ((year - 1980) << 9) |
+    ((date.getMonth() + 1) << 5) |
+    date.getDate();
+
+  return { dosTime, dosDate };
+}
+
+async function createStoredZipBlob(entries) {
+  const encoder = new TextEncoder();
+  const parts = [];
+  const centralParts = [];
+  const { dosTime, dosDate } = getDosDateTime();
+  let offset = 0;
+
+  for (const entry of entries) {
+    const nameBytes = encoder.encode(entry.path);
+    const dataBytes = new Uint8Array(await entry.blob.arrayBuffer());
+    const crc = crc32(dataBytes);
+
+    if (nameBytes.length > 0xffff || dataBytes.length > 0xffffffff) {
+      throw new Error("ZIP entry is too large");
+    }
+
+    const localHeader = new Uint8Array(30 + nameBytes.length);
+    writeUint32(localHeader, 0, 0x04034b50);
+    writeUint16(localHeader, 4, 20);
+    writeUint16(localHeader, 6, 0x0800); // UTF-8 filenames
+    writeUint16(localHeader, 8, 0); // stored, no compression
+    writeUint16(localHeader, 10, dosTime);
+    writeUint16(localHeader, 12, dosDate);
+    writeUint32(localHeader, 14, crc);
+    writeUint32(localHeader, 18, dataBytes.length);
+    writeUint32(localHeader, 22, dataBytes.length);
+    writeUint16(localHeader, 26, nameBytes.length);
+    writeUint16(localHeader, 28, 0);
+    localHeader.set(nameBytes, 30);
+
+    parts.push(localHeader, dataBytes);
+
+    const centralHeader = new Uint8Array(46 + nameBytes.length);
+    writeUint32(centralHeader, 0, 0x02014b50);
+    writeUint16(centralHeader, 4, 20);
+    writeUint16(centralHeader, 6, 20);
+    writeUint16(centralHeader, 8, 0x0800);
+    writeUint16(centralHeader, 10, 0);
+    writeUint16(centralHeader, 12, dosTime);
+    writeUint16(centralHeader, 14, dosDate);
+    writeUint32(centralHeader, 16, crc);
+    writeUint32(centralHeader, 20, dataBytes.length);
+    writeUint32(centralHeader, 24, dataBytes.length);
+    writeUint16(centralHeader, 28, nameBytes.length);
+    writeUint16(centralHeader, 30, 0);
+    writeUint16(centralHeader, 32, 0);
+    writeUint16(centralHeader, 34, 0);
+    writeUint16(centralHeader, 36, 0);
+    writeUint32(centralHeader, 38, 0);
+    writeUint32(centralHeader, 42, offset);
+    centralHeader.set(nameBytes, 46);
+
+    centralParts.push(centralHeader);
+    offset += localHeader.length + dataBytes.length;
+  }
+
+  const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0);
+  const endHeader = new Uint8Array(22);
+  writeUint32(endHeader, 0, 0x06054b50);
+  writeUint16(endHeader, 4, 0);
+  writeUint16(endHeader, 6, 0);
+  writeUint16(endHeader, 8, entries.length);
+  writeUint16(endHeader, 10, entries.length);
+  writeUint32(endHeader, 12, centralSize);
+  writeUint32(endHeader, 16, offset);
+  writeUint16(endHeader, 20, 0);
+
+  return new Blob([...parts, ...centralParts, endHeader], { type: "application/zip" });
+}
+
 // --- Teacher page ---
 export default function Teacher() {
   const [lang] = useLang();
@@ -119,6 +359,8 @@ export default function Teacher() {
   const [submissionsError, setSubmissionsError] = useState("");
   const [isSubmissionsOpen, setIsSubmissionsOpen] = useState(false);
   const [gradeDrafts, setGradeDrafts] = useState({});
+  const [selectedSubmissionIds, setSelectedSubmissionIds] = useState(() => new Set());
+  const [downloadBusyMode, setDownloadBusyMode] = useState("");
   const [restoreAssignmentsOnClose, setRestoreAssignmentsOnClose] = useState(false);
 
   // --- Add files to state (unique by name+size) ---
@@ -233,10 +475,6 @@ export default function Teacher() {
     };
   }, [isAssignmentsOpen, isSubmissionsOpen]);
 
-  function handleSubmissionsClick() {
-    // kept for backwards compatibility; actual list is handled per assignment
-  }
-
   function handleAssignmentClick() {
     setAssignmentsTab("active");
     setIsAssignmentsOpen(true);
@@ -255,6 +493,7 @@ export default function Teacher() {
     if (shouldRestore) setIsAssignmentsOpen(false);
 
     setSelectedAssignmentId(assignmentId);
+    setSelectedSubmissionIds(new Set());
     setIsSubmissionsOpen(true);
     await fetchSubmissions(assignmentId);
   }
@@ -367,6 +606,10 @@ export default function Teacher() {
       const list = res.data.data || [];
       setSubmissions(list);
       setSubmissionsMeta(res.data.assignment || null);
+      setSelectedSubmissionIds((prev) => {
+        const validIds = new Set(list.map((submission) => String(submission.id)));
+        return new Set(Array.from(prev).filter((id) => validIds.has(id)));
+      });
 
       setGradeDrafts((prev) => {
         const next = { ...prev };
@@ -395,8 +638,15 @@ export default function Teacher() {
 
   async function saveGrade(submissionId) {
     const draft = gradeDrafts[submissionId] || {};
+    const submission = submissions.find((s) => s.id === submissionId);
     const rawGrade = (draft.grade ?? "").trim();
     const rawFeedback = draft.feedback ?? "";
+
+    // Определяем, что реально изменилось
+    const initialGrade = typeof submission?.grade === "number" ? String(submission.grade) : "";
+    const initialFeedback = submission?.feedback || "";
+    const gradeChanged = rawGrade !== initialGrade;
+    const feedbackChanged = rawFeedback !== initialFeedback;
 
     let grade = null;
     if (rawGrade !== "") {
@@ -406,8 +656,8 @@ export default function Teacher() {
           ...prev,
           [submissionId]: {
             ...draft,
-            error: t.gradeRange || "Invalid grade (0-100)",
-            ok: "",
+            gradeError: t.gradeRange || "Invalid grade (0-100)",
+            gradeOk: "",
           },
         }));
         return;
@@ -417,10 +667,20 @@ export default function Teacher() {
 
     const feedback = rawFeedback.trim() === "" ? null : rawFeedback;
 
+    // if nothing changed, do nothing (avoid unnecessary API call and UI flicker)
+    if (!gradeChanged && !feedbackChanged) return;
+
     try {
       setGradeDrafts((prev) => ({
         ...prev,
-        [submissionId]: { ...draft, saving: true, error: "", ok: "" },
+        [submissionId]: {
+          ...draft,
+          saving: true,
+          gradeError: "",
+          gradeOk: "",
+          feedbackError: "",
+          feedbackOk: "",
+        },
       }));
 
       const token = sessionStorage.getItem("token") || localStorage.getItem("token");
@@ -432,40 +692,195 @@ export default function Teacher() {
 
       const updated = res.data?.data;
       if (updated) {
-        setSubmissions((prev) => prev.map((s) => (s.id === submissionId ? { ...s, ...updated } : s)));
+        setSubmissions((prev) =>
+          prev.map((s) =>
+            s.id === submissionId
+              ? { ...s, grade: updated.grade, feedback: updated.feedback }
+              : s
+          )
+        );
       }
 
-      setGradeDrafts((prev) => ({
-        ...prev,
-        [submissionId]: {
-          ...prev[submissionId],
-          saving: false,
-          error: "",
-          ok: t.gradeSaved || "Saved",
-        },
-      }));
+      setGradeDrafts((prev) => {
+        const prevDraft = prev[submissionId] || {};
+        return {
+          ...prev,
+          [submissionId]: {
+            ...prevDraft,
+            saving: false,
+            gradeError: "",
+            gradeOk: gradeChanged ? (t.gradeSaved || "Saved") : prevDraft.gradeOk,
+            feedbackError: "",
+            feedbackOk: feedbackChanged ? (t.gradeSaved || "Saved") : prevDraft.feedbackOk,
+          },
+        };
+      });
     } catch (err) {
       console.error("Error saving grade:", err);
-      setGradeDrafts((prev) => ({
-        ...prev,
-        [submissionId]: {
-          ...prev[submissionId],
-          saving: false,
-          error: t.gradeError || t.errorSavingGrade || "Save failed",
-          ok: "",
-        },
-      }));
+      setGradeDrafts((prev) => {
+        const prevDraft = prev[submissionId] || {};
+        return {
+          ...prev,
+          [submissionId]: {
+            ...prevDraft,
+            saving: false,
+            gradeError: gradeChanged ? (t.gradeError || t.errorSavingGrade || "Save failed") : prevDraft.gradeError,
+            gradeOk: gradeChanged ? "" : prevDraft.gradeOk,
+            feedbackError: feedbackChanged ? (t.gradeError || t.errorSavingGrade || "Save failed") : prevDraft.feedbackError,
+            feedbackOk: feedbackChanged ? "" : prevDraft.feedbackOk,
+          },
+        };
+      });
     }
+  }
+
+  function getDownloadableSubmissionFiles(submission) {
+    const files = Array.isArray(submission?.files) ? submission.files : [];
+
+    return files
+      .map((file, idx) => ({
+        file,
+        idx,
+        href: getSubmissionFileUrl(file),
+        label: getSubmissionFileLabel(file),
+      }))
+      .filter((item) => item.href);
+  }
+
+  function submissionHasDownloadableFiles(submission) {
+    return getDownloadableSubmissionFiles(submission).length > 0;
+  }
+
+  function toggleSubmissionSelection(submissionId, checked) {
+    const key = String(submissionId);
+    setSelectedSubmissionIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  }
+
+  function setAllSubmissionSelection(checked) {
+    if (!checked) {
+      setSelectedSubmissionIds(new Set());
+      return;
+    }
+
+    setSelectedSubmissionIds(
+      new Set(
+        submissions
+          .filter(submissionHasDownloadableFiles)
+          .map((submission) => String(submission.id))
+      )
+    );
+  }
+
+  async function downloadSubmissionsAsZip(targetSubmissions, filename, busyMode) {
+    const usedPaths = new Set();
+    const entries = [];
+
+    try {
+      setDownloadBusyMode(busyMode);
+
+      for (const submission of targetSubmissions) {
+        const folderName = getSubmissionStudentFolderName(submission);
+        const downloadableFiles = getDownloadableSubmissionFiles(submission);
+
+        for (const item of downloadableFiles) {
+          let blob;
+          try {
+            blob = await fetchFileBlob(item.href);
+          } catch (err) {
+            console.error(err);
+            throw new Error(`Download failed: ${item.label || item.href}`);
+          }
+
+          const safeFileName = sanitizeZipPart(item.label, `file_${item.idx + 1}`);
+          const zipPath = makeUniqueZipPath(folderName, safeFileName, usedPaths);
+          entries.push({ path: zipPath, blob });
+        }
+      }
+
+      if (entries.length === 0) {
+        alert(t.noFiles || "Keine Dateien");
+        return;
+      }
+
+      const zipBlob = await createStoredZipBlob(entries);
+      downloadBlob(zipBlob, filename);
+    } catch (err) {
+      console.error(err);
+      alert(t.downloadFailed || "Download fehlgeschlagen");
+    } finally {
+      setDownloadBusyMode("");
+    }
+  }
+
+  async function downloadCurrentSelectionZip() {
+    const currentDownloadableSubmissions = submissions.filter(submissionHasDownloadableFiles);
+    const selectedSubmissions = currentDownloadableSubmissions.filter((submission) =>
+      selectedSubmissionIds.has(String(submission.id))
+    );
+
+    const isWholeClassSelection =
+      currentDownloadableSubmissions.length > 0 &&
+      selectedSubmissions.length === currentDownloadableSubmissions.length;
+
+    let zipName = "abgaben.zip";
+    if (selectedSubmissions.length === 1) {
+      // Один ученик: имя архива = имя_класс_предмет_дата.zip
+      const folderName = getSubmissionStudentFolderName(selectedSubmissions[0]);
+      const className = submissionsMeta?.class?.name
+        ? sanitizeZipPart(submissionsMeta.class.name, "klasse")
+        : "klasse";
+      const subjectName = submissionsMeta?.subject?.name || submissionsMeta?.subject
+        ? sanitizeZipPart(submissionsMeta.subject?.name || submissionsMeta.subject, "fach")
+        : "fach";
+      const dueDate = submissionsMeta?.dueDate
+        ? new Date(submissionsMeta.dueDate).toISOString().split("T")[0]
+        : "datum";
+      zipName = `${folderName}_${className}_${subjectName}_${dueDate}.zip`;
+    } else if (isWholeClassSelection && submissionsMeta) {
+      const className = submissionsMeta.class?.name
+        ? sanitizeZipPart(submissionsMeta.class.name, "klasse")
+        : "klasse";
+      const subjectName = submissionsMeta.subject?.name || submissionsMeta.subject
+        ? sanitizeZipPart(submissionsMeta.subject?.name || submissionsMeta.subject, "fach")
+        : "fach";
+      const dueDate = submissionsMeta.dueDate
+        ? new Date(submissionsMeta.dueDate).toISOString().split("T")[0]
+        : "datum";
+      zipName = `${className}_${subjectName}_${dueDate}.zip`;
+    } else {
+      zipName = `ausgewaehlte_abgaben_${selectedAssignmentId}.zip`;
+    }
+    await downloadSubmissionsAsZip(
+      selectedSubmissions,
+      zipName,
+      "selection"
+    );
   }
 
   function closeSubmissionsModal() {
     setIsSubmissionsOpen(false);
+    setSelectedSubmissionIds(new Set());
 
     if (restoreAssignmentsOnClose) {
       setRestoreAssignmentsOnClose(false);
       setIsAssignmentsOpen(true);
     }
   }
+
+  const downloadableSubmissions = submissions.filter(submissionHasDownloadableFiles);
+  const selectedDownloadableSubmissions = submissions.filter(
+    (submission) =>
+      selectedSubmissionIds.has(String(submission.id)) && submissionHasDownloadableFiles(submission)
+  );
+  const selectedDownloadableCount = selectedDownloadableSubmissions.length;
+  const allDownloadableSelected =
+    downloadableSubmissions.length > 0 &&
+    downloadableSubmissions.every((submission) => selectedSubmissionIds.has(String(submission.id)));
 
   return (
     <div className="teacher-layout">
@@ -697,64 +1112,69 @@ export default function Teacher() {
                       )}
 
                       {!submissionsLoading && !submissionsError && submissions.length > 0 && (
- 
- <>
-                          <div className="d-flex justify-content-end mb-2">
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-success"
-                              onClick={async () => {
-                                try {
-                                  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-                                  const response = await fetch(`${API_URL}/api/teacher/assignments/${selectedAssignmentId}/submissions/download`, {
-                                    headers: { Authorization: `Bearer ${token}` }
-                                  });
-                                  if (!response.ok) throw new Error("Fehler beim Herunterladen");
-                                  const blob = await response.blob();
-                                  
-                                  let filename = `abgaben_aufgabe_${selectedAssignmentId}.zip`;
-                                  const disposition = response.headers.get("Content-Disposition");
-                                  if (disposition && disposition.indexOf("filename=") !== -1) {
-                                    const matches = /filename="([^"]+)"/.exec(disposition);
-                                    if (matches && matches[1]) {
-                                      filename = matches[1];
-                                    } else {
-                                      const fallback = /filename=([^;]+)/.exec(disposition);
-                                      if (fallback && fallback[1]) filename = fallback[1];
-                                    }
-                                  }
-
-                                  const url = window.URL.createObjectURL(blob);
-                                  const a = document.createElement("a");
-                                  a.href = url;
-                                  a.download = filename;
-                                  document.body.appendChild(a);
-                                  a.click();
-                                  a.remove();
-                                  window.URL.revokeObjectURL(url);
-                                } catch (err) {
-                                  console.error(err);
-                                  alert(t.downloadFailed || "Download fehlgeschlagen");
+                        <>
+                          <div className="submission-top-actions">
+                            <div className="submission-selection-summary">
+                              {selectedDownloadableCount > 0
+                                ? allDownloadableSelected
+                                  ? "Alle ausgewählt"
+                                  : `${selectedDownloadableCount} ausgewählt`
+                                : "Keine Auswahl"}
+                            </div>
+                            <div className="submission-top-buttons">
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-success"
+                                disabled={selectedDownloadableCount === 0 || downloadBusyMode !== ""}
+                                onClick={downloadCurrentSelectionZip}
+                                title={
+                                  allDownloadableSelected
+                                    ? "Ganze Klasse als ZIP herunterladen"
+                                    : "Ausgewählte Schüler als ZIP herunterladen"
                                 }
-                              }}
-                            >
-                              ZIP {t.download || "Herunterladen"}
-                            </button>
+                              >
+                                {downloadBusyMode === "selection"
+                                  ? t.loading || "Loading..."
+                                  : allDownloadableSelected
+                                  ? "Ganze Klasse als ZIP"
+                                  : "Auswahl als ZIP"}
+                              </button>
+                            </div>
                           </div>
-                          <div className="table-responsive">
-                            <table className="table table-sm table-bordered align-middle">
+                          <div className="table-responsive submissions-table-responsive">
+                            <table className="table table-sm table-bordered align-middle submission-feedback-table">
+                              <colgroup>
+                                <col className="submission-col-select" />
+                                <col className="submission-col-student" />
+                                <col className="submission-col-time" style={{ minWidth: '110px', width: '120px' }} />
+                                <col className="submission-col-files" />
+                                <col className="submission-col-text" style={{ minWidth: '180px', width: '220px' }} />
+                                <col className="submission-col-feedback" />
+                                <col className="submission-col-grade" />
+                                <col className="submission-col-save" style={{ width: '1px', minWidth: '1px', maxWidth: '60px' }} />
+                              </colgroup>
                               <thead>
-
-                              <tr>
-                                <th>{t.student}</th>
-                                <th>{t.time}</th>
-                                <th>{t.grade}</th>
-                                <th>{t.filesLbl}</th>
-                                <th>{t.textLbl}</th>
-                                <th>{t.feedback}</th>
-                                <th>{t.save}</th>
-                              </tr>
-                            </thead>
+                                <tr>
+                                  <th className="submission-select-header">
+                                    <input
+                                      className="form-check-input submission-select-checkbox"
+                                      type="checkbox"
+                                      checked={allDownloadableSelected}
+                                      disabled={downloadableSubmissions.length === 0}
+                                      onChange={(e) => setAllSubmissionSelection(e.target.checked)}
+                                      title="Alle Schüler mit Dateien auswählen"
+                                      aria-label="Alle Schüler mit Dateien auswählen"
+                                    />
+                                  </th>
+                                  <th>{t.student}</th>
+                                  <th>{t.time}</th>
+                                  <th>{t.filesLbl}</th>
+                                  <th>{t.textLbl}</th>
+                                  <th>{t.feedback}</th>
+                                  <th>{t.grade}</th>
+                                  <th>{t.save}</th>
+                                </tr>
+                              </thead>
                             <tbody>
                               {submissions.map((s) => {
                                 const draft = gradeDrafts[s.id] || {
@@ -764,101 +1184,113 @@ export default function Teacher() {
                                   error: "",
                                   ok: "",
                                 };
+                                const submittedAtParts = formatSubmissionDateParts(s.submittedAt);
+                                const studentName = getSubmissionStudentDisplayName(s);
+                                const studentEmail = s.student?.email || "";
+                                const submissionIdKey = String(s.id);
+                                const hasDownloadableFiles = submissionHasDownloadableFiles(s);
 
                                 return (
                                   <tr key={s.id}>
-                                    <td>
-                                      {s.student?.firstName} {s.student?.lastName}
-                                      {s.student?.email ? (
-                                        <div className="text-muted" style={{ fontSize: "0.85rem" }}>
-                                          {s.student.email}
+                                    <td className="submission-select-cell">
+                                      <input
+                                        className="form-check-input submission-select-checkbox"
+                                        type="checkbox"
+                                        checked={selectedSubmissionIds.has(submissionIdKey)}
+                                        disabled={!hasDownloadableFiles}
+                                        onChange={(e) => toggleSubmissionSelection(s.id, e.target.checked)}
+                                        title={
+                                          hasDownloadableFiles
+                                            ? `${studentName} auswählen`
+                                            : "Keine Dateien zum Herunterladen"
+                                        }
+                                        aria-label={`${studentName} auswählen`}
+                                      />
+                                    </td>
+
+                                    <td className="submission-student-cell">
+                                      <div className="submission-student-name" title={studentName}>
+                                        {studentName}
+                                      </div>
+                                      {studentEmail ? (
+                                        <div className="submission-student-email text-muted" title={studentEmail}>
+                                          {studentEmail}
                                         </div>
                                       ) : null}
                                     </td>
 
-                                    <td>{s.submittedAt ? new Date(s.submittedAt).toLocaleString() : ""}</td>
-
-                                    <td style={{ minWidth: "110px" }}>
-                                      <input
-                                        className="form-control form-control-sm"
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        value={draft.grade}
-                                        onChange={(e) => {
-                                          const v = e.target.value;
-                                          setGradeDrafts((prev) => ({
-                                            ...prev,
-                                            [s.id]: { ...draft, grade: v, error: "", ok: "" },
-                                          }));
-                                        }}
-                                        placeholder={
-                                          typeof s.grade === "number" ? String(s.grade) : "0-100"
-                                        }
-                                      />
+                                    <td className="submission-time-cell">
+                                      {submittedAtParts.date ? (
+                                        <>
+                                          <div className="submission-time-date">{submittedAtParts.date}</div>
+                                          <div className="submission-time-clock">{submittedAtParts.time}</div>
+                                        </>
+                                      ) : (
+                                        ""
+                                      )}
                                     </td>
 
-                                    <td>
+                                    <td className="submission-files-cell">
                                       {Array.isArray(s.files) && s.files.length > 0 ? (
-                                        <ul className="mb-0" style={{ paddingLeft: "1.1rem" }}>
-                                          {s.files.map((f, idx) => {
-                                            const href = getSubmissionFileUrl(f);
-                                            const label = getSubmissionFileLabel(f);
-                                            return (
-                                              <li key={`${s.id}-f-${idx}`} className="mb-2 d-flex align-items-center">
-                                                {href ? (
-                                                  <>
-                                                    <a href={href} target="_blank" rel="noreferrer" className="text-decoration-none me-2">
-                                                      {label}
-                                                    </a>
-                                                    <a
-                                                      href={href}
-                                                      onClick={async (e) => {
-                                                        e.preventDefault();
-                                                        try {
-                                                          const response = await fetch(href);
-                                                          if (!response.ok) throw new Error("Network error");
-                                                          const blob = await response.blob();
-                                                          const blobUrl = window.URL.createObjectURL(blob);
-                                                          const aTag = document.createElement("a");
-                                                          aTag.href = blobUrl;
-                                                          aTag.download = label;
-                                                          document.body.appendChild(aTag);
-                                                          aTag.click();
-                                                          aTag.remove();
-                                                          window.URL.revokeObjectURL(blobUrl);
-                                                        } catch (err) {
-                                                          console.error(err);
-                                                          alert(t.downloadFailed || "Download fehlgeschlagen");
-                                                        }
-                                                      }}
-                                                      title={t.download || "Herunterladen"}
-                                                      className="text-secondary d-flex align-items-center justify-content-center"
-                                                      style={{ padding: "4px", borderRadius: "50%", backgroundColor: "#f3f4f6", border: "1px solid #e5e7eb", cursor: "pointer" }}
-                                                    >
-                                                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                                                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-                                                      </svg>
-                                                    </a>
-                                                  </>
-                                                ) : (
-                                                  <span>{label}</span>
-                                                )}
-                                              </li>
-                                            );
-                                          })}
-                                        </ul>
+                                        <>
+                                          <ul className="submission-file-list">
+                                            {s.files.map((f, idx) => {
+                                              const href = getSubmissionFileUrl(f);
+                                              const label = getSubmissionFileLabel(f);
+                                              return (
+                                                <li key={`${s.id}-f-${idx}`} className="submission-file-row">
+                                                  {href ? (
+                                                    <>
+                                                      <a
+                                                        href={href}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="submission-file-name text-decoration-none"
+                                                        title={`Öffnen: ${label}`}
+                                                      >
+                                                        {label}
+                                                      </a>
+                                                      <a
+                                                        href={href}
+                                                        onClick={async (e) => {
+                                                          e.preventDefault();
+                                                          try {
+                                                            const blob = await fetchFileBlob(href);
+                                                            downloadBlob(blob, label);
+                                                          } catch (err) {
+                                                            console.error(err);
+                                                            alert(t.downloadFailed || "Download fehlgeschlagen");
+                                                          }
+                                                        }}
+                                                        title={`${t.download || "Herunterladen"}: ${label}`}
+                                                        aria-label={`${t.download || "Herunterladen"}: ${label}`}
+                                                        className="submission-file-download-btn"
+                                                      >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                          <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                                          <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                                                        </svg>
+                                                      </a>
+                                                    </>
+                                                  ) : (
+                                                    <span>{label}</span>
+                                                  )}
+                                                </li>
+                                              );
+                                            })}
+                                          </ul>
+                                        </>
                                       ) : (
                                         "—"
                                       )}
                                     </td>
 
-                                    <td style={{ minWidth: "220px" }}>
-                                      {s.text && s.text.trim() !== "" ? s.text : "—"}
+                                    <td className="submission-text-cell">
+                                      <div className="submission-text-preview" title={s.text || ""}>
+                                        {s.text && s.text.trim() !== "" ? s.text : "—"}
+                                      </div>
                                     </td>
-
-                                    <td style={{ minWidth: "220px" }}>
+                                    <td className="submission-feedback-cell">
                                       <textarea
                                         className="form-control form-control-sm"
                                         rows={2}
@@ -867,24 +1299,71 @@ export default function Teacher() {
                                           const v = e.target.value;
                                           setGradeDrafts((prev) => ({
                                             ...prev,
-                                            [s.id]: { ...draft, feedback: v, error: "", ok: "" },
+                                            [s.id]: {
+                                              ...draft,
+                                              feedback: v,
+                                              feedbackError: "",
+                                              feedbackOk: "",
+                                            },
                                           }));
                                         }}
                                         placeholder={s.feedback || ""}
                                       />
-                                      {draft.error ? (
-                                        <div className="text-danger" style={{ fontSize: "0.85rem" }}>
-                                          {draft.error}
+                                      {draft.feedbackError ? (
+                                        <div className="submission-grade-message text-danger">
+                                          {draft.feedbackError}
                                         </div>
                                       ) : null}
-                                      {draft.ok ? (
-                                        <div className="text-success" style={{ fontSize: "0.85rem" }}>
-                                          {draft.ok}
+                                      {draft.feedbackOk ? (
+                                        <div className="submission-grade-message text-success">
+                                          {draft.feedbackOk}
                                         </div>
                                       ) : null}
                                     </td>
 
-                                    <td style={{ width: "1%", whiteSpace: "nowrap" }}>
+                                    <td className="submission-grade-cell">
+                                      <input
+                                        className="form-control form-control-sm submission-grade-input"
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="1"
+                                        value={draft.grade}
+                                        onKeyDown={(e) => {
+                                          if (["e", "E", "+", "-", ".", ","].includes(e.key)) {
+                                            e.preventDefault();
+                                          }
+                                        }}
+                                        onChange={(e) => {
+                                          const rawValue = e.target.value;
+                                          const v = rawValue === "" ? "" : rawValue.replace(/\D/g, "").slice(0, 3);
+                                          setGradeDrafts((prev) => ({
+                                            ...prev,
+                                            [s.id]: {
+                                              ...draft,
+                                              grade: v,
+                                              gradeError: "",
+                                              gradeOk: "",
+                                            },
+                                          }));
+                                        }}
+                                        placeholder={
+                                          typeof s.grade === "number" ? String(s.grade) : "100"
+                                        }
+                                      />
+                                      {draft.gradeError ? (
+                                        <div className="submission-grade-message text-danger">
+                                          {draft.gradeError}
+                                        </div>
+                                      ) : null}
+                                      {draft.gradeOk ? (
+                                        <div className="submission-grade-message text-success">
+                                          {draft.gradeOk}
+                                        </div>
+                                      ) : null}
+                                    </td>
+
+                                    <td className="submission-save-cell">
                                       <button
                                         type="button"
                                         className="btn btn-sm btn-primary"

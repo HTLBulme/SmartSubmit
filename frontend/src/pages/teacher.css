@@ -1,4 +1,7 @@
-/* Универсальный стиль для кнопок сайдбара (как у студента) */
+.submission-grade-message.text-success {
+  color: #059669 !important;
+}
+/* General button and link styles */
 .teacher-sidebar button,
 .teacher-sidebar .sidebar-btn,
 .teacher-sidebar .list-group-item,
@@ -301,6 +304,7 @@
   }
 }
 
+
 /* Mobile */
 @media (max-width: 768px) {
   body,
@@ -559,4 +563,322 @@
   .teacher-field-control textarea {
     font-size: 16px;
   }
+}
+
+/* ===== Noten & Feedback submissions table ===== */
+.submission-top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.submission-top-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.submission-selection-summary {
+  color: #6b7280;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.submissions-table-responsive {
+  width: 100%;
+}
+
+.submission-feedback-table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+}
+
+.submission-feedback-table th,
+.submission-feedback-table td {
+  box-sizing: border-box;
+  vertical-align: top;
+}
+
+.submission-feedback-table thead th {
+  white-space: nowrap;
+  hyphens: none;
+}
+
+.submission-select-header,
+.submission-select-cell {
+  text-align: center;
+  vertical-align: middle !important;
+}
+
+.submission-select-checkbox {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.submission-select-checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.submission-student-name,
+.submission-student-email,
+.submission-time-date,
+.submission-time-clock,
+.submission-file-name {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.submission-student-email {
+  font-size: 0.86rem;
+}
+
+.submission-file-list {
+  list-style: none;
+  padding-left: 0 !important;
+  margin: 0 0 0.28rem 0 !important;
+}
+
+.submission-file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+  min-width: 0;
+  margin-bottom: 0.04rem;
+  padding: 0.03rem 0.18rem;
+  line-height: 1.12;
+  border-radius: 0.4rem;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.submission-file-row + .submission-file-row {
+  margin-top: 0.02rem;
+}
+
+.submission-file-name {
+  flex: 1 1 auto;
+  line-height: 1.15;
+  padding: 0.08rem 0;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.submission-file-name:hover,
+.submission-file-name:focus-visible {
+  color: #1d4ed8 !important;
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 2px !important;
+  outline: none !important;
+}
+
+.submission-file-download-btn {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #6b7280 !important;
+  background-color: #f3f4f6 !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 999px;
+  box-shadow: none;
+  opacity: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transform: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.submission-file-download-btn svg {
+  width: 12px;
+  height: 12px;
+  color: currentColor;
+  fill: currentColor;
+  pointer-events: none;
+}
+
+.submission-file-download-btn:hover,
+.submission-file-download-btn:focus-visible {
+  color: #111827 !important;
+  background-color: #e5e7eb !important;
+  border-color: #9ca3af !important;
+  box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.22) !important;
+  transform: translateY(-1px) scale(1.08) !important;
+  outline: none !important;
+}
+
+.submission-file-download-btn:active {
+  transform: translateY(0) scale(1) !important;
+  box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.18) !important;
+}
+
+
+.submission-text-preview {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.submission-feedback-cell textarea {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 2.8rem;
+  resize: vertical;
+}
+
+.submission-grade-cell,
+.submission-save-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.submission-grade-input {
+  display: block !important;
+  width: 4.35rem !important;
+  min-width: 4.35rem !important;
+  max-width: 4.35rem !important;
+  height: 2.8rem !important;
+  margin: 0 auto !important;
+  padding: 0.35rem !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.submission-grade-input[type="number"] {
+  appearance: auto !important;
+  -moz-appearance: auto !important;
+  font-size: 1rem !important;
+}
+
+.submission-grade-input[type="number"]::-webkit-inner-spin-button,
+.submission-grade-input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1 !important;
+  display: block !important;
+  -webkit-appearance: inner-spin-button !important;
+  margin-left: 0.15rem !important;
+}
+
+.submission-save-cell .btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 70px !important;
+  height: 2rem !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-top: 0.45rem !important;
+  padding: 0.5rem 0.85rem !important;
+  white-space: nowrap !important;
+}
+
+@media (min-width: 769px) {
+  .submissions-table-responsive {
+    overflow-x: hidden !important;
+  }
+
+  .submission-feedback-table {
+    min-width: 0 !important;
+  }
+
+  .submission-feedback-table th,
+  .submission-feedback-table td {
+    padding: 0.7rem 0.75rem !important;
+    overflow: hidden;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+  }
+
+  .submission-feedback-table thead th {
+    font-size: 0.98rem;
+    line-height: 1.2;
+  }
+
+  .submission-col-select { width: 3.5% !important; }
+  .submission-col-student { width: 18% !important; }
+  .submission-col-time { width: 8.5% !important; }
+  .submission-col-files { width: 24% !important; }
+  .submission-col-text { width: 10% !important; }
+  .submission-col-feedback { width: 18% !important; }
+  .submission-col-grade { width: 9% !important; }
+  .submission-col-save { width: 9% !important; }
+
+  .submission-select-cell,
+  .submission-student-cell,
+  .submission-time-cell,
+  .submission-files-cell,
+  .submission-text-cell,
+  .submission-feedback-cell,
+  .submission-grade-cell,
+  .submission-save-cell {
+    max-width: 0;
+  }
+
+  .submission-grade-cell {
+    padding-left: 1rem !important;
+    padding-right: 1.25rem !important;
+  }
+
+  .submission-save-cell {
+    padding-left: 1.15rem !important;
+    padding-right: 1.15rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .submission-top-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .submission-top-buttons {
+    justify-content: stretch;
+  }
+
+  .submission-top-buttons .btn {
+    flex: 1 1 auto;
+  }
+
+  .submissions-table-responsive {
+    overflow-x: auto !important;
+  }
+
+  .submissions-table-responsive .submission-feedback-table {
+    min-width: 1200px !important;
+    table-layout: fixed !important;
+  }
+
+}
+
+/* Grade save/error message belongs to the Note column, not Rückmeldung. */
+.submission-grade-message {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
