@@ -1,3 +1,6 @@
+/* =============================================================================
+   BASE / COMMON STYLES
+============================================================================= */
 .submission-grade-message.text-success {
   color: #059669 !important;
 }
@@ -119,11 +122,10 @@
   min-width: 0;
 }
 
-/* Drag & drop */
+/* Drag & drop — общие стили (все экраны) */
 .dnd-zone {
   border: 2px dashed #c7cfe1;
   border-radius: 12px;
-  padding: 1.2rem;
   background: #fafbff;
   transition: all 0.2s ease;
 }
@@ -132,13 +134,6 @@
   border-color: #1d77e8;
   background: #eef5ff;
   box-shadow: 0 0 0 4px rgba(29, 119, 232, 0.08) inset;
-}
-
-.dnd-content {
-  display: grid;
-  grid-template-columns: 40px 1fr auto;
-  gap: 1rem;
-  align-items: center;
 }
 
 .dnd-icon {
@@ -163,89 +158,39 @@
   max-width: 80%;
 }
 
-/* Modal Backdrop */
-@media (min-width: 769px) {
-  .modal-backdrop {
-    position: fixed !important;
-    top: 0 !important;
-    left: 280px !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: auto !important;
-    height: 100vh !important;
-    z-index: 1050 !important;
-  }
-
-  .modal {
-    position: fixed !important;
-    top: 0 !important;
-    left: 280px !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: auto !important;
-    height: 100vh !important;
-    z-index: 1055 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 1rem !important;
-  }
-}
-
-/* Mobile: Modal takes full screen */
-@media (max-width: 768px) {
-  .modal-backdrop {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 1050 !important;
-  }
-
-  .modal {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 1055 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-  }
-}
-
 /* Modal Dialog */
 .modal-dialog {
   position: relative !important;
   margin: auto !important;
-  max-width: 1200px !important;
-  width: 90% !important;
-  max-height: 90vh !important;
+  width: 100% !important;
+  max-width: 1500px !important;
+  max-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
 }
 
-.modal-dialog.modal-xl {
+.modal-dialog.modal-xl,
+.modal-content.modal-xl {
   max-width: 1200px !important;
 }
 
-.modal-dialog.modal-lg {
+.modal-dialog.modal-lg,
+.modal-content.modal-lg {
   max-width: 900px !important;
 }
 
-.modal-dialog.modal-md {
+.modal-dialog.modal-md,
+.modal-content.modal-md {
   max-width: 600px !important;
 }
 
 /* Modal Content */
 .modal-content {
-  max-height: 90vh !important;
-  overflow: hidden !important;
+  width: 100% !important;
+  max-width: 1500px !important;
+  max-height: 100vh !important;
   display: flex !important;
   flex-direction: column !important;
   border-radius: 12px !important;
@@ -284,287 +229,6 @@
   z-index: 1000 !important;
 }
 
-.modal-backdrop {
-  z-index: 1050 !important;
-}
-
-.modal {
-  z-index: 1055 !important;
-}
-
-/* Desktop label space */
-@media (min-width: 769px) {
-  .teacher-form-compact .col-sm-2 {
-    min-width: 160px;
-  }
-
-  .teacher-form-compact label,
-  .teacher-form-compact .col-form-label {
-    padding-right: 1rem;
-  }
-}
-
-
-/* Mobile */
-@media (max-width: 768px) {
-  body,
-  html {
-    overflow-x: hidden;
-    max-width: 100%;
-  }
-
-  .teacher-main-content {
-    margin-left: 0;
-    padding-left: 0;
-    padding-bottom: 5rem;
-  }
-
-  .teacher-page {
-    margin-left: 0;
-    padding-left: 0;
-  }
-
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    margin-left: 0;
-    margin-right: 0;
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .teacher-dashboard {
-    padding: 1rem !important;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-
-  .teacher-card {
-    max-width: 100%;
-    padding: 1rem !important;
-    margin-left: 0;
-    margin-right: 0;
-    border-radius: 16px !important;
-  }
-
-  .card-body {
-    padding: 0 !important;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .teacher-field-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .teacher-label {
-    min-width: 0;
-    width: 100%;
-    margin-bottom: 0;
-    padding: 0;
-    font-size: 0.9rem;
-    text-align: left;
-  }
-
-  .teacher-label.with-top-padding {
-    padding-top: 0;
-  }
-
-  .teacher-field-control {
-    width: 100%;
-  }
-
-  .teacher-field-control .form-control,
-  .teacher-field-control .form-select,
-  .teacher-field-control input,
-  .teacher-field-control textarea,
-  .teacher-field-control select,
-  .teacher-form-compact .btn {
-    font-size: 16px;
-    width: 100%;
-  }
-
-  .teacher-due-controls {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-  }
-
-  .teacher-due-controls .form-select,
-  .teacher-due-controls .form-control {
-    flex: none;
-    width: 100%;
-  }
-
-  .dnd-zone {
-    padding: 1rem;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .dnd-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 0.75rem;
-  }
-
-  .dnd-icon {
-    margin: 0 auto 0.25rem;
-  }
-
-  .dnd-text {
-    margin-bottom: 0;
-  }
-
-  .dnd-content button {
-    width: 100%;
-  }
-
-  .list-group {
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .list-group-item {
-    padding: 0.75rem;
-    display: flex !important;
-    flex-direction: column;
-    align-items: flex-start !important;
-    gap: 0.5rem;
-  }
-
-  .teacher-file-name {
-    max-width: 100%;
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: unset !important;
-    word-break: break-word;
-  }
-
-  .btn-primary.py-2,
-  .teacher-form-compact .btn {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-  }
-
-  .teacher-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .teacher-actions .btn {
-    width: 100%;
-  }
-
-  .navbar {
-    left: 0;
-    width: 100%;
-    margin-left: 0;
-  }
-
-  .modal {
-    padding: 0 !important;
-  }
-
-  .modal-dialog {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    margin: 0 !important;
-  }
-
-  .modal-content {
-    max-height: 100vh !important;
-    border-radius: 0 !important;
-    height: 100vh !important;
-  }
-
-  .modal-header {
-    padding: 1rem !important;
-  }
-
-  .modal-title {
-    font-size: 1rem !important;
-    word-break: break-word !important;
-    line-height: 1.3 !important;
-  }
-
-  .modal-body {
-    padding: 1rem !important;
-    max-height: calc(100vh - 120px) !important;
-  }
-
-  .modal-body .table {
-    min-width: 900px !important;
-    font-size: 0.8rem !important;
-  }
-
-  .modal-body .table th,
-  .modal-body .table td {
-    padding: 0.4rem !important;
-    font-size: 0.75rem !important;
-  }
-
-  .modal-body .btn-sm {
-    font-size: 0.7rem !important;
-    padding: 0.25rem 0.5rem !important;
-  }
-
-  .modal-body .form-control,
-  .modal-body input,
-  .modal-body textarea {
-    font-size: 0.8rem !important;
-    padding: 0.25rem 0.5rem !important;
-  }
-
-  .table-responsive {
-    overflow-x: auto;
-  }
-
-  .table {
-    min-width: 800px;
-    font-size: 0.85rem;
-  }
-}
-
-/* Very small screens */
-@media (max-width: 480px) {
-  .container {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-
-  .teacher-dashboard {
-    padding: 0.75rem !important;
-  }
-
-  .teacher-card {
-    padding: 0.875rem !important;
-  }
-
-  .card-body h2 {
-    font-size: 1.1rem;
-  }
-
-  .teacher-label {
-    font-size: 0.85rem;
-  }
-
-  .teacher-field-control .form-control,
-  .teacher-field-control .form-select,
-  .teacher-field-control textarea {
-    font-size: 16px;
-  }
-}
-
 /* ===== Noten & Feedback submissions table ===== */
 .submission-top-actions {
   display: flex;
@@ -573,6 +237,18 @@
   gap: 0.75rem;
   margin-bottom: 0.75rem;
   padding-right: 0.75rem;
+  /* Sticky header */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+  padding-top: 0.25rem;
+  padding-bottom: 0.5rem;
+  margin-left: -1.25rem;
+  margin-right: -1.25rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 .submission-top-buttons {
@@ -766,21 +442,350 @@
   font-variant-numeric: tabular-nums;
 }
 
-.submission-grade-input[type="number"] {
-  appearance: auto !important;
-  -moz-appearance: auto !important;
-  font-size: 1rem !important;
+
+/* Grade save/error message belongs to the Note column, not Rückmeldung. */
+.submission-grade-message {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
-.submission-grade-input[type="number"]::-webkit-inner-spin-button,
-.submission-grade-input[type="number"]::-webkit-outer-spin-button {
-  opacity: 1 !important;
-  display: block !important;
-  -webkit-appearance: inner-spin-button !important;
-  margin-left: 0.15rem !important;
-}
 
-.submission-save-cell .btn {
+/* =============================================================================
+   MOBILE (≤ 768px)
+============================================================================= */
+@media (max-width: 768px) {
+.modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1050 !important;
+  }
+
+  .modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1055 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+body,
+  html {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .teacher-main-content {
+    margin-left: 0;
+    padding-left: 0;
+    padding-bottom: 5rem;
+  }
+
+  .teacher-page {
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .teacher-dashboard {
+    padding: 1rem !important;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .teacher-card {
+    max-width: 100%;
+    padding: 1rem !important;
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 16px !important;
+  }
+
+  .card-body {
+    padding: 0 !important;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .teacher-field-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .teacher-label {
+    min-width: 0;
+    width: 100%;
+    margin-bottom: 0;
+    padding: 0;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .teacher-label.with-top-padding {
+    padding-top: 0;
+  }
+
+  .teacher-field-control {
+    width: 100%;
+  }
+
+  .teacher-field-control .form-control,
+  .teacher-field-control .form-select,
+  .teacher-field-control input,
+  .teacher-field-control textarea,
+  .teacher-field-control select,
+  .teacher-form-compact .btn {
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .teacher-due-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .teacher-due-controls .form-select,
+  .teacher-due-controls .form-control {
+    flex: none;
+    width: 100%;
+  }
+
+  .dnd-zone {
+    padding: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .dnd-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .dnd-icon {
+    margin: 0 auto 0.25rem;
+  }
+
+  .dnd-text {
+    margin-bottom: 0;
+  }
+
+  .dnd-content button {
+    width: 100%;
+  }
+
+  .list-group {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .list-group-item {
+    padding: 0.75rem;
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+
+  .teacher-file-name {
+    max-width: 100%;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    word-break: break-word;
+  }
+
+  .btn-primary.py-2,
+  .teacher-form-compact .btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+
+  .teacher-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .teacher-actions .btn {
+    width: 100%;
+  }
+
+  .navbar {
+    left: 0;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .modal {
+    padding: 0 !important;
+  }
+
+  .modal-dialog {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    margin: 0 !important;
+  }
+
+  .modal-content {
+    max-height: 100vh !important;
+    height: 100vh !important;
+  }
+
+  .modal-header {
+    padding: 1rem !important;
+  }
+
+  .modal-title {
+    font-size: 1rem !important;
+    word-break: break-word !important;
+    line-height: 1.3 !important;
+  }
+
+  .modal-body {
+    padding: 1rem !important;
+    max-height: calc(100vh - 120px) !important;
+  }
+
+  .modal-body .table {
+    min-width: 900px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .modal-body .table th,
+  .modal-body .table td {
+    padding: 0.4rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  .modal-body .btn-sm {
+    font-size: 0.7rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  .modal-body .form-control,
+  .modal-body input,
+  .modal-body textarea {
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 800px;
+    font-size: 0.85rem;
+  }
+
+  .submission-col-select {
+    width: 36px !important;
+    min-width: 24px !important;
+    max-width: 36px !important;
+  }
+  .submission-select-checkbox {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    max-width: 22px !important;
+    margin: 0 2px !important;
+  }
+  .submission-col-student {
+    width: 180px !important;
+    min-width: 80px !important;
+    max-width: 180px !important;
+  }
+  .submission-col-time {
+    width: 80px !important;
+    min-width: 48px !important;
+    max-width: 80px !important;
+  }
+  .submission-col-files {
+    width: 180px !important;
+    min-width: 60px !important;
+    max-width: 180px !important;
+  }
+  .submission-col-text {
+    width: 120px !important;
+    min-width: 48px !important;
+    max-width: 120px !important;
+  }
+  .submission-top-actions {
+    align-items: center;
+  }
+
+  .submission-top-buttons {
+    justify-content: flex-end;
+  }
+
+  .submission-top-buttons .btn {
+    flex: 0 0 auto;
+  }
+
+  .submissions-table-responsive {
+    overflow-x: auto;
+  }
+  .submission-col-feedback {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+  }
+  .submission-col-grade { 
+    width: 80px !important; 
+    min-width: 48px !important;
+    max-width: 80px !important;
+  }
+  .submission-grade-input[type="number"] {
+    appearance: auto !important;
+    -moz-appearance: auto !important;
+    font-size: 1rem !important;
+  }
+  .submission-grade-input[type="number"]::-webkit-inner-spin-button,
+  .submission-grade-input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1 !important;
+    display: block !important;
+    -webkit-appearance: inner-spin-button !important;
+    margin-left: 0.15rem !important;
+  }
+
+  .submission-col-save {
+    width: 80px !important;
+    min-width: 60px !important;
+    max-width: 80px !important;
+  }
+  .submission-save-cell .btn {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -794,16 +799,110 @@
   padding: 0.5rem 0.85rem !important;
   white-space: nowrap !important;
 }
+}
 
+
+/* =============================================================================
+   VERY SMALL SCREENS (≤ 480px)
+============================================================================= */
+@media (max-width: 480px) {
+.container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .teacher-dashboard {
+    padding: 0.75rem !important;
+  }
+
+  .teacher-card {
+    padding: 0.875rem !important;
+  }
+
+  .card-body h2 {
+    font-size: 1.1rem;
+  }
+
+  .teacher-label {
+    font-size: 0.85rem;
+  }
+
+  .teacher-field-control .form-control,
+  .teacher-field-control .form-select,
+  .teacher-field-control textarea {
+    font-size: 16px;
+  }
+}
+
+/* =============================================================================
+   DESKTOP (≥ 769px)
+============================================================================= */
 @media (min-width: 769px) {
-  .submissions-table-responsive {
+/* Modal  */
+  .modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 280px !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: auto !important;
+    height: 100vh !important;
+    z-index: 1050 !important;
     overflow-x: hidden !important;
   }
 
-  .submission-feedback-table {
-    min-width: 0 !important;
+  .modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 280px !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: auto !important;
+    height: 100vh !important;
+    z-index: 1055 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem !important;
   }
 
+  .modal-body .table {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  .modal-body .submission-feedback-table {
+    min-width: 1100px !important;
+    width: 90%;
+    max-width: none !important;
+    overflow-x: auto !important;
+    table-layout: fixed !important;
+  }
+
+  /* Form labels */
+  .teacher-form-compact .col-sm-2 {
+    min-width: 160px;
+  }
+
+  .teacher-form-compact label,
+  .teacher-form-compact .col-form-label {
+    padding-right: 1rem;
+  }
+
+  /* Drag & drop */
+  .dnd-zone {
+    padding: 1.2rem;
+  }
+
+  .dnd-content {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  /* Submissions table — common styles for all desktop */
   .submission-feedback-table th,
   .submission-feedback-table td {
     padding: 0.7rem 0.75rem !important;
@@ -817,15 +916,15 @@
     line-height: 1.2;
   }
 
-  .submission-col-select { width: 3.5% !important; }
-  .submission-col-student { width: 18% !important; }
-  .submission-col-time { width: 8.5% !important; }
-  .submission-col-files { width: 24% !important; }
-  .submission-col-text { width: 10% !important; }
+  .submission-col-select   { width: 3.5% !important; }
+  .submission-col-student  { width: 17.5% !important; }
+  .submission-col-time     { width: 8.5% !important; }
+  .submission-col-files    { width: 24% !important; }
+  .submission-col-text     { width: 10% !important; }
   .submission-col-feedback { width: 18% !important; }
-  .submission-col-grade { width: 9% !important; }
-  .submission-col-save { width: 9% !important; }
-
+  .submission-col-grade    { width: 9% !important; }
+  .submission-col-save     { width: 9% !important; }
+  
   .submission-select-cell,
   .submission-student-cell,
   .submission-time-cell,
@@ -848,37 +947,24 @@
   }
 }
 
-@media (max-width: 768px) {
-  .submission-top-actions {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .submission-top-buttons {
-    justify-content: stretch;
-  }
-
-  .submission-top-buttons .btn {
-    flex: 1 1 auto;
-  }
-
-  .submissions-table-responsive {
+/* =============================================================================
+   LARGE DESKTOP (≥ 1200px)
+============================================================================= */
+@media (min-width: 1200px) {
+.submissions-table-responsive {
     overflow-x: auto !important;
   }
 
-  .submissions-table-responsive .submission-feedback-table {
-    min-width: 1200px !important;
-    table-layout: fixed !important;
+  .submission-feedback-table {
+    width: 100%;
   }
 
-}
-
-/* Grade save/error message belongs to the Note column, not Rückmeldung. */
-.submission-grade-message {
-  margin-top: 0.35rem;
-  font-size: 0.78rem;
-  line-height: 1.15;
-  text-align: center;
-  white-space: normal;
-  overflow-wrap: break-word;
+  .submission-col-select   { width: 3.5% !important; }
+  .submission-col-student  { width: 17.5% !important; }
+  .submission-col-time     { width: 8.5% !important; }
+  .submission-col-files    { width: 24% !important; }
+  .submission-col-text     { width: 10% !important; }
+  .submission-col-feedback { width: 18% !important; }
+  .submission-col-grade    { width: 9% !important; }
+  .submission-col-save     { width: 9% !important; }
 }
