@@ -1,4 +1,10 @@
-/* Универсальный стиль для кнопок сайдбара (как у студента) */
+/* =============================================================================
+   BASE / COMMON STYLES
+============================================================================= */
+.submission-grade-message.text-success {
+  color: #059669 !important;
+}
+/* General button and link styles */
 .teacher-sidebar button,
 .teacher-sidebar .sidebar-btn,
 .teacher-sidebar .list-group-item,
@@ -116,11 +122,10 @@
   min-width: 0;
 }
 
-/* Drag & drop */
+/* Drag & drop — общие стили (все экраны) */
 .dnd-zone {
   border: 2px dashed #c7cfe1;
   border-radius: 12px;
-  padding: 1.2rem;
   background: #fafbff;
   transition: all 0.2s ease;
 }
@@ -129,13 +134,6 @@
   border-color: #1d77e8;
   background: #eef5ff;
   box-shadow: 0 0 0 4px rgba(29, 119, 232, 0.08) inset;
-}
-
-.dnd-content {
-  display: grid;
-  grid-template-columns: 40px 1fr auto;
-  gap: 1rem;
-  align-items: center;
 }
 
 .dnd-icon {
@@ -160,89 +158,39 @@
   max-width: 80%;
 }
 
-/* Modal Backdrop */
-@media (min-width: 769px) {
-  .modal-backdrop {
-    position: fixed !important;
-    top: 0 !important;
-    left: 280px !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: auto !important;
-    height: 100vh !important;
-    z-index: 1050 !important;
-  }
-
-  .modal {
-    position: fixed !important;
-    top: 0 !important;
-    left: 280px !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: auto !important;
-    height: 100vh !important;
-    z-index: 1055 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 1rem !important;
-  }
-}
-
-/* Mobile: Modal takes full screen */
-@media (max-width: 768px) {
-  .modal-backdrop {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 1050 !important;
-  }
-
-  .modal {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 1055 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-  }
-}
-
 /* Modal Dialog */
 .modal-dialog {
   position: relative !important;
   margin: auto !important;
-  max-width: 1200px !important;
-  width: 90% !important;
-  max-height: 90vh !important;
+  width: 100% !important;
+  max-width: 1500px !important;
+  max-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
 }
 
-.modal-dialog.modal-xl {
+.modal-dialog.modal-xl,
+.modal-content.modal-xl {
   max-width: 1200px !important;
 }
 
-.modal-dialog.modal-lg {
+.modal-dialog.modal-lg,
+.modal-content.modal-lg {
   max-width: 900px !important;
 }
 
-.modal-dialog.modal-md {
+.modal-dialog.modal-md,
+.modal-content.modal-md {
   max-width: 600px !important;
 }
 
 /* Modal Content */
 .modal-content {
-  max-height: 90vh !important;
-  overflow: hidden !important;
+  width: 100% !important;
+  max-width: 1500px !important;
+  max-height: 100vh !important;
   display: flex !important;
   flex-direction: column !important;
   border-radius: 12px !important;
@@ -281,29 +229,262 @@
   z-index: 1000 !important;
 }
 
-.modal-backdrop {
-  z-index: 1050 !important;
+/* ===== Noten & Feedback submissions table ===== */
+.submission-top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-right: 0.75rem;
+  /* Sticky header */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+  padding-top: 0.25rem;
+  padding-bottom: 0.5rem;
+  margin-left: -1.25rem;
+  margin-right: -1.25rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
 }
 
-.modal {
-  z-index: 1055 !important;
+.submission-top-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
-/* Desktop label space */
-@media (min-width: 769px) {
-  .teacher-form-compact .col-sm-2 {
-    min-width: 160px;
-  }
-
-  .teacher-form-compact label,
-  .teacher-form-compact .col-form-label {
-    padding-right: 1rem;
-  }
+.submission-selection-summary {
+  color: #6b7280;
+  font-size: 0.88rem;
+  white-space: nowrap;
 }
 
-/* Mobile */
+.submissions-table-responsive {
+  width: 100%;
+}
+
+.submission-feedback-table {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+}
+
+.submission-feedback-table th,
+.submission-feedback-table td {
+  box-sizing: border-box;
+  vertical-align: top;
+}
+
+.submission-feedback-table thead th {
+  white-space: nowrap;
+  hyphens: none;
+}
+
+.submission-select-header,
+.submission-select-cell {
+  text-align: center;
+  vertical-align: middle !important;
+}
+
+.submission-select-checkbox {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.submission-select-checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.submission-student-name,
+.submission-student-email,
+.submission-time-date,
+.submission-time-clock,
+.submission-file-name {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.submission-student-email {
+  font-size: 0.86rem;
+}
+
+.submission-file-list {
+  list-style: none;
+  padding-left: 0 !important;
+  margin: 0 0 0.28rem 0 !important;
+}
+
+.submission-file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+  min-width: 0;
+  margin-bottom: 0.04rem;
+  padding: 0.03rem 0.18rem;
+  line-height: 1.12;
+  border-radius: 0.4rem;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.submission-file-row + .submission-file-row {
+  margin-top: 0.02rem;
+}
+
+.submission-file-name {
+  flex: 1 1 auto;
+  line-height: 1.15;
+  padding: 0.08rem 0;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.submission-file-name:hover,
+.submission-file-name:focus-visible {
+  color: #1d4ed8 !important;
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 2px !important;
+  outline: none !important;
+}
+
+.submission-file-download-btn {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #6b7280 !important;
+  background-color: #f3f4f6 !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 999px;
+  box-shadow: none;
+  opacity: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transform: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.submission-file-download-btn svg {
+  width: 12px;
+  height: 12px;
+  color: currentColor;
+  fill: currentColor;
+  pointer-events: none;
+}
+
+.submission-file-download-btn:hover,
+.submission-file-download-btn:focus-visible {
+  color: #111827 !important;
+  background-color: #e5e7eb !important;
+  border-color: #9ca3af !important;
+  box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.22) !important;
+  transform: translateY(-1px) scale(1.08) !important;
+  outline: none !important;
+}
+
+.submission-file-download-btn:active {
+  transform: translateY(0) scale(1) !important;
+  box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.18) !important;
+}
+
+
+.submission-text-preview {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.submission-feedback-cell textarea {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 2.8rem;
+  resize: vertical;
+}
+
+.submission-grade-cell,
+.submission-save-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.submission-grade-input {
+  display: block !important;
+  width: 4.35rem !important;
+  min-width: 4.35rem !important;
+  max-width: 4.35rem !important;
+  height: 2.8rem !important;
+  margin: 0 auto !important;
+  padding: 0.35rem !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* Grade save/error message belongs to the Note column, not Rückmeldung. */
+.submission-grade-message {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+
+/* =============================================================================
+   MOBILE (≤ 768px)
+============================================================================= */
 @media (max-width: 768px) {
-  body,
+.modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1050 !important;
+  }
+
+  .modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1055 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+body,
   html {
     overflow-x: hidden;
     max-width: 100%;
@@ -479,7 +660,6 @@
 
   .modal-content {
     max-height: 100vh !important;
-    border-radius: 0 !important;
     height: 100vh !important;
   }
 
@@ -529,11 +709,104 @@
     min-width: 800px;
     font-size: 0.85rem;
   }
+
+  .submission-col-select {
+    width: 36px !important;
+    min-width: 24px !important;
+    max-width: 36px !important;
+  }
+  .submission-select-checkbox {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    max-width: 22px !important;
+    margin: 0 2px !important;
+  }
+  .submission-col-student {
+    width: 180px !important;
+    min-width: 80px !important;
+    max-width: 180px !important;
+  }
+  .submission-col-time {
+    width: 80px !important;
+    min-width: 48px !important;
+    max-width: 80px !important;
+  }
+  .submission-col-files {
+    width: 180px !important;
+    min-width: 60px !important;
+    max-width: 180px !important;
+  }
+  .submission-col-text {
+    width: 120px !important;
+    min-width: 48px !important;
+    max-width: 120px !important;
+  }
+  .submission-top-actions {
+    align-items: center;
+  }
+
+  .submission-top-buttons {
+    justify-content: flex-end;
+  }
+
+  .submission-top-buttons .btn {
+    flex: 0 0 auto;
+  }
+
+  .submissions-table-responsive {
+    overflow-x: auto;
+  }
+  .submission-col-feedback {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+  }
+  .submission-col-grade { 
+    width: 80px !important; 
+    min-width: 48px !important;
+    max-width: 80px !important;
+  }
+  .submission-grade-input[type="number"] {
+    appearance: auto !important;
+    -moz-appearance: auto !important;
+    font-size: 1rem !important;
+  }
+  .submission-grade-input[type="number"]::-webkit-inner-spin-button,
+  .submission-grade-input[type="number"]::-webkit-outer-spin-button {
+    opacity: 1 !important;
+    display: block !important;
+    -webkit-appearance: inner-spin-button !important;
+    margin-left: 0.15rem !important;
+  }
+
+  .submission-col-save {
+    width: 80px !important;
+    min-width: 60px !important;
+    max-width: 80px !important;
+  }
+  .submission-save-cell .btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 70px !important;
+  height: 2rem !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-top: 0.45rem !important;
+  padding: 0.5rem 0.85rem !important;
+  white-space: nowrap !important;
+}
 }
 
-/* Very small screens */
+
+/* =============================================================================
+   VERY SMALL SCREENS (≤ 480px)
+============================================================================= */
 @media (max-width: 480px) {
-  .container {
+.container {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
   }
@@ -559,4 +832,139 @@
   .teacher-field-control textarea {
     font-size: 16px;
   }
+}
+
+/* =============================================================================
+   DESKTOP (≥ 769px)
+============================================================================= */
+@media (min-width: 769px) {
+/* Modal  */
+  .modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 280px !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: auto !important;
+    height: 100vh !important;
+    z-index: 1050 !important;
+    overflow-x: hidden !important;
+  }
+
+  .modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 280px !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: auto !important;
+    height: 100vh !important;
+    z-index: 1055 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem !important;
+  }
+
+  .modal-body .table {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  .modal-body .submission-feedback-table {
+    min-width: 1100px !important;
+    width: 90%;
+    max-width: none !important;
+    overflow-x: auto !important;
+    table-layout: fixed !important;
+  }
+
+  /* Form labels */
+  .teacher-form-compact .col-sm-2 {
+    min-width: 160px;
+  }
+
+  .teacher-form-compact label,
+  .teacher-form-compact .col-form-label {
+    padding-right: 1rem;
+  }
+
+  /* Drag & drop */
+  .dnd-zone {
+    padding: 1.2rem;
+  }
+
+  .dnd-content {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  /* Submissions table — common styles for all desktop */
+  .submission-feedback-table th,
+  .submission-feedback-table td {
+    padding: 0.7rem 0.75rem !important;
+    overflow: hidden;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+  }
+
+  .submission-feedback-table thead th {
+    font-size: 0.98rem;
+    line-height: 1.2;
+  }
+
+  .submission-col-select   { width: 3.5% !important; }
+  .submission-col-student  { width: 17.5% !important; }
+  .submission-col-time     { width: 8.5% !important; }
+  .submission-col-files    { width: 24% !important; }
+  .submission-col-text     { width: 10% !important; }
+  .submission-col-feedback { width: 18% !important; }
+  .submission-col-grade    { width: 9% !important; }
+  .submission-col-save     { width: 9% !important; }
+  
+  .submission-select-cell,
+  .submission-student-cell,
+  .submission-time-cell,
+  .submission-files-cell,
+  .submission-text-cell,
+  .submission-feedback-cell,
+  .submission-grade-cell,
+  .submission-save-cell {
+    max-width: 0;
+  }
+
+  .submission-grade-cell {
+    padding-left: 1rem !important;
+    padding-right: 1.25rem !important;
+  }
+
+  .submission-save-cell {
+    padding-left: 1.15rem !important;
+    padding-right: 1.15rem !important;
+  }
+}
+
+/* =============================================================================
+   LARGE DESKTOP (≥ 1200px)
+============================================================================= */
+@media (min-width: 1200px) {
+.submissions-table-responsive {
+    overflow-x: auto !important;
+  }
+
+  .submission-feedback-table {
+    width: 100%;
+  }
+
+  .submission-col-select   { width: 3.5% !important; }
+  .submission-col-student  { width: 17.5% !important; }
+  .submission-col-time     { width: 8.5% !important; }
+  .submission-col-files    { width: 24% !important; }
+  .submission-col-text     { width: 10% !important; }
+  .submission-col-feedback { width: 18% !important; }
+  .submission-col-grade    { width: 9% !important; }
+  .submission-col-save     { width: 9% !important; }
 }

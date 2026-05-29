@@ -9,11 +9,17 @@ vi.mock('../src/context/LanguageContext', () => ({
 }));
 
 describe('CalendarView Component', () => {
+  const today = new Date();
+  const weekDay = today.getDay() === 0 ? 6 : today.getDay() - 1; // 0=Mon, 6=Sun
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - weekDay);
+  const thursday = new Date(monday);
+  thursday.setDate(monday.getDate() + 3);
   const assignments = [
     {
       id: 1,
       title: 'Test Assignment',
-      dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      dueDate: thursday.toISOString(),
       submitted: false,
     },
   ];
