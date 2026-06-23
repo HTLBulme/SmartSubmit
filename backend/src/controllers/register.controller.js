@@ -17,8 +17,9 @@ const register = async (req, res) => {
 
 
     // --- 2. Check if admin already exists ---
+    const adminRole = await prisma.role.findFirst({ where: { name: 'Admin' } });
     const adminCount = await prisma.userRole.count({
-      where: { roleId: 3 }
+      where: { roleId: adminRole.id }
     });
 
     if (adminCount > 0) {
@@ -28,8 +29,8 @@ const register = async (req, res) => {
       });
     }
 
-    // --- 3. Only allow admin registration (roleId must be 3) ---
-    if (parseInt(roleId) !== 3) {
+    // --- 3. Only allow admin registration (roleId must be adminRole.id) ---
+    if (parseInt(roleId) !== adminRole.id) {
       return res.status(400).json({
         success: false,
         message: 'Only admin registration is allowed'
@@ -84,7 +85,7 @@ const register = async (req, res) => {
       await tx.userRole.create({
         data: {
           userId: user.id,
-          roleId: 3
+          roleId: adminRole.id
         }
       });
 

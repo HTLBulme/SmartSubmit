@@ -160,13 +160,10 @@ const createAssignment = async (req, res) => {
 
 const getClasses = async (req, res) => {
   try {
-    const teacherId = req.userId;
-    const userClasses = await prisma.userClass.findMany({
-      where: { userId: teacherId },
-      include: { class: true }
+    const classes = await prisma.class.findMany({  // Allow teachers to see all classes, not just their own
+      orderBy: [{ year: 'asc' }, { name: 'asc' }]
     });
-    const classes = userClasses.map(uc => uc.class);
-    return res.json({ data: classes });
+    return res.json({ success: true, data: classes });
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Error loading classes' });
   }

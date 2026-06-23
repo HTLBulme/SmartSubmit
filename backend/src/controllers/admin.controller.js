@@ -6,8 +6,9 @@ const { validateEmail } = require('../app.utils');
 // --- Check if admin exists ---
 const checkAdminExists = async (req, res) => {
   try {
+    const adminRole = await prisma.role.findFirst({ where: { name: 'Admin' } });
     const adminCount = await prisma.userRole.count({
-      where: { roleId: 3 }
+      where: { roleId: adminRole.id }
     });
 
     res.json({
@@ -73,8 +74,9 @@ const importStudents = async (req, res) => {
           });
 
           // --- 2. Assign student role ---
+          const studentRole = await tx.role.findFirst({ where: { name: 'Student' } });
           await tx.userRole.create({
-            data: { userId: user.id, roleId: 1 }
+            data: { userId: user.id, roleId: studentRole.id }
           });
 
           // --- 3. Create/link classes ---
@@ -159,8 +161,9 @@ const importTeachers = async (req, res) => {
           });
 
           // --- 2. Assign teacher role ---
+          const teacherRole = await tx.role.findFirst({ where: { name: 'Teacher' } });
           await tx.userRole.create({
-            data: { userId: user.id, roleId: 2 }
+            data: { userId: user.id, roleId: teacherRole.id }
           });
 
           // --- 3. Link to classes (if provided) ---
@@ -247,7 +250,7 @@ const getStudentsByClass = async (req, res) => {
     const { classId } = req.query; //req.query is an object in Express that contains the URL query parameters.
     const users = await prisma.user.findMany({
       where: {
-        userRoles: { some: { roleId: 1 } }, // Relation fields (arrays) require 'some' / 'every' / 'none'
+        userRoles: { some: { roleId: studentRole.id } }, // Relation fields (arrays) require 'some' / 'every' / 'none'
         ...(classId && {
           userClasses: { some: { classId: parseInt(classId) } } //// Spread operator merges the result into the where object; if classId is truthy, && returns the right-hand object and its properties are merged in, otherwise nothing is added
         })
@@ -279,7 +282,7 @@ const getTeachersBySubject = async (req, res) => {
     const { subjectId } = req.query;
     const users = await prisma.user.findMany({
       where: {
-        userRoles: { some: { roleId: 2 } },
+        userRoles: { some: { roleId: teacherRole.id } },
         ...(subjectId && {
           userSubjects: { some: { subjectId: parseInt(subjectId) } }
         })
