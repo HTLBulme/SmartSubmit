@@ -248,6 +248,7 @@ const getClasses = async (req, res) => {
 const getStudentsByClass = async (req, res) => {
   try {
     const { classId } = req.query; //req.query is an object in Express that contains the URL query parameters.
+    const studentRole = await prisma.role.findFirst({ where: { name: 'Student' } });
     const users = await prisma.user.findMany({
       where: {
         userRoles: { some: { roleId: studentRole.id } }, // Relation fields (arrays) require 'some' / 'every' / 'none'
@@ -280,6 +281,7 @@ const getSubjects = async (req, res) => {
 const getTeachersBySubject = async (req, res) => {
   try {
     const { subjectId } = req.query;
+    const teacherRole = await prisma.role.findFirst({ where: { name: 'Teacher' } });
     const users = await prisma.user.findMany({
       where: {
         userRoles: { some: { roleId: teacherRole.id } },

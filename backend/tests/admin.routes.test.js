@@ -45,8 +45,9 @@ describe('Admin API tests', () => {
   it('returns class list', async () => {
     mockPrisma.role.findFirst.mockResolvedValue({ id: 3 });
     mockPrisma.userRole.findFirst.mockResolvedValue({ id: 1 });
-    mockPrisma.userClass.findMany.mockResolvedValue([
-      { class: { id: 1, name: '5A', year: 2026 } }
+
+    mockPrisma.class.findMany.mockResolvedValue([
+      { id: 1, name: '5A', year: 2026 }
     ]);
 
     const response = await request(app)
@@ -54,7 +55,11 @@ describe('Admin API tests', () => {
       .set('Authorization', 'Bearer token');
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.data[0]).toEqual({ id: 1, name: '5A', year: 2026 });
+    expect(response.body.data[0]).toEqual({
+      id: 1,
+      name: '5A',
+      year: 2026
+    });
   });
 
   it('returns students filtered by classId', async () => {
