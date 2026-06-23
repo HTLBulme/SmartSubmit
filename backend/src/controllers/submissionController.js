@@ -1,48 +1,51 @@
 const { sendSubmissionConfirmation } = require('../app.email');
-const { SUBMISSIONS_DIR } = require('../app.config');
+const { SUBMISSIONS_DIR, prisma } = require('../app.config'); // ADD prisma here
 const { validateEmail } = require('../app.utils');
 const path = require('path');
 const fs = require('fs');
+const { logSubmission } = require('../app.submissionLog');
 
-async function handleSubmission(studentId, assignmentId, file) {
+async function handleSubmission(req, studentId, assignmentId, file) { // ADD req as parameter
   try {
-    // --- Validate file and student email ---
-    if (!file) throw new Error('Keine Datei hochgeladen');
-    
-    const student = await prisma.student.findUnique({ where: { id: studentId } });
-    if (!student) throw new Error('Student nicht gefunden');
-    
+    if (!file) throw new Error('No file uploaded');
+
+    const student = await prisma.user.findUnique({ where: { id: studentId } }); // user, not student
+    if (!student) throw new Error('Student not found');
+
     if (!validateEmail(student.email)) {
-      console.warn(`Ungültige E-Mail-Adresse für Student ${studentId}: ${student.email}`);
-      throw new Error('Ungültige E-Mail-Adresse des Studenten');
+      throw new Error('Invalid E-Mail Address of the Student');
     }
-    
-    // --- Save file to disk ---
+
     const uniqueFilename = `${Date.now()}-${file.originalname}`;
     const savePath = path.join(SUBMISSIONS_DIR, uniqueFilename);
-    
     fs.writeFileSync(savePath, file.buffer);
-    
-    // --- Create submission record in database ---
+
+    const clientIp = req.ip;
+
     const submission = await prisma.submission.create({
       data: {
         studentId,
         assignmentId,
-        filename: uniqueFilename,
+        files: JSON.stringify([{ originalName: file.originalname, storedName: uniqueFilename }]),
         submittedAt: new Date()
-      }
+      },
+      include: { assignment: true } // needed to access submission.assignment.title below
     });
-    
-    // --- Send confirmation email ---
-    await sendSubmissionConfirmation(student.email, student.name, submission.assignment.title, submission.submittedAt);
-    
+
+    await logSubmission({
+      studentName: `${student.firstName} ${student.lastName}`,
+      filename: file.originalname,
+      ip: clientIp,
+      assignmentId
+    });
+
+    await sendSubmissionConfirmation(student.email, `${student.firstName} ${student.lastName}`, submission.assignment.title, submission.submittedAt);
+
     return { success: true, submissionId: submission.id };
   } catch (error) {
-    console.error('Fehler bei der Bearbeitung der Abgabe:', error);
+    console.error('Error during submission processing:', error);
     return { success: false, error: error.message };
   }
 }
 
-module.exports = {
-  handleSubmission
-};
+module.exports = { handleSubmission };

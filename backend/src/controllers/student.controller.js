@@ -38,6 +38,7 @@ const deleteSubmissionFile = async (req, res) => {
 };
 const { prisma } = require('../app.config');
 const { sendSubmissionConfirmation } = require('../app.email');
+const { logSubmission } = require('../app.submissionLog');
 
 async function ensureStudentRole(studentId) {
   try {
@@ -235,6 +236,28 @@ const submitAssignment = async (req, res) => {
             feedback: null
           }
         });
+
+        // --- Log each submitted file with IP and timestamp ---
+    try {
+      const student = await prisma.user.findUnique({
+        where: { id: studentId },
+        select: { firstName: true, lastName: true, email: true }
+      });
+
+      if (files.length > 0) {
+        for (const file of files) {
+          await logSubmission({
+            studentName: `${student.firstName} ${student.lastName}`.trim(),
+            filename: file.originalname,
+            ip: req.ip,
+            assignmentId: assigmentIdNum
+          });
+        }
+      }
+    } catch (logError) {
+      console.error('Failed to write submission log:', logError);
+      // don't fail the submission just because logging failed
+    }
 
     // --- Send confirmation email ---
     try {

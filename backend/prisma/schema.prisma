@@ -135,3 +135,12 @@ model Submission {
   @@unique([assignmentId, studentId])
   @@index([studentId])
 }
+
+model SubmissionLog {
+  id           Int      @id @default(autoincrement())
+  assignmentId Int
+  studentName  String
+  filename     String
+  ip           String
+  timestamp    DateTime @default(now())
+}
