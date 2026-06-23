@@ -21,6 +21,7 @@ export default function Login() {
   const [requestedRole, setRequestedRole] = useState("");
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [useLdapToggle, setUseLdapToggle] = useState(false); // New state for LDAP toggle
   const location = useLocation();
 
   // Handle OAuth 2.0 login redirect
@@ -100,6 +101,7 @@ async function handleLogin(e) {
       email,
       password: password,
       role: requestedRole.trim(), // Ensure no extra spaces in role
+      loginMethod: useLdapToggle ? 'ldap' : 'local' // Determine login method based on toggle
     });
 
     const { token, user } = res.data.data;
@@ -202,6 +204,19 @@ async function handleLogin(e) {
           </svg>
           {t.loginWithGoogle || "Login with Google"}
         </button>
+
+         {/* --- LDAP Toggle --- */}
+        <div className="ldap-row" style={{ marginTop: "12px" }}>
+          <input
+            type="checkbox"
+            style={{ width: "20px", height: "20px", marginRight: "10px" }}
+            checked={useLdapToggle}
+            onChange={(e) => setUseLdapToggle(e.target.checked)}
+          />
+          <span style={{ fontWeight: "bold", fontSize: "0.9rem", position: "relative" }}>
+            {t.useLdap || "Login with school account (LDAP)"}
+          </span>
+        </div>
 
         <a className="forgot-link" href="#">
           {t.forgot}

@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { prisma } = require('../app.config');
 const { sendGradeNotification } = require('../app.email');
+const { exportLogAsCSV } = require('../app.submissionLog');
 
 const UPLOADS_ROOT = path.resolve(__dirname, '..', '..', 'uploads');
 const NOTIFY_FLAG_REGEX = /\s*\[notifyOnGrade:(true|false)\]\s*$/i;
@@ -60,7 +61,7 @@ const createAssignment = async (req, res) => {
     if (!className || !subject || !dueDate) {
       return res.status(400).json({
         success: false,
-        message: 'Klasse, Fach und Abgabetermin sind erforderlich'
+        message: 'Class, Subject and Due Date are required'
       });
     }
     // Ensure title and text are strings; default to empty string if missing or wrong type
@@ -110,7 +111,7 @@ const createAssignment = async (req, res) => {
 
     const terminDate = new Date(dueDate); //String:"2025-06-15T23:59:00.000Z"-->Js-object
     if (Number.isNaN(terminDate.getTime())) {//-> 1749945600000
-      return res.status(400).json({ success: false, message: 'Ungültiges Datum-Format' });
+      return res.status(400).json({ success: false, message: 'Invalid Date Format' });
     }
 
     const assignment = await prisma.assignment.create({  // ✅ fix
@@ -213,8 +214,8 @@ const getTeacherAssignments = async (req, res) => {
 
     return res.json({ success: true, data });
   } catch (error) {
-    console.error('Fehler beim Laden der Aufgaben des Lehrers:', error);
-    return res.status(500).json({ success: false, message: 'Server Fehler' });
+    console.error('Error while loading teacher assignments:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
@@ -276,8 +277,8 @@ const getAssignmentSubmissions = async (req, res) => {
 
     return res.json({ success: true, data, assignment });
   } catch (error) {
-    console.error('Fehler beim Laden der Abgaben:', error);
-    return res.status(500).json({ success: false, message: 'Server Fehler' });
+    console.error('Error while loading submissions:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
@@ -363,8 +364,8 @@ const gradeSubmission = async (req, res) => {
 
     return res.json({ success: true, data: updated });
   } catch (error) {
-    console.error('Fehler beim Bewerten der Abgabe:', error);
-    return res.status(500).json({ success: false, message: 'Server Fehler' });
+    console.error('Error while grading submission:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
@@ -405,9 +406,26 @@ const setAssignmentArchived = async (req, res) => {
       select: { id: true, archived: true }
     });
 
+
+  // --- NEW: export submission log as CSV when archiving ---
+    if (bodyValue === true) {
+      try {
+        const csv = await exportLogAsCSV(assignmentId);
+        const archiveDir = path.join(__dirname, '../../uploads', `assignment_${assignmentId}`);
+        if (!fs.existsSync(archiveDir)) {
+          fs.mkdirSync(archiveDir, { recursive: true });
+        }
+        const logPath = path.join(archiveDir, 'submission_log.csv');
+        fs.writeFileSync(logPath, csv);
+      } catch (csvError) {
+        console.error('Failed to export submission log CSV:', csvError);
+        // don't fail the archive action just because CSV export failed
+      }
+    }
+
     return res.json({ success: true, data: updated });
   } catch (error) {
-    console.error('Fehler beim Archivieren der Aufgabe:', error);
+    console.error('Error beim Archivieren der Aufgabe:', error);
     return res.status(500).json({ success: false, message: 'Server Fehler' });
   }
 };
