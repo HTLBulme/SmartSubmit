@@ -150,10 +150,16 @@ const submitAssignment = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Students only' });
     }
 
-    const rawAssignmentId = assignmentId ?? aufgabeId;
-    const assigmentIdNum = Number.parseInt(rawAssignmentId, 10);
-    if (!rawAssignmentId || Number.isNaN(assigmentIdNum)) {
+    const rawAssignmentId = assignmentId || aufgabeId;
+
+    if (!rawAssignmentId) {
       return res.status(400).json({ success: false, message: 'Assignment ID required' });
+    }
+
+    const assigmentIdNum = Number.parseInt(rawAssignmentId, 10);
+
+    if (Number.isNaN(assigmentIdNum)) {
+      return res.status(400).json({ success: false, message: 'Invalid assignment ID' });
     }
 
     const assignment = await prisma.assignment.findUnique({  // ✅ fix

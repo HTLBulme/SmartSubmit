@@ -9,6 +9,8 @@ const NOTIFY_FLAG_REGEX = /\s*\[notifyOnGrade:(true|false)\]\s*$/i;
 
 async function ensureTeacherRole(teacherId) {
   try {
+    const id = Number.parseInt(teacherId, 10);
+    if (!Number.isInteger(id)) return false;
     // Query Teacher role by name (more robust than hard-coded roleId)
     const teacherRole = await prisma.role.findFirst({
       where: { name: 'Teacher' },
@@ -21,7 +23,7 @@ async function ensureTeacherRole(teacherId) {
     }
 
     const isTeacher = await prisma.userRole.findFirst({
-      where: { userId: teacherId, roleId: teacherRole.id },
+      where: { userId: id, roleId: teacherRole.id },
       select: { id: true }
     });
     return Boolean(isTeacher);
@@ -56,7 +58,7 @@ function tryDeleteUploadedFile(filePath) {
 const createAssignment = async (req, res) => {
   try {
     const { class: className, subject, title, text, dueDate, link } = req.body;
-    const teacherId = req.userId;
+    const teacherId = Number.parseInt(req.userId, 10);
 
     if (!className || !subject || !dueDate) {
       return res.status(400).json({
@@ -171,7 +173,9 @@ const getClasses = async (req, res) => {
 
 const getSubjects = async (req, res) => {
   try {
-    const teacherId = req.userId;
+    const teacherId = Number.parseInt(req.userId, 10);
+    const studentRole = await prisma.role.findFirst({ where: { name: 'Student' } }); // Get the Student role to filter out students from subjects
+    const teacherRole = await prisma.role.findFirst({ where: { name: 'Teacher' } }); // Get the Teacher role to filter out teachers from subjects
     const userSubjects = await prisma.userSubject.findMany({
       where: { userId: teacherId },
       include: { subject: true }
@@ -186,7 +190,7 @@ const getSubjects = async (req, res) => {
 // --- Get all assignments created by the current teacher ---
 const getTeacherAssignments = async (req, res) => {
   try {
-    const teacherId = req.userId;
+    const teacherId = Number.parseInt(req.userId, 10);
 
     const assignments = await prisma.assignment.findMany({  // ✅ fix
       where: { teacherId: teacherId },
@@ -248,10 +252,11 @@ const getAssignmentSubmissions = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Assignment not found' });
     }
 
+    const studentRole = await prisma.role.findFirst({ where: { name: 'Student' } });
     const rows = await prisma.submission.findMany({
       where: {
         assignmentId: assignmentId,
-        student: { userRoles: { some: { roleId: 1 } } }
+//        student: studentRole ? { userRoles: { some: { roleId: studentRole.id } } } : undefined // Ensure that the submission's student has the Student role
       },
       orderBy: { submittedAt: 'desc' },
       select: {
