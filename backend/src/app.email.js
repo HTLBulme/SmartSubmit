@@ -44,7 +44,7 @@ async function sendSubmissionConfirmation(studentEmail, studentName, assignmentT
   const mailOptions = {
     from: emailFrom,
     to: studentEmail,
-    subject: `✅ Aufgabe abgegeben: ${assignmentTitle}`,
+    subject: `✅ Submission confirmed: ${assignmentTitle}`,
     
     html: `
       <!DOCTYPE html>
@@ -68,23 +68,23 @@ async function sendSubmissionConfirmation(studentEmail, studentName, assignmentT
           <div class="content">
             <div class="success-icon">✅</div>
             
-            <h2>Hallo ${studentName},</h2>
+            <h2>Hello ${studentName},</h2>
             
-            <p>Deine Aufgabe wurde erfolgreich abgegeben!</p>
+            <p>You have successfully submitted your assignment!</p>
             
             <div class="info-box">
-              <strong>Aufgabe:</strong> ${assignmentTitle}<br>
-              <strong>Abgegeben am:</strong> ${new Date(submittedAt).toLocaleString('de-AT')}<br>
-              <strong>Status:</strong> Eingereicht ✓
+              <strong>Assignment:</strong> ${assignmentTitle}<br>
+              <strong>Submitted on:</strong> ${new Date(submittedAt).toLocaleString('de-AT')}<br>
+              <strong>Status:</strong> Submitted ✓
             </div>
             
-            <p>Dein Lehrer wird die Abgabe so bald wie möglich bewerten.</p>
+            <p>Your teacher will evaluate the submission as soon as possible.</p>
             
-            <p>Viel Erfolg!<br>
-            Dein SmartSubmit Team</p>
+            <p>Good luck!<br>
+            Your SmartSubmit Team</p>
           </div>
           <div class="footer">
-            <p>Dies ist eine automatische E-Mail. Bitte nicht antworten.</p>
+            <p>This is an automated email. Please do not reply.</p>
             <p>HTL Bulme Graz-Gösting</p>
           </div>
         </div>
@@ -93,18 +93,18 @@ async function sendSubmissionConfirmation(studentEmail, studentName, assignmentT
     `,
     
     text: `
-Hallo ${studentName},
+Hello ${studentName},
 
-Deine Aufgabe wurde erfolgreich abgegeben!
+Your assignment has been submitted successfully!
 
-Aufgabe: ${assignmentTitle}
-Abgegeben am: ${new Date(submittedAt).toLocaleString('de-AT')}
-Status: Eingereicht ✓
+Assignment: ${assignmentTitle}
+Submitted on: ${new Date(submittedAt).toLocaleString('de-AT')}
+Status: Submitted ✓
 
-Dein Lehrer wird die Abgabe so bald wie möglich bewerten.
+Your teacher will evaluate the submission as soon as possible.
 
-Viel Erfolg!
-Dein SmartSubmit Team
+Good luck!
+Your SmartSubmit Team
     `
   };
 
@@ -131,7 +131,7 @@ async function sendGradeNotification(studentEmail, studentName, assignmentTitle,
   const mailOptions = {
     from: emailFrom,
     to: studentEmail,
-    subject: `📊 Bewertung erhalten: ${assignmentTitle}`,
+    subject: `📊 Grade received: ${assignmentTitle}`,
     
     html: `
       <!DOCTYPE html>
@@ -152,21 +152,21 @@ async function sendGradeNotification(studentEmail, studentName, assignmentTitle,
             <h1>SmartSubmit</h1>
           </div>
           <div class="content">
-            <h2>Hallo ${studentName},</h2>
-            <p>Deine Aufgabe wurde bewertet!</p>
+            <h2>Hello ${studentName},</h2>
+            <p>You have received a grade for your assignment.</p>
             
             <div class="grade-box">
-              <strong>Aufgabe:</strong> ${assignmentTitle}<br>
-              <strong>Note:</strong> ${grade}%<br>
+              <strong>Assignment:</strong> ${assignmentTitle}<br>
+              <strong>Grade:</strong> ${grade}%<br>
               ${feedback ? `<br><strong>Feedback:</strong><br>${feedback}` : ''}
             </div>
             
-            <p>Du kannst die vollständige Bewertung in SmartSubmit einsehen.</p>
+            <p>You can view the complete evaluation in SmartSubmit.</p>
             
-            <p>Viel Erfolg weiterhin!<br>Dein SmartSubmit Team</p>
+            <p>Good luck!<br>Your SmartSubmit Team</p>
           </div>
           <div class="footer">
-            <p>Dies ist eine automatische E-Mail. Bitte nicht antworten.</p>
+            <p>This is an automated email. Please do not reply.</p>
             <p>HTL Bulme Graz-Gösting</p>
           </div>
         </div>
@@ -175,16 +175,16 @@ async function sendGradeNotification(studentEmail, studentName, assignmentTitle,
     `,
     
     text: `
-Hallo ${studentName},
+Hello ${studentName},
 
-Deine Aufgabe wurde bewertet!
+You have received a grade for your assignment.
 
-Aufgabe: ${assignmentTitle}
-Note: ${grade}%
+Assignment: ${assignmentTitle}
+Grade: ${grade}%
 ${feedback ? `Feedback: ${feedback}` : ''}
 
-Viel Erfolg weiterhin!
-Dein SmartSubmit Team
+Good luck!
+Your SmartSubmit Team
     `
   };
 
