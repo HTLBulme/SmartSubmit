@@ -43,6 +43,7 @@ if (transporter) {
 async function sendSubmissionConfirmation(studentEmail, studentName, assignmentTitle, submittedAt) {
   const mailOptions = {
     from: emailFrom,
+    to: studentEmail,
     subject: `✅ Aufgabe abgegeben: ${assignmentTitle}`,
     
     html: `
@@ -129,6 +130,7 @@ Dein SmartSubmit Team
 async function sendGradeNotification(studentEmail, studentName, assignmentTitle, grade, feedback) {
   const mailOptions = {
     from: emailFrom,
+    to: studentEmail,
     subject: `📊 Bewertung erhalten: ${assignmentTitle}`,
     
     html: `
