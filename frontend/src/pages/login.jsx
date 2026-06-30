@@ -206,17 +206,15 @@ async function handleLogin(e) {
         </button>
 
          {/* --- LDAP Toggle --- */}
-        <div className="ldap-row" style={{ marginTop: "12px" }}>
-          <input
-            type="checkbox"
-            style={{ width: "20px", height: "20px", marginRight: "10px" }}
-            checked={useLdapToggle}
-            onChange={(e) => setUseLdapToggle(e.target.checked)}
-          />
-          <span style={{ fontWeight: "bold", fontSize: "0.9rem", position: "relative" }}>
-            {t.useLdap || "Login with school account (LDAP)"}
-          </span>
-        </div>
+        <button
+          type="button"
+          className="google-login-btn"
+          onClick={() => setUseLdapToggle(!useLdapToggle)}
+        >
+          <p style={{ margin: 0, fontWeight: 500 }}>
+            {t.loginWithLdap || "Login with school account (LDAP)"}
+          </p>
+        </button>
 
         <a className="forgot-link" href="#">
           {t.forgot}
@@ -225,7 +223,7 @@ async function handleLogin(e) {
         {/* Help Link */}
         <div className="text-center mt-3">
           <Link to="/help" className="forgot-link">
-            {t.helpBtn || "Help"} | {t.helpTitle || "Guide"}
+            {t.help.helpBtn || "Help"} | {t.help.helpTitle || "Guide"}
           </Link>
         </div>
 

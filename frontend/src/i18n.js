@@ -34,6 +34,7 @@
     goToLogin: "Zum Login",
     loginTitle: "Anmeldung",
     loginWithGoogle: "Mit Google anmelden",
+    loginWithLdap: "Mit Schulkonto anmelden (LDAP)",
 
     // --- Teacher Panel & Assignment Creation ---
     assignmentSeed1: "Quadratische Gleichungen lösen",
@@ -161,6 +162,7 @@
     help: {
         title: "Hilfe & Anleitung",
         helpBtn: "Hilfe",
+        helpTitle: "Anleitung",
         quickStart: "Schnellstart",
         forAdmins: "Für Administratoren",
         forTeachers: "Für Lehrer",
@@ -367,6 +369,7 @@
     goToLogin: "Go to login",
     loginTitle: "Login",
     loginWithGoogle: "Login with Google",
+    loginWithLdap: "Login with school account (LDAP)",
 
     // --- Teacher Panel & Assignment Creation ---
     assignmentSeed1: "Solving quadratic equations",
@@ -491,6 +494,7 @@
     help: {
         title: "Help & Instructions",
         helpBtn: "Help",
+        helpTitle: "Instructions",
         quickStart: "Quick Start",
         forAdmins: "For Administrators",
         forTeachers: "For Teachers",
