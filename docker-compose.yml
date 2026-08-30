@@ -61,12 +61,8 @@ services:
       cd backend &&
       npx prisma generate &&
       echo 'Waiting for database...' &&
-      until npx prisma db push --force-reset; do
+      until npx prisma db push; do
         echo 'DB push failed, retrying in 5 seconds...'
-        sleep 5
-      done &&
-      until node prisma/seed.server.js; do
-        echo 'Seed failed, retrying in 5 seconds...'
         sleep 5
       done &&
       cd .. &&
