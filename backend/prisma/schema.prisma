@@ -22,6 +22,9 @@ model User {
   passwordHash    String?         @db.VarChar(255)
   provider        String?         @db.VarChar(50)
   oauthId         String?         @db.VarChar(255)
+  ldapExternalId  String?         @unique @db.VarChar(255)
+  ldapUid         String?         @unique @db.VarChar(255)
+  ldapDn          String?         @db.VarChar(1024)
   createdAt       DateTime        @default(now())
   active          Boolean         @default(true)
 

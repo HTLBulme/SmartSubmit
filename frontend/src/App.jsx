@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import React, { Suspense, lazy } from "react";
 import Navbar from "./components/Navbar";
+import { getAssignedRoles } from "./auth/session";
 
 // --- Lazy-loaded pages to optimize resources ---
 const Login = lazy(() => import("./pages/login"));
@@ -12,24 +13,19 @@ const ChangePassword = lazy(() => import("./pages/ChangePassword"));//new
 const Help = lazy(() => import("./pages/help"));
 
 // --- Routenschutz ---
-function RequireAuth({ children, allowedRoles }) {
+export function RequireAuth({ children, allowedRoles }) {
 
   // --- Prefer per-tab token (sessionStorage) so multiple accounts can run in parallel ---
   const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
-  // --- Store role per tab (sessionStorage) so teacher+student can run in parallel ---
+  // The active role is a per-tab UI context, not an authorization claim.
   const activeRole = sessionStorage.getItem("activeRole");
-  const role = localStorage.getItem("role");
 
   let userRoles = [];
   try {
     const raw = localStorage.getItem("user");
     const parsed = raw ? JSON.parse(raw) : null;
-    if (parsed && Array.isArray(parsed.roles)) {
-      userRoles = parsed.roles
-        .map((r) => (typeof r?.bezeichnung === "string" ? r.bezeichnung : null))
-        .filter(Boolean);
-    }
+    userRoles = getAssignedRoles(parsed);
   } catch {
     userRoles = [];
   }
@@ -38,15 +34,10 @@ function RequireAuth({ children, allowedRoles }) {
 
   if (Array.isArray(allowedRoles) && allowedRoles.length > 0) {
 
-    // --- First check the per-tab role ---
-    if (activeRole && allowedRoles.includes(activeRole)) return children;
-
-    // --- Fallback: explicitly stored role ---
-    if (role && allowedRoles.includes(role)) return children;
-
-    // --- Fallback: use roles from stored user.roles ---
-    const hasAllowed = userRoles.some((r) => allowedRoles.includes(r));
-    if (!hasAllowed) return <Navigate to="/" replace />;
+    const roleIsAssigned = activeRole && userRoles.includes(activeRole);
+    if (!roleIsAssigned || !allowedRoles.includes(activeRole)) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return children;

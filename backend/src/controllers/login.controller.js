@@ -2,13 +2,18 @@ const bcrypt = require('bcryptjs');
 const { prisma } = require('../app.config');
 const { generateToken } = require('../app.utils');
 const { authenticateLDAP } = require('../app.ldap');
+const {
+  loadLdapLinkingPolicy,
+  provisionLdapTeacher,
+} = require('../services/ldapTeacherProvisioning');
 
-// --- User Login with role support ---
+// --- User Login ---
 const login = async (req, res) => {
-  const { email, password, role, loginMethod } = req.body;
+  const { email, identifier, password, loginMethod } = req.body;
+  const loginIdentifier = loginMethod === 'ldap' ? (identifier || email) : email;
 
   // --- 1. Validate input ---
-  if (!email || !password) {
+  if (!loginIdentifier || !password) {
     return res.status(400).json({
       success: false, 
       message: 'Email or password missing' 
@@ -17,58 +22,37 @@ const login = async (req, res) => {
 
   // --- 2. Find user ---
   try {
-        let user;
+    let user;
 
     // LDAP authentication branch
     if (loginMethod === 'ldap') {
       let ldapEntry;
       try {
-        ldapEntry = await authenticateLDAP(email, password);
+        ldapEntry = await authenticateLDAP(loginIdentifier, password);
       } catch (ldapError) {
-        return res.status(401).json({
+        const unavailable = ['LDAP_DISABLED', 'LDAP_CONFIGURATION_ERROR', 'LDAP_SEARCH_BIND_FAILED', 'LDAP_SEARCH_FAILED']
+          .includes(ldapError && ldapError.code);
+        return res.status(unavailable ? 503 : 401).json({
           success: false,
-          message: 'LDAP login failed'
+          message: unavailable
+            ? 'Teacher LDAP login is currently unavailable'
+            : 'Invalid credentials or Teacher LDAP access is not permitted'
         });
       }
 
-    // Find or auto-provision the local user record
-    const userEmail = ldapEntry.mail || email;
-    user = await prisma.user.findUnique({
-      where: { email: userEmail },
-      include: {
-        userRoles: { include: { role: true } }
-      }
-    });
-    if (!user) {
-      // Auto-create on first LDAP login — default role can be adjusted
-      user = await prisma.user.create({
-        data: {
-          email: userEmail,
-          firstName: ldapEntry.givenName || '',
-          lastName: ldapEntry.sn || '',
-          provider: 'ldap',
-          passwordHash: null, // LDAP owns the credential, not us
-        },
-        // include: { userRoles: { include: { role: true } } }
-      });
-        // --- NEW: assign default "Student" role to new LDAP users (for Demo purposes) ---
-      const studentRole = await prisma.role.findFirst({
-        where: { name: 'Student' },
-        select: { id: true }
-      });
-
-      if (studentRole) {
-        await prisma.userRole.create({
-          data: { userId: user.id, roleId: studentRole.id }
+      // No database operation occurs until authenticateLDAP has completed the
+      // returned-DN user bind and confirmed the Teacher subtree mapping.
+      try {
+        user = await provisionLdapTeacher(ldapEntry, {
+          prismaClient: prisma,
+          policy: loadLdapLinkingPolicy(),
+        });
+      } catch {
+        return res.status(403).json({
+          success: false,
+          message: 'Teacher LDAP account cannot be linked or provisioned'
         });
       }
-    // Re-fetch the user including the role we just assigned,
-      // so the rest of the function (roles.map below) works correctly
-      user = await prisma.user.findUnique({
-        where: { id: user.id },
-        include: { userRoles: { include: { role: true } } }
-      });
-    }
 
     } else {
       // --- 2b. EXISTING: local Prisma lookup ---
@@ -94,23 +78,10 @@ const login = async (req, res) => {
       name: ur.role.name
     }));
 
-    // --- 5. If a role is specified, check if user has that role ---
-    if (role) {
-      const hasRole = roles.some(
-        r => r.name.toLowerCase() === role.toLowerCase()
-      );
-      if (!hasRole) {
-        return res.status(403).json({
-          success: false,
-          message: `You do not have ${role} permission`
-        });
-      }
-    }
-
-    // --- 6. Generate token ---
+    // --- 5. Generate token. The JWT identifies the user; roles remain database-backed. ---
     const token = generateToken(user.id);
 
-    // --- 7. Send success response ---
+    // --- 6. Send every role assigned to the authenticated local user. ---
     res.json({
       success: true,
       data: {
@@ -119,6 +90,8 @@ const login = async (req, res) => {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
+          hasLocalPassword: Boolean(user.passwordHash),
+          authMethod: loginMethod === 'ldap' ? 'ldap' : 'local',
           roles  // Return all roles
         },
         token

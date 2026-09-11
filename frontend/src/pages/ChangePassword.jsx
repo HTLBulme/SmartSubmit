@@ -75,10 +75,11 @@ export default function ChangePassword() {
 
       // Automatically redirect to homepage after 3 seconds
       setTimeout(() => {
-        const role = sessionStorage.getItem("role") || localStorage.getItem("role");
+        const role = sessionStorage.getItem("activeRole");
         if (role?.toLowerCase() === "admin") navigate("/admin");
-        else if (role?.toLowerCase() === "lehrer") navigate("/teacher");
-        else navigate("/student");
+        else if (role?.toLowerCase() === "teacher") navigate("/teacher");
+        else if (role?.toLowerCase() === "student") navigate("/student");
+        else navigate("/");
       }, 3000);
     } catch (err) {
       console.error("⚠️ Change password error:", err);
@@ -111,6 +112,26 @@ export default function ChangePassword() {
       </svg>
     )
   );
+
+  let storedUser = null;
+  try {
+    const rawUser = localStorage.getItem("user");
+    storedUser = rawUser ? JSON.parse(rawUser) : null;
+  } catch {
+    storedUser = null;
+  }
+
+  if (storedUser?.hasLocalPassword === false) {
+    return (
+      <div className="login-container">
+        <div className="login-form">
+          <h2>🔐 {t.changePasswordTitle}</h2>
+          <p>{t.externalPasswordManaged || "This account does not have a local SmartSubmit password."}</p>
+          <button type="button" onClick={() => navigate(-1)}>{t.cancel}</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="login-container">
