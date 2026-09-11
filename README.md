@@ -1,1167 +1,146 @@
-# SmartSubmit - Assignment Management System
+# SmartSubmit
 
-**Live Demo:** http://79.76.119.73:8080
+SmartSubmit is an assignment-management application for schools: administrators manage accounts and imports, teachers publish and assess assignments, and students submit text or files.
 
-## Table of Contents
+## Stack and local setup
 
-1. [Project Overview](#project-overview)
-2. [Features](#features)
-3. [Technology Stack](#technology-stack)
-4. [System Architecture](#system-architecture)
-5. [Installation & Setup](#installation--setup)
-6. [Development Guide](#development-guide)
-7. [Deployment](#deployment)
-8. [User Guide](#user-guide)
-9. [API Documentation](#api-documentation)
-10. [Database Schema](#database-schema)
-11. [Troubleshooting](#troubleshooting)
-12. [Contributing](#contributing)
+- Frontend: React, Vite, Bootstrap and Axios in `frontend/`
+- Backend: Express 5, Prisma 6 and MySQL 8 in `backend/`
+- Authentication: JWT, Google OAuth and optional teacher LDAP login
 
----
-
-## Project Overview
-
-SmartSubmit is a modern web-based assignment management system designed for educational institutions. It enables teachers to create and manage assignments, students to submit their work, and administrators to manage the entire system.
-
-### Key Goals
-
-- Streamline assignment distribution and submission
-- Provide role-based access control (Admin, Teacher, Student)
-- Enable efficient file management and tracking
-- Offer a multilingual interface (German and English)
-
-### Project Information
-
-- **Type:** Diploma Thesis Project
-- **Institution:** HTL Bulme
-- **Status:** Active Development
-- **License:** Educational Use
-
----
-
-## Features
-
-### Admin Features
-
-- User management (bulk import via Excel)
-- Import students and teachers from Excel files
-- System configuration and monitoring
-- Role assignment and permissions
-- First-time setup wizard
-
-### Teacher Features
-
-- Create assignments with file attachments
-- Set deadlines and assign to classes
-- View assignment submissions
-- Download all submissions as a ZIP archive
-- Grade submissions and provide feedback
-- Track submission statistics
-- Manage multiple classes and subjects
-
-### Student Features
-
-- View assigned tasks
-- Submit assignments with file uploads
-- Track submission history
-- View grades and feedback
-- View assignment details and deadlines
-- Filter assignments by class and subject
-
-### General Features
-
-- Google OAuth 2.0 integration for seamless login (automatically assigns 'Student' role to new users)
-- Multilingual support (DE and EN)
-- Responsive design (mobile-friendly)
-- Secure authentication with JWT
-- File upload support (multiple formats)
-- Docker deployment ready
-
----
-
-## Technology Stack
-
-### Frontend
-
-- **Framework:** React 18
-- **Build Tool:** Vite
-- **Styling:** Bootstrap 5, Custom CSS
-- **HTTP Client:** Axios
-- **Routing:** React Router DOM
-- **State Management:** React Context API
-
-### Backend
-
-- **Runtime:** Node.js 20
-- **Framework:** Express.js 5
-- **ORM:** Prisma 6
-- **Database:** MySQL 8
-- **Authentication:** JWT (jsonwebtoken)
-- **Password Hashing:** bcryptjs
-- **File Upload:** Multer
-- **Excel Processing:** xlsx
-
-### DevOps
-
-- **Containerization:** Docker, Docker Compose
-- **Database Management:** Prisma Studio
-- **Development:** Nodemon, Vite Dev Server
-- **Version Control:** Git
-
----
-
-## System Architecture
-
-### High-Level Architecture
-
-```mermaid
-flowchart TB
-
-    A["Client Browser<br/>(React SPA on port 5173/8080)"]
-
-    B["Express.js Backend<br/>(port 3000/8080)"]
-
-    B1["Routes<br/>(Login, Register, User, Role,<br/>Class, Subject, Assignment, Submission)"]
-
-    B2["Controllers<br/>(Business Logic)"]
-
-    B3["Middleware<br/>(Auth, File Upload)"]
-
-    B4["Prisma ORM<br/>(Database Access)"]
-
-    C["MySQL Database<br/>(port 3306/3307)"]
-
-    C1["Tables:<br/>User, Role, Class, Subject,<br/>UserRole, UserClass, UserSubject,<br/>Assignment, Submission"]
-
-    A -->|"HTTP / HTTPS"| B
-
-    B --> B1
-    B --> B2
-    B --> B3
-    B --> B4
-
-    B -->|"MySQL Protocol"| C
-
-    C --> C1
-```
-
-### Project Structure
-
-```mermaid
-graph LR
-  A[SmartSubmit] --> B[backend/]
-  A --> C[frontend/]
-  A --> D[docker-compose.yml]
-  A --> E[Dockerfile]
-  A --> F[README.md]
-
-  %% Backend (stacked vertically on the right of backend node)
-  B --> B_src[src/]
-  B --> B_prisma[prisma/]
-  B --> B_uploads[uploads/]
-
-  B_src --> main[main.js]
-  B_src --> routes[app.routes.js]
-  B_src --> middleware[app.middleware.js]
-  B_src --> controllers[controllers/]
-
-  controllers --> admin_ctrl[admin.controller.js]
-  controllers --> login_ctrl[login.controller.js]
-  controllers --> register_ctrl[register.controller.js]
-  controllers --> student_ctrl[student.controller.js]
-  controllers --> teacher_ctrl[teacher.controller.js]
-
-  %% Frontend
-  C --> C_src[src/]
-  C --> C_public[public/]
-
-  C_src --> appjsx[App.jsx]
-  C_src --> mainjsx[main.jsx]
-  C_src --> pages[pages/]
-
-  pages --> p_login[login.jsx]
-  pages --> p_register[register.jsx]
-  pages --> p_admin[admin.jsx]
-  pages --> p_teacher[teacher.jsx]
-  pages --> p_student[student.jsx]
-
-```
-
----
-
-## Installation & Setup
-
-### Prerequisites
-
-- Node.js 20.x or higher
-- MySQL 8.0 or higher
-- npm 10.x or higher
-- Docker 24.x or higher (for containerized deployment)
-- Git for version control
-
-### Local Development Setup
-
-#### 1. Clone the Repository
+Node.js 20+, npm and MySQL 8 (or Docker) are required.
 
 ```bash
-git clone https://github.com/htlbulme/smartsubmit.git
+git clone https://github.com/HTLBulme/SmartSubmit.git
 cd SmartSubmit
-```
-
-#### 2. Setup Backend
-
-```bash
 cd backend
-
-# Install dependencies
 npm install
-
-# Create .env file
 cp .env.example .env
-# Edit .env with your database credentials and Google OAuth keys:
-# DATABASE_URL="..."
-# JWT_SECRET="..."
-# GOOGLE_CLIENT_ID="..."
-# GOOGLE_CLIENT_SECRET="..."
-# GOOGLE_REDIRECT_URI="http://localhost:3000/api/auth/google/callback"
-
-# Create MySQL database
-mysql -u root -p
-CREATE DATABASE smartsubmit;
-CREATE USER 'your_user'@'localhost' IDENTIFIED BY 'your_password';
-GRANT ALL PRIVILEGES ON smartsubmit.* TO 'your_user'@'localhost';
-FLUSH PRIVILEGES;
-EXIT;
-
-# Run Prisma migrations
+# Set DATABASE_URL, JWT_SECRET and any optional provider settings locally.
 npx prisma generate
 npx prisma migrate deploy
-
-# Seed the database
-npm run seed
-
-# Start backend server
 npm start
-```
 
-Backend will run on `http://localhost:3000`
-
-#### 3. Setup Frontend
-
-```bash
-cd ../frontend
-
-# Install dependencies
+# another terminal
+cd frontend
 npm install
-
-# Create .env file for development
-echo "VITE_API_URL=http://localhost:3000" > .env.development
-
-# Start development server
+echo VITE_API_URL=http://localhost:3000 > .env.development
 npm run dev
 ```
 
-Frontend will run on `http://localhost:5173`
+The backend API is `http://localhost:3000/api`; the Vite development server is `http://localhost:5173`.
 
-#### 4. Access the Application
+`npm run seed` is an explicit development operation, not normal startup. `npx prisma migrate reset` is destructive and must only be used intentionally in a disposable environment.
 
-Open your browser and navigate to:
-- Frontend: `http://localhost:5173`
-- Backend API: `http://localhost:3000/api`
+## Configuration
 
-**Default Admin Credentials:**
-- Email: `admin@smartsubmit.com`
-- Password: `admin123`
+Use `backend/.env.example` as a template and never commit `.env`. Keep database passwords, `JWT_SECRET`, Google OAuth secrets, SMTP passwords and LDAP bind credentials private.
 
-**Important:** Change the default password immediately after first login.
+### Google OAuth
 
----
+Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` and either `GOOGLE_CALLBACK_URL` or `GOOGLE_REDIRECT_URI`. Google sign-in finds an account by Google identity or email. A matching existing SmartSubmit account is linked; a new account is not created. SmartSubmit remains the source for roles, classes and subjects.
 
-## Development Guide
+### Teacher LDAP login
 
-### Running in Development Mode
-
-#### Start Both Frontend and Backend
-
-```bash
-# Terminal 1: Backend
-cd backend
-npm start
-
-# Terminal 2: Frontend
-cd frontend
-npm run dev
-```
-
-#### Or use Concurrent Mode
-
-```bash
-# From frontend directory
-npm run dev
-# This runs both frontend and backend simultaneously
-```
-
-### Database Management
-
-#### View Database with Prisma Studio
-
-```bash
-cd backend
-npx prisma studio
-```
-
-Opens browser at `http://localhost:5555` with visual database editor.
-
-#### Create a New Migration
-
-```bash
-cd backend
-
-# 1. Edit schema.prisma
-# 2. Create migration
-npx prisma migrate dev --name your_migration_name
-
-# 3. Generate Prisma Client
-npx prisma generate
-```
-
-#### Reset Database
-
-```bash
-cd backend
-
-# Warning: This deletes all data
-npx prisma migrate reset
-```
-
-### Adding New Features
-
-#### 1. Add a New API Endpoint
-
-**backend/src/controllers/example.controller.js:**
-```javascript
-const exampleFunction = async (req, res) => {
-  try {
-    // Your logic here
-    res.json({ success: true, data: {} });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Error' });
-  }
-};
-
-module.exports = { exampleFunction };
-```
-
-**backend/src/app.routes.js:**
-```javascript
-const exampleController = require('./controllers/example.controller');
-
-router.get('/example', authenticateToken, exampleController.exampleFunction);
-```
-
-#### 2. Add a New Frontend Page
-
-**frontend/src/pages/example.jsx:**
-```javascript
-import { useState } from 'react';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || "";
-
-export default function Example() {
-  const [data, setData] = useState(null);
-
-  const fetchData = async () => {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_URL}/api/example`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setData(response.data);
-  };
-
-  return (
-    <div>
-      <h1>Example Page</h1>
-      <button onClick={fetchData}>Fetch Data</button>
-    </div>
-  );
-}
-```
-
-**frontend/src/App.jsx:**
-```javascript
-import Example from './pages/example';
-
-// Add route
-<Route path="/example" element={<Example />} />
-```
-
-### Code Style Guidelines
-
-- Use ES6+ features (const, arrow functions, async/await)
-- Follow camelCase for variables and functions
-- Use PascalCase for React components
-- Add comments for complex logic
-- Keep functions small and focused
-- Handle errors properly with try-catch
-
----
-
-## Deployment
-
-### Docker Deployment (Recommended)
-
-#### 1. Prepare Environment
-
-Create `.env` file in the backend directory with your production credentials.
-
-#### 2. Build and Deploy
-
-```bash
-# Build and start containers
-docker compose build --no-cache
-docker compose up -d
-
-# Verify containers are running
-docker compose ps
-
-# Check logs
-docker compose logs -f backend
-```
-
-#### 3. Access Application
-
-- Application: `http://your-server-ip:8080`
-- MySQL (external access): `your-server-ip:3307`
-
-#### 4. Post-Deployment
-
-1. Access the application
-2. Login with default admin credentials
-3. Change admin password immediately
-4. Configure firewall to allow port 8080:
-   ```bash
-   sudo ufw allow 8080/tcp
-   ```
-
-### Production Server Setup
-
-#### 1. Server Preparation
-
-```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Install Docker Compose
-sudo apt install docker-compose -y
-
-# Enable Docker to start on boot
-sudo systemctl enable docker
-
-# Add user to docker group
-sudo usermod -aG docker $USER
-```
-
-#### 2. Clone and Deploy
-
-```bash
-# Clone repository
-git clone https://github.com/htlbulme/smartsubmit.git
-cd SmartSubmit
-
-# Create production .env with your credentials
-
-# Deploy
-docker compose build --no-cache
-docker compose up -d
-```
-
-#### 3. Configure Firewall
-
-```bash
-# Allow HTTP
-sudo ufw allow 8080/tcp
-
-# Enable firewall
-sudo ufw enable
-
-# Check status
-sudo ufw status
-```
-
-### Environment-Specific Configuration
-
-#### Development (.env.development)
+LDAP login is implemented for teachers and disabled by default:
 
 ```env
-VITE_API_URL=http://localhost:3000
+LDAP_TEACHER_LOGIN_ENABLED=false
+LDAP_HOST=
+LDAP_PORT=389
+LDAP_URL=
+LDAP_TEACHER_BASE_DN=
+LDAP_LOGIN_ATTRIBUTE=uid
+LDAP_BIND_MODE=anonymous
+LDAP_BIND_DN=
+LDAP_BIND_PASSWORD=
+LDAP_CONNECT_TIMEOUT_MS=5000
+LDAP_OPERATION_TIMEOUT_MS=8000
+LDAP_SEARCH_SIZE_LIMIT=2
+LDAP_LINK_EXISTING_TEACHER_BY_EMAIL=false
 ```
 
-#### Production (.env.production)
+`LDAP_URL` overrides host and port. The server searches the configured teacher base DN and subtree by `LDAP_LOGIN_ATTRIBUTE` (default `uid`), then verifies the password by binding as the found user. `LDAP_BIND_MODE` is `anonymous` or `service`; service mode requires its bind DN and password. `LDAP_LINK_EXISTING_TEACHER_BY_EMAIL` only permits linking an existing local Teacher with the same verified LDAP email.
 
-```env
-VITE_API_URL=
-```
+LDAP accounts have no local SmartSubmit password, and password change is rejected for them. The LDAP integration is implemented/prepared in the application, but has not yet been validated against the school's production LDAP environment.
 
-Note: Empty value uses same origin (relative URLs)
+### Email and proxy settings
 
----
+Submission confirmations, grade/feedback notifications and teacher-triggered reminders use `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_USER`, `EMAIL_PASSWORD` (or `EMAIL_PASS`) and `EMAIL_FROM`. An email error does not undo a saved submission or grade.
 
-## User Guide
+Set `TRUST_PROXY` only behind a known proxy. It accepts explicit IPs/CIDRs or `loopback`, `linklocal` and `uniquelocal`; broad all-address values are rejected.
+`PORT` and `HOST` are optional server overrides; the defaults are `3000` and `0.0.0.0`.
 
-### For Administrators
+## Authentication and roles
 
-#### 1. First Login
+Users do not select a role before login. They authenticate first with a local password, Google or LDAP; the backend then returns the roles assigned to their SmartSubmit account and creates a seven-day JWT containing only internal `userId`.
 
-1. Navigate to application URL
-2. Click "Login"
-3. Enter admin credentials
-4. Change password immediately
+- One role: the client confirms it with the backend and opens that area.
+- Multiple roles: the client shows only assigned roles; the selection is confirmed by `POST /api/auth/select-role`.
+- No valid role: login ends with an error.
 
-#### 2. Import Students
+The active role is a per-tab client context in `sessionStorage` after authentication, not a JWT claim. Backend endpoints still enforce access.
 
-Prepare Excel file with columns:
-- firstName (First Name)
-- lastName (Last Name)
-- email (Email)
-- class (Class, e.g., "5A" or multiple: "5A,5B")
-- year (Year, e.g., 2025)
+## Admin accounts and spreadsheet imports
 
-**Example:**
+Admins can create, edit and delete Students and Teachers. Manual creation requires first name, last name and email. Students support zero or more class links. Teachers support zero or more class links and zero or more existing subject links. A manually created account's initial local password is the lower-case first name followed by last name.
 
-| firstName | lastName | email | class | year |
-|---------|----------|-------|--------|----------|
-| Max | Mustermann | max@school.com | 5A | 2025 |
-| Anna | Schmidt | anna@school.com | 5B | 2025 |
+Student and teacher imports accept XLSX and ODS workbooks. The first worksheet is read and the import file limit is **5 MiB**.
 
-Steps:
-1. Go to Admin panel
-2. Select "Students"
-3. Click "Choose File" and select Excel
-4. Click "Upload Data"
+| Import | Required headers | Row requirements |
+| --- | --- | --- |
+| Student | `vorname`, `nachname`, `email`, `klasse`, `jahrgang` | All required; `klasse` may be comma-separated; `jahrgang` is a four-digit start year. |
+| Teacher | `vorname`, `nachname`, `email`, `klasse`, `jahrgang`, `fach_kuerzel` | Name/email required. `klasse` and `jahrgang` are both empty or both present. `fach_kuerzel` may be empty and supports commas. |
 
-#### 3. Import Teachers
+The UI renders a stored/imported year such as `2026` as `2026/27`; the import API accepts the four-digit start year. Imports match normalized email. Existing users are updated, given the relevant role and have imported class links synchronized. Teacher subject links are synchronized to the supplied codes; empty `fach_kuerzel` clears teacher-subject links. Missing referenced classes/subjects are created. Results expose `created`, `updated`, `success` and `failed` rows.
 
-Prepare Excel file with columns:
-- firstName (First Name)
-- lastName (Last Name)
-- email (Email)
-- class (Class, optional)
-- year (Year, optional)
-- subject_code (Subject code, e.g., "MATH,DE")
+## Teacher submissions and uploads
 
-Initial passwords: `firstnamelastname` (lowercase)
+Teacher assignments return `studentCount`, `submittedCount` and `missingCount` (plus legacy `submissionsCount`, equal to `submittedCount`). The submissions view uses the complete class roster and marks rows Submitted or Not submitted. It has All, Submitted and Missing filters.
 
-Example: Max Mustermann has password `maxmustermann`
+Teachers can select submitted rows with downloadable files for ZIP export. The assignment ZIP includes available files and `submission_log.csv`. A reminder can be sent only to selected students who still belong to the assignment class, have the Student role and have not submitted. Grades are integers from 0 to 100; feedback/grade can send an opted-in grade notification.
 
-Users must change password on first login.
+Assignment and submission uploads allow up to **10 files** per request and **10 MiB per file**. Allowed extensions (or no extension) are `jpeg`, `jpg`, `png`, `gif`, `pdf`, `doc`, `docx`, `xls`, `xlsx`, `ods`, `ppt`, `pptx`, `txt`, `md`, `zip`, `rar`. This is extension allow-listing, not MIME-content inspection.
 
-### For Teachers
+## API overview
 
-#### 1. Create Assignment
+Protected routes require `Authorization: Bearer <token>`. Responses usually contain `success`, but data fields differ by controller.
 
-1. Login with teacher credentials
-2. Select class from dropdown
-3. Select subject
-4. Enter assignment title
-5. Write assignment description
-6. Upload files if needed (PDF, DOCX, etc.)
-7. Set deadline
-8. Click "Save Assignment"
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/admin/check` | Public: check whether an Admin exists. |
+| `POST` | `/api/register` | Public: register the first Admin. |
+| `POST` | `/api/login` | Local `{ email, password, loginMethod: "local" }`; LDAP `{ identifier, password, loginMethod: "ldap" }`; success returns `{ data: { user, token } }`. |
+| `GET` | `/api/auth/google`, `/api/auth/google/callback` | Start/receive Google OAuth. |
+| `POST` | `/api/auth/select-role` | Authenticated `{ role }`; must be assigned to caller. |
+| `POST` | `/api/admin/import/students`, `/api/admin/import/teachers` | Admin multipart `file`. |
+| `GET/POST/PATCH` | `/api/admin/students`, `/api/admin/students/:id` | Admin list/create/update Students. |
+| `GET/POST/PATCH` | `/api/admin/teachers`, `/api/admin/teachers/:id` | Admin list/create/update Teachers. |
+| `GET` | `/api/admin/classes`, `/api/admin/subjects` | Admin reference data. |
+| `DELETE` | `/api/admin/users/:id` | Admin user deletion. |
+| `POST/GET/DELETE` | `/api/teacher/assignments`, `/api/teacher/assignments/:assignmentId` | Teacher assignment create/list/delete. |
+| `GET` | `/api/teacher/assignments/:assignmentId/submissions` | Teacher roster, submissions, assignment and counts. |
+| `GET` | `/api/teacher/assignments/:assignmentId/submissions/download` | Assignment ZIP. |
+| `GET` | `/api/teacher/assignments/:assignmentId/submissions/log` | Submission log CSV. |
+| `POST` | `/api/teacher/assignments/:assignmentId/reminders` | Teacher `{ userIds: number[] }`. |
+| `PATCH` | `/api/teacher/assignments/:assignmentId/archive` | Teacher `{ archived: boolean }`. |
+| `PATCH` | `/api/teacher/submissions/:submissionId` | Teacher `{ grade, feedback }`. |
+| `GET` | `/api/student/assignments`, `/api/student/submissions` | Student data. |
+| `POST` | `/api/student/submit` | Student multipart `assignmentId` (or `aufgabeId`), optional `text`/`files`; text or a file required. |
+| `POST` | `/api/student/delete-file` | Student `{ assignmentId, fileName }`, before grading only. |
+| `POST` | `/api/change-password` | Local-password account `{ oldPassword, newPassword }`. |
+| `GET` | `/api/classes`, `/api/subjects` | Authenticated teacher reference data. |
 
-#### 2. View Assignments
+## Docker and checks
 
-1. Click "Assignment List" (Assignment List)
-2. View all created assignments
-3. See submission count
-4. Check deadline status (active/expired)
+`docker compose up -d` starts MySQL and the backend. Compose generates Prisma Client and retries `prisma db push` until the database is ready, then starts the server. It does **not** run `prisma migrate reset`, force-reset data or automatically seed. `db-data` and `uploads-data` persist MySQL data and uploads.
 
-#### 3. View Submissions
-
-1. Find assignment in list
-2. Click "Submissions"
-3. View student submissions
-4. Download submitted files
-
-### For Students
-
-#### 1. View Assignments
-
-1. Login with student credentials
-2. See all assignments for your classes
-3. Filter by deadline or subject
-4. View assignment details
-
-#### 2. Submit Assignment
-
-1. Click on assignment
-2. Write submission text
-3. Upload files if required
-4. Click "Submit"
-5. Confirmation message appears
-
-#### 3. Track Submissions
-
-1. Go to "My Submissions" (My Submissions)
-2. View submission history
-3. Check submission status
-4. Download your submitted files
-
----
-
-## API Documentation
-
-### Authentication
-
-All authenticated endpoints require JWT token in header:
-
-```
-Authorization: Bearer <token>
-```
-
-### Public Endpoints
-
-#### Check Admin Exists
-
-```http
-GET /api/admin/check
-```
-
-Response:
-```json
-{
-  "success": true,
-  "adminExists": true
-}
-```
-
-#### Register (First Admin Only)
-
-```http
-POST /api/register
-Content-Type: application/json
-
-{
-  "email": "admin@example.com",
-  "password": "password123",
-  "roleId": 3
-}
-```
-
-#### Login
-
-```http
-POST /api/login
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "password123",
-  "role": "Admin"
-}
-```
-
-### Admin Endpoints
-
-#### Import Students
-
-```http
-POST /api/admin/import/students
-Authorization: Bearer <admin-token>
-Content-Type: multipart/form-data
-
-file: <excel-file>
-```
-
-#### Import Teachers
-
-```http
-POST /api/admin/import/teachers
-Authorization: Bearer <admin-token>
-Content-Type: multipart/form-data
-
-file: <excel-file>
-```
-
-### Teacher Endpoints
-
-#### Create Assignment
-
-```http
-POST /api/teacher/assignments
-Authorization: Bearer <teacher-token>
-Content-Type: multipart/form-data
-
-class: "5A"
-subject: "Mathematik"
-title: "Homework 1"
-text: "Complete exercises 1-10"
-dueDate: "2025-12-31"
-files: <file1>, <file2>
-```
-
-#### Get Teacher's Assignments
-
-```http
-GET /api/teacher/assignments
-Authorization: Bearer <teacher-token>
-```
-
-### Student Endpoints
-
-#### Get Assignments
-
-```http
-GET /api/student/assignments
-Authorization: Bearer <student-token>
-```
-
-#### Submit Assignment
-
-```http
-POST /api/student/submit
-Authorization: Bearer <student-token>
-Content-Type: multipart/form-data
-
-assignmentId: 1
-text: "My submission"
-files: <file1>, <file2>
-```
-
-### Utility Endpoints
-
-#### Get Classes
-
-```http
-GET /api/classes
-Authorization: Bearer <token>
-```
-
-#### Get Subjects
-
-```http
-GET /api/subjects
-Authorization: Bearer <token>
-```
-
----
-
-## Database Schema
-
-### Entity Relationship Diagram
-
-```mermaid
-flowchart TB
-
-    %% =====================
-    %% CORE ENTITIES
-    %% =====================
-
-    User["User<br/>id, firstName, lastName, email, active"]
-
-    Role["Role<br/>id, name, description"]
-
-    Class["Class<br/>id, name, year"]
-
-    Subject["Subject<br/>id, name, code"]
-
-    Assignment["Assignment<br/>id, title, dueDate, classId, subjectId, teacherId"]
-
-    Submission["Submission<br/>id, assignmentId, studentId, grade"]
-
-    %% =====================
-    %% JUNCTION TABLES
-    %% =====================
-
-    UserRole["UserRole<br/>userId, roleId"]
-
-    UserClass["UserClass<br/>userId, classId"]
-
-    UserSubject["UserSubject<br/>userId, subjectId"]
-
-    %% =====================
-    %% RELATIONSHIPS
-    %% =====================
-
-    User --> UserRole
-    Role --> UserRole
-
-    User --> UserClass
-    Class --> UserClass
-
-    User --> UserSubject
-    Subject --> UserSubject
-
-    User -->|"teacherId"| Assignment
-    Class --> Assignment
-    Subject --> Assignment
-
-    Assignment --> Submission
-    User -->|"studentId"| Submission
-```
-
-### Table Descriptions
-
-#### User
-
-Stores all system users (admins, teachers, students).
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INT | Primary key |
-| firstName | VARCHAR(255) | First name |
-| lastName | VARCHAR(255) | Last name |
-| email | VARCHAR(255) | Unique email address |
-| passwordHash | VARCHAR(255) | Hashed password |
-| provider | VARCHAR(50) | OAuth provider (optional) |
-| oauthId | VARCHAR(255) | OAuth user ID (optional) |
-| createdAt | DATETIME | Creation timestamp |
-| active | BOOLEAN | Active status |
-
----
-
-#### Role
-
-Defines user roles in the system.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INT | Primary key |
-| name | VARCHAR(255) | Role name |
-| description | TEXT | Role description |
-
----
-
-#### Class
-
-Stores school classes.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INT | Primary key |
-| name | VARCHAR(50) | Class name (e.g. "5A") |
-| year | INT | School year |
-
-**Unique constraint:** (name, year)
-
----
-
-#### Subject
-
-Stores school subjects.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INT | Primary key |
-| name | VARCHAR(255) | Subject name |
-| code | VARCHAR(255) | Unique subject code |
-
----
-
-#### UserRole
-
-Many-to-many relation between users and roles.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INT | Primary key |
-| userId | INT | FK → User |
-| roleId | INT | FK → Role |
-
-**Unique constraint:** (userId, roleId)
-
----
-
-#### UserClass
-
-Many-to-many relation between users and classes.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INT | Primary key |
-| userId | INT | FK → User |
-| classId | INT | FK → Class |
-
-**Unique constraint:** (userId, classId)
-
----
-
-#### UserSubject
-
-Many-to-many relation between users and subjects.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INT | Primary key |
-| userId | INT | FK → User |
-| subjectId | INT | FK → Subject |
-
-**Unique constraint:** (userId, subjectId)
-
----
-
-#### Assignment
-
-Stores teacher-created assignments.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INT | Primary key |
-| title | VARCHAR(255) | Assignment title |
-| description | TEXT | Assignment description |
-| link | VARCHAR(1024) | External resource link |
-| attachments | TEXT | JSON metadata of attachments |
-| dueDate | DATETIME | Due date |
-| archived | BOOLEAN | Archived status |
-| classId | INT | FK → Class |
-| subjectId | INT | FK → Subject |
-| teacherId | INT | FK → User (teacher) |
-| createdAt | DATETIME | Creation timestamp |
-
----
-
-#### Submission
-
-Stores student submissions.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INT | Primary key |
-| assignmentId | INT | FK → Assignment |
-| studentId | INT | FK → User (student) |
-| files | TEXT | JSON file metadata |
-| text | TEXT | Optional text submission |
-| submittedAt | DATETIME | Submission timestamp |
-| grade | INT | Grade (0–100) |
-| feedback | TEXT | Teacher feedback |
-
-**Unique constraint:** (assignmentId, studentId)
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-#### 1. Port Conflicts
-
-**Problem:** Port 3306 already in use
-
-**Solution:**
-```bash
-# For local development: Change Docker MySQL port
-# Edit docker-compose.yml:
-ports:
-  - "3307:3306"  # Use 3307 externally
-```
-
-#### 2. Prisma Client Not Generated
-
-**Problem:** Cannot find module '@prisma/client'
-
-**Solution:**
-```bash
-cd backend
-npx prisma generate
-npm start
-```
-
-#### 3. Upload Fails in Docker
-
-**Problem:** Server error when uploading files
-
-**Solutions:**
-- Check frontend API URL is correct (empty for Docker)
-- Rebuild frontend: `npm run build`
-- Rebuild Docker: `docker compose build --no-cache`
-- Clear browser cache and login again
-
-#### 4. Database Connection Failed
-
-**Problem:** Can't reach database server
-
-**Solution:**
-```bash
-# Check database is running
-docker compose ps
-
-# Check logs
-docker compose logs db
-
-# Restart database
-docker compose restart db
-```
-
-#### 5. 403 Forbidden on Admin Routes
-
-**Problem:** Admins only error
-
-**Solution:**
-- Create admin user in Docker database
-- Login again to get fresh token
-- Check admin role exists in database
-
-### Docker Issues
-
-#### Container Keeps Restarting
-
-Check logs:
-```bash
-docker compose logs backend --tail 100
-```
-
-Common causes:
-- Database connection failed
-- Prisma Client not generated
-- Port already in use
-
-#### Build Fails
-
-Clear Docker cache:
-```bash
-docker compose down
-docker system prune -af
-docker compose build --no-cache
-docker compose up -d
-```
-
-### Frontend Issues
-
-#### Blank Page After Build
-
-Check console for errors:
-1. Open browser DevTools (F12)
-2. Check Console tab for errors
-3. Common issues:
-   - Missing API_URL
-   - CORS errors
-   - Build errors
-
-#### API Requests Fail
-
-Check Network tab:
-1. Open DevTools (F12) → Network tab
-2. Try the action that fails
-3. Check request URL, status code, and response
-
----
-
-## Contributing
-
-### Development Workflow
-
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/your-feature-name`
-3. Make changes
-4. Test thoroughly in both development and Docker
-5. Commit changes: `git commit -m "Add: your feature description"`
-6. Push to your fork: `git push origin feature/your-feature-name`
-7. Create Pull Request
-
-### Code Review Checklist
-
-- Code follows project style guidelines
-- All tests pass
-- No console.log in production code
-- Error handling implemented
-- Comments added for complex logic
-- Documentation updated
-- No sensitive data in code
-- Works in both development and Docker
-
-### Testing
-
-Before submitting:
+Use a correctly configured reverse proxy/TLS setup for HTTPS. Run checks with:
 
 ```bash
-# Test backend
-cd backend
-npm test
-
-# Test frontend build
-cd frontend
-npm run build
-
-# Test Docker deployment
-docker compose build --no-cache
-docker compose up -d
-docker compose logs backend
+npm test --prefix backend
+npm test --prefix frontend
+npm run build --prefix frontend
 ```
 
----
-
-## License
-
-This project is developed as a diploma thesis for educational purposes at HTL Bulme.
-
-For educational use only. Commercial use is not permitted without permission.
-
----
-
-## Contact & Support
-
-### Project Team
-
-- **Institution:** HTL Bulme
-- **Project Type:** Diploma Thesis
-- **Repository:** https://github.com/htlbulme/smartsubmit
-
-### Getting Help
-
-1. Check Documentation: Read this README and troubleshooting section
-2. Check Issues: Search existing GitHub issues
-3. Create Issue: If problem persists, create new issue with detailed description, steps to reproduce, error messages, and environment details
-
-### Reporting Bugs
-
-Include:
-- Expected behavior
-- Actual behavior
-- Steps to reproduce
-- Screenshots if applicable
-- Error logs
-- System information
-
----
-
-## Changelog
-
-### Version 1.0.0 (Current)
-
-**Features:**
-- User authentication and authorization
-- Role-based access control
-- Admin panel with Excel import
-- Teacher assignment creation
-- Student assignment viewing
-- Student submissions (text + file upload) incl. submission overview
-- Teacher grading and feedback for submissions
-- File upload support
-- Persistent upload storage in Docker (uploads via volume)
-- Multilingual interface (DE, EN)
-- Docker deployment
-- Responsive design
-
-**Known Limitations:**
-- Email notifications (planned)
-- Advanced reporting (planned)
-
----
-
-## Acknowledgments
-
-- HTL Bulme for project support
-- Prisma for excellent ORM
-- React and Vite teams
-- Express.js community
-- All contributors and testers
-
----
-
-**Last Updated:** January 2026  
-**Version:** 1.0.0  
-**Status:** Active Development
+CI runs both suites on pushes to `main`, then builds/pushes the image and deploys only when its configured GitHub secrets and SSH access succeed.
