@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const { prisma } = require('../app.config');
-const { sendGradeNotification } = require('../app.email');
-const { exportLogAsCSV } = require('../app.submissionLog');
+const { sendAssignmentReminder, sendGradeNotification } = require('../app.email');
+const { appendLogToZip, exportLogAsCSV } = require('../app.submissionLog');
+const { buildAssignmentStats } = require('../services/assignmentStats');
+const { buildSubmissionRoster } = require('../services/submissionRoster');
 
 const UPLOADS_ROOT = path.resolve(__dirname, '..', '..', 'uploads');
 const NOTIFY_FLAG_REGEX = /\s*\[notifyOnGrade:(true|false)\]\s*$/i;
@@ -194,24 +196,78 @@ const getTeacherAssignments = async (req, res) => {
 
     const assignments = await prisma.assignment.findMany({  // ✅ fix
       where: { teacherId: teacherId },
-      include: { class: true, subject: true, submissions: true },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        dueDate: true,
+        classId: true,
+        class: { select: { name: true } },
+        subject: { select: { name: true } },
+        archived: true,
+        link: true,
+        attachments: true,
+      },
       orderBy: { dueDate: 'desc' }
     });
 
+    const assignmentIds = assignments.map((assignment) => assignment.id);
+    const classIds = [...new Set(assignments.map((assignment) => assignment.classId))];
+    let studentMemberships = [];
+    let submissionRows = [];
+
+    if (assignmentIds.length > 0 && classIds.length > 0) {
+      const studentRole = await prisma.role.findFirst({
+        where: { name: 'Student' },
+        select: { id: true }
+      });
+
+      if (studentRole) {
+        [studentMemberships, submissionRows] = await Promise.all([
+          prisma.userClass.findMany({
+            where: {
+              classId: { in: classIds },
+              user: { userRoles: { some: { roleId: studentRole.id } } }
+            },
+            select: { classId: true, userId: true }
+          }),
+          prisma.submission.findMany({
+            where: { assignmentId: { in: assignmentIds } },
+            select: { assignmentId: true, studentId: true }
+          })
+        ]);
+      }
+    }
+
+    const statsByAssignment = buildAssignmentStats(
+      assignments,
+      studentMemberships,
+      submissionRows
+    );
+
     const now = new Date();
-    const data = assignments.map(a => ({
-      id: a.id,
-      title: a.title,
-      description: a.description,
-      dueDate: a.dueDate,
-      class: a.class ? a.class.name : '',
-      subject: a.subject ? a.subject.name : '',
-      archived: Boolean(a.archived),
-      status: a.archived ? 'archived' : (a.dueDate > now ? 'active' : 'expired'),
-      submissionsCount: Array.isArray(a.submissions) ? a.submissions.length : 0,
-      link: a.link || '', 
-      attachments: a.attachments ? JSON.parse(a.attachments) : [] 
-    }));
+    const data = assignments.map(a => {
+      const stats = statsByAssignment.get(a.id) || {
+        studentCount: 0,
+        submittedCount: 0,
+        missingCount: 0,
+      };
+
+      return {
+        id: a.id,
+        title: a.title,
+        description: a.description,
+        dueDate: a.dueDate,
+        class: a.class ? a.class.name : '',
+        subject: a.subject ? a.subject.name : '',
+        archived: Boolean(a.archived),
+        status: a.archived ? 'archived' : (a.dueDate > now ? 'active' : 'expired'),
+        ...stats,
+        submissionsCount: stats.submittedCount,
+        link: a.link || '',
+        attachments: a.attachments ? JSON.parse(a.attachments) : []
+      };
+    });
 
     return res.json({ success: true, data });
   } catch (error) {
@@ -244,6 +300,7 @@ const getAssignmentSubmissions = async (req, res) => {
         id: true,
         title: true,
         dueDate: true,
+        classId: true,
         class: { select: { name: true } },
         subject: { select: { name: true } }
       }
@@ -252,7 +309,23 @@ const getAssignmentSubmissions = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Assignment not found' });
     }
 
-    const studentRole = await prisma.role.findFirst({ where: { name: 'Student' } });
+    const studentRole = await prisma.role.findFirst({
+      where: { name: 'Student' },
+      select: { id: true }
+    });
+    const studentMemberships = studentRole
+      ? await prisma.userClass.findMany({
+          where: {
+            classId: assignment.classId,
+            user: { userRoles: { some: { roleId: studentRole.id } } }
+          },
+          select: {
+            user: {
+              select: { id: true, firstName: true, lastName: true, email: true }
+            }
+          }
+        })
+      : [];
     const rows = await prisma.submission.findMany({
       where: {
         assignmentId: assignmentId,
@@ -260,13 +333,13 @@ const getAssignmentSubmissions = async (req, res) => {
       },
       orderBy: { submittedAt: 'desc' },
       select: {
-        id: true, assignmentId: true, submittedAt: true,
+        id: true, assignmentId: true, studentId: true, submittedAt: true,
         grade: true, feedback: true, text: true, files: true,
         student: { select: { id: true, firstName: true, lastName: true, email: true } }
       }
     });
 
-    const data = rows.map(row => {
+    const parsedSubmissions = rows.map(row => {
       let parsedFiles = [];
       if (typeof row.files === 'string' && row.files.trim() !== '') {
         try { parsedFiles = JSON.parse(row.files); } catch (error) { console.error('Error parsing files:', error); }
@@ -277,7 +350,9 @@ const getAssignmentSubmissions = async (req, res) => {
       return { ...row, files: parsedFiles, text: cleanText }; // Spread row and replace dateien string with parsed array
     });
 
-    return res.json({ success: true, data, assignment });
+    const { roster: data, counts } = buildSubmissionRoster(studentMemberships, parsedSubmissions);
+
+    return res.json({ success: true, data, assignment, counts });
   } catch (error) {
     console.error('Error while loading submissions:', error);
     return res.status(500).json({ success: false, message: 'Server Error' });
@@ -357,7 +432,20 @@ const gradeSubmission = async (req, res) => {
       const shouldNotify = parseNotifyFlag(updated.text);
       if (shouldNotify && student && student.email && assignment) {
         const studentName = `${student.firstName} ${student.lastName}`.trim();
-        await sendGradeNotification(student.email, studentName, assignment.title, updated.grade, updated.feedback);
+        const emailResult = await sendGradeNotification(
+          student.email,
+          studentName,
+          assignment.title,
+          updated.grade,
+          updated.feedback
+        );
+        if (!emailResult.success) {
+          console.warn('Grade saved, but notification email was not sent:', {
+            code: emailResult.code,
+            command: emailResult.command,
+            message: emailResult.error,
+          });
+        }
       }
     } catch (emailError) {
       console.error('Failed to send grade notification email:', emailError);
@@ -536,6 +624,8 @@ const downloadSubmissionsAsZip = async (req, res) => {
     archive.on('error', err => { throw err; });
     archive.pipe(res);
 
+    await appendLogToZip(archive, assignmentId);
+
     for (const sub of assignment.submissions) {
       if (!sub.files || sub.files.trim() === '') continue;
       try {
@@ -563,6 +653,114 @@ const downloadSubmissionsAsZip = async (req, res) => {
   }
 };
 
+const sendSubmissionReminders = async (req, res) => {
+  try {
+    const teacherId = Number.parseInt(req.userId, 10);
+    const assignmentId = Number.parseInt(req.params.assignmentId, 10);
+    const requestedIds = [...new Set((Array.isArray(req.body?.userIds) ? req.body.userIds : [])
+      .map((id) => Number.parseInt(id, 10))
+      .filter(Number.isInteger))];
+
+    if (!Number.isInteger(teacherId) || !Number.isInteger(assignmentId) || requestedIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'At least one valid userId is required' });
+    }
+
+    const isTeacher = await ensureTeacherRole(teacherId);
+    if (!isTeacher) return res.status(403).json({ success: false, message: 'Only for teachers' });
+
+    const assignment = await prisma.assignment.findFirst({
+      where: { id: assignmentId, teacherId },
+      select: { id: true, classId: true, title: true, dueDate: true }
+    });
+    if (!assignment) return res.status(404).json({ success: false, message: 'Assignment not found' });
+
+    const studentRole = await prisma.role.findFirst({
+      where: { name: 'Student' },
+      select: { id: true }
+    });
+    if (!studentRole) return res.status(500).json({ success: false, message: 'Student role not configured' });
+
+    const eligibleStudents = await prisma.user.findMany({
+      where: {
+        id: { in: requestedIds },
+        userClasses: { some: { classId: assignment.classId } },
+        userRoles: { some: { roleId: studentRole.id } },
+        submissions: { none: { assignmentId: assignment.id } }
+      },
+      select: { id: true, firstName: true, lastName: true, email: true }
+    });
+
+    const eligibleIds = new Set(eligibleStudents.map((student) => student.id));
+    const failed = requestedIds
+      .filter((userId) => !eligibleIds.has(userId))
+      .map((userId) => ({ userId, reason: 'notEligibleOrAlreadySubmitted' }));
+    const sent = [];
+
+    await Promise.all(eligibleStudents.map(async (student) => {
+      if (!student.email) {
+        failed.push({ userId: student.id, reason: 'missingEmail' });
+        return;
+      }
+      const result = await sendAssignmentReminder(
+        student.email,
+        `${student.firstName} ${student.lastName}`.trim(),
+        assignment.title,
+        assignment.dueDate
+      );
+      if (result.success) sent.push({ userId: student.id });
+      else failed.push({
+        userId: student.id,
+        reason: result.error || 'sendFailed',
+        code: result.code || 'SMTP_ERROR',
+        command: result.command || 'unknown',
+      });
+    }));
+
+    return res.json({
+      success: true,
+      data: {
+        requestedCount: requestedIds.length,
+        eligibleCount: eligibleStudents.length,
+        sentCount: sent.length,
+        failedCount: failed.length,
+        sent,
+        failed
+      }
+    });
+  } catch (error) {
+    console.error('Error sending submission reminders:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+const downloadSubmissionLog = async (req, res) => {
+  try {
+    const teacherId = Number.parseInt(req.userId, 10);
+    const assignmentId = Number.parseInt(req.params.assignmentId, 10);
+
+    if (!Number.isInteger(teacherId) || !Number.isInteger(assignmentId)) {
+      return res.status(400).json({ success: false, message: 'Invalid request' });
+    }
+
+    const isTeacher = await ensureTeacherRole(teacherId);
+    if (!isTeacher) return res.status(403).json({ success: false, message: 'Only for teachers' });
+
+    const assignment = await prisma.assignment.findFirst({
+      where: { id: assignmentId, teacherId },
+      select: { id: true }
+    });
+    if (!assignment) return res.status(404).json({ success: false, message: 'Assignment not found' });
+
+    const csv = await exportLogAsCSV(assignmentId);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="submission_log.csv"');
+    return res.send(csv);
+  } catch (error) {
+    console.error('Error exporting submission log:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
 module.exports = {
   createAssignment,
   getClasses,
@@ -570,6 +768,8 @@ module.exports = {
   getTeacherAssignments,
   getAssignmentSubmissions,
   downloadSubmissionsAsZip,
+  downloadSubmissionLog,
+  sendSubmissionReminders,
   gradeSubmission,
   setAssignmentArchived,
   deleteAssignment

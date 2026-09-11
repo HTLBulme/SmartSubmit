@@ -39,6 +39,7 @@ const deleteSubmissionFile = async (req, res) => {
 const { prisma } = require('../app.config');
 const { sendSubmissionConfirmation } = require('../app.email');
 const { logSubmission } = require('../app.submissionLog');
+const { getSubmissionIp } = require('../app.clientIp');
 
 async function ensureStudentRole(studentId) {
   try {
@@ -213,68 +214,79 @@ const submitAssignment = async (req, res) => {
       uploadeAt: new Date().toISOString()
     }));
 
-    const existing = await prisma.submission.findFirst({  // ✅ fix
-      where: { assignmentId: assigmentIdNum, studentId: studentId },
-      select: { id: true }
+    const submissionText = buildSubmissionText(cleanText, notifyWhenGraded);
+    const submittedAt = new Date();
+    const submissionIp = getSubmissionIp(req);
+    const student = await prisma.user.findUnique({
+      where: { id: studentId },
+      select: { firstName: true, lastName: true, email: true }
     });
 
-    const submissionText = buildSubmissionText(cleanText, notifyWhenGraded);
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
 
-    const saved = existing
-      ? await prisma.submission.update({  // ✅ fix
-          where: { id: existing.id },
-          data: {
-            submittedAt: new Date(),
-            files: JSON.stringify(fileMeta),
-            text: submissionText,
-            grade: null,
-            feedback: null
-          }
-        })
-      : await prisma.submission.create({  // ✅ fix
-          data: {
-            assignmentId: assigmentIdNum,
-            studentId: studentId,
-            submittedAt: new Date(),
-            files: JSON.stringify(fileMeta),
-            text: submissionText,
-            grade: null,
-            feedback: null
-          }
-        });
-
-        // --- Log each submitted file with IP and timestamp ---
-    try {
-      const student = await prisma.user.findUnique({
-        where: { id: studentId },
-        select: { firstName: true, lastName: true, email: true }
+    const transactionResult = await prisma.$transaction(async (tx) => {
+      const existing = await tx.submission.findFirst({
+        where: { assignmentId: assigmentIdNum, studentId: studentId },
+        select: { id: true }
       });
 
-      if (files.length > 0) {
-        for (const file of files) {
-          await logSubmission({
-            studentName: `${student.firstName} ${student.lastName}`.trim(),
-            filename: file.originalname,
-            ip: req.ip,
-            assignmentId: assigmentIdNum
+      const saved = existing
+        ? await tx.submission.update({
+            where: { id: existing.id },
+            data: {
+              submittedAt,
+              files: JSON.stringify(fileMeta),
+              text: submissionText,
+              grade: null,
+              feedback: null
+            }
+          })
+        : await tx.submission.create({
+            data: {
+              assignmentId: assigmentIdNum,
+              studentId: studentId,
+              submittedAt,
+              files: JSON.stringify(fileMeta),
+              text: submissionText,
+              grade: null,
+              feedback: null
+            }
           });
-        }
+
+      for (const file of files) {
+        await logSubmission({
+          studentName: `${student.firstName} ${student.lastName}`.trim(),
+          filename: file.originalname,
+          ip: submissionIp,
+          assignmentId: assigmentIdNum,
+          timestamp: submittedAt
+        }, tx);
       }
-    } catch (logError) {
-      console.error('Failed to write submission log:', logError);
-      // don't fail the submission just because logging failed
-    }
+
+      return { existing, saved };
+    });
+
+    const { existing, saved } = transactionResult;
 
     // --- Send confirmation email ---
     try {
-      const student = await prisma.user.findUnique({
-        where: { id: studentId },
-        select: { email: true, firstName: true, lastName: true }
-      });
-
       if (student && student.email) {
         const studentName = `${student.firstName} ${student.lastName}`.trim();
-        await sendSubmissionConfirmation(student.email, studentName, assignment.title, new Date());
+        const emailResult = await sendSubmissionConfirmation(
+          student.email,
+          studentName,
+          assignment.title,
+          submittedAt
+        );
+        if (!emailResult.success) {
+          console.warn('Submission saved, but confirmation email was not sent:', {
+            code: emailResult.code,
+            command: emailResult.command,
+            message: emailResult.error,
+          });
+        }
       }
     } catch (emailError) {
       console.error('Failed to send submission confirmation email:', emailError);

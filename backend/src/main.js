@@ -4,12 +4,14 @@ const cors = require('cors'); // Loads CORS middleware for handling cross-origin
 const dotenv = require('dotenv'); // For loading environment variables from .env
 
 // --- Load environment variables ---
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '..', '.env'), quiet: true });
 
 // --- Import modules ---
 const { prisma, initDatabase } = require('./app.config');
 const passport = require('./app.passport'); // Import configured passport
 const apiRoutes = require('./app.routes');
+const { configureTrustProxy } = require('./app.clientIp');
+const { verifyEmailTransport } = require('./app.email');
 
 // --- Create Express app ---
 // --- Frontend path (for monolithic deployment) - points to dist folder ---
@@ -17,6 +19,7 @@ const FRONTEND_PATH = path.join(__dirname, '..', '..', 'frontend', 'dist');
 
 // --- Middleware ---
 const app = express(); // Create Express app instance
+configureTrustProxy(app);
 app.use(cors());
 app.use(express.json()); // Runs JSON req.body (js-object) parser middleware
 app.use(express.urlencoded({ extended: true }));
@@ -58,6 +61,7 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 const startServer = async () => {
   await initDatabase();
+  await verifyEmailTransport();
   
   app.listen(PORT, HOST, () => {
     console.log(`🚀 SmartSubmit Server running on port ${PORT}`);

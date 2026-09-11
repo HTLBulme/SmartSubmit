@@ -8,6 +8,8 @@ import T from "../i18n";
 
 import TeacherSidebar from "./TeacherSidebar";
 import TeacherSettingsView from "./TeacherSettingsView";
+import AssignmentSubmissionStats from "../components/AssignmentSubmissionStats";
+import { filterSubmissionRoster, getSubmissionRosterCounts } from "../utils/submissionFilters";
 
 // --- backend http://localhost:3000 ---
 const API_URL = import.meta.env.VITE_API_URL || "";
@@ -360,6 +362,10 @@ export default function Teacher() {
   const [isSubmissionsOpen, setIsSubmissionsOpen] = useState(false);
   const [gradeDrafts, setGradeDrafts] = useState({});
   const [selectedSubmissionIds, setSelectedSubmissionIds] = useState(() => new Set());
+  const [selectedMissingStudentIds, setSelectedMissingStudentIds] = useState(() => new Set());
+  const [submissionFilter, setSubmissionFilter] = useState("all");
+  const [reminderBusy, setReminderBusy] = useState(false);
+  const [reminderResult, setReminderResult] = useState(null);
   const [downloadBusyMode, setDownloadBusyMode] = useState("");
   const [restoreAssignmentsOnClose, setRestoreAssignmentsOnClose] = useState(false);
 
@@ -494,6 +500,9 @@ export default function Teacher() {
 
     setSelectedAssignmentId(assignmentId);
     setSelectedSubmissionIds(new Set());
+    setSelectedMissingStudentIds(new Set());
+    setSubmissionFilter("all");
+    setReminderResult(null);
     setIsSubmissionsOpen(true);
     await fetchSubmissions(assignmentId);
   }
@@ -607,14 +616,24 @@ export default function Teacher() {
       setSubmissions(list);
       setSubmissionsMeta(res.data.assignment || null);
       setSelectedSubmissionIds((prev) => {
-        const validIds = new Set(list.map((submission) => String(submission.id)));
+        const validIds = new Set(
+          list
+            .filter((submission) => submission.hasSubmitted && submission.id)
+            .map((submission) => String(submission.id))
+        );
+        return new Set(Array.from(prev).filter((id) => validIds.has(id)));
+      });
+      setSelectedMissingStudentIds((prev) => {
+        const validIds = new Set(
+          list.filter((row) => !row.hasSubmitted).map((row) => String(row.studentId))
+        );
         return new Set(Array.from(prev).filter((id) => validIds.has(id)));
       });
 
       setGradeDrafts((prev) => {
         const next = { ...prev };
         for (const s of list) {
-          if (!next[s.id]) {
+          if (s.hasSubmitted && s.id && !next[s.id]) {
             next[s.id] = {
               grade: typeof s.grade === "number" ? String(s.grade) : "",
               feedback: typeof s.feedback === "string" ? s.feedback : "",
@@ -776,7 +795,55 @@ export default function Teacher() {
     );
   }
 
-  async function downloadSubmissionsAsZip(targetSubmissions, filename, busyMode) {
+  function toggleMissingStudentSelection(studentId, checked) {
+    const key = String(studentId);
+    setSelectedMissingStudentIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  }
+
+  function setAllMissingStudentSelection(checked) {
+    setSelectedMissingStudentIds(
+      checked
+        ? new Set(submissions.filter((row) => !row.hasSubmitted).map((row) => String(row.studentId)))
+        : new Set()
+    );
+  }
+
+  async function sendSelectedReminders() {
+    const userIds = Array.from(selectedMissingStudentIds)
+      .map(Number)
+      .filter(Number.isInteger);
+
+    if (userIds.length === 0) return;
+
+    try {
+      setReminderBusy(true);
+      setReminderResult(null);
+      const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+      const response = await axios.post(
+        `${API_URL}/api/teacher/assignments/${selectedAssignmentId}/reminders`,
+        { userIds },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setReminderResult({ success: true, ...(response.data.data || {}) });
+      setSelectedMissingStudentIds(new Set());
+      await fetchSubmissions(selectedAssignmentId);
+    } catch (err) {
+      console.error("Error sending submission reminders:", err);
+      setReminderResult({
+        success: false,
+        error: err.response?.data?.message || t.reminderSendFailed || "Reminder could not be sent",
+      });
+    } finally {
+      setReminderBusy(false);
+    }
+  }
+
+  async function downloadSubmissionsAsZip(targetSubmissions, filename, busyMode, includeSubmissionLog = false) {
     const usedPaths = new Set();
     const entries = [];
 
@@ -805,6 +872,18 @@ export default function Teacher() {
       if (entries.length === 0) {
         alert(t.noFiles || "Keine Dateien");
         return;
+      }
+
+      if (includeSubmissionLog) {
+        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+        const logResponse = await axios.get(
+          `${API_URL}/api/teacher/assignments/${selectedAssignmentId}/submissions/log`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            responseType: "blob",
+          }
+        );
+        entries.push({ path: "submission_log.csv", blob: logResponse.data });
       }
 
       const zipBlob = await createStoredZipBlob(entries);
@@ -858,17 +937,21 @@ export default function Teacher() {
     await downloadSubmissionsAsZip(
       selectedSubmissions,
       zipName,
-      "selection"
+      "selection",
+      isWholeClassSelection
     );
   }
 
   function closeSubmissionsModal() {
     setIsSubmissionsOpen(false);
     setSelectedSubmissionIds(new Set());
+    setSelectedMissingStudentIds(new Set());
+    setReminderResult(null);
 
     if (restoreAssignmentsOnClose) {
       setRestoreAssignmentsOnClose(false);
       setIsAssignmentsOpen(true);
+      fetchAssignments();
     }
   }
 
@@ -881,6 +964,13 @@ export default function Teacher() {
   const allDownloadableSelected =
     downloadableSubmissions.length > 0 &&
     downloadableSubmissions.every((submission) => selectedSubmissionIds.has(String(submission.id)));
+  const submissionRosterCounts = getSubmissionRosterCounts(submissions);
+  const filteredSubmissions = filterSubmissionRoster(submissions, submissionFilter);
+  const selectedMissingCount = selectedMissingStudentIds.size;
+  const missingStudents = submissions.filter((row) => !row.hasSubmitted);
+  const allMissingSelected =
+    missingStudents.length > 0 &&
+    missingStudents.every((row) => selectedMissingStudentIds.has(String(row.studentId)));
 
   return (
     <div className="teacher-layout">
@@ -940,7 +1030,7 @@ export default function Teacher() {
                                 <th>{t.dueLbl}</th>
                                 <th>{t.status}</th>
                                 <th>{t.submissionsBtn}</th>
-                                <th>{t.countLbl}</th>
+                                <th>{t.submissionProgress}</th>
                                 <th>{t.archiveTab}</th>
                                 <th>{t.deleteLbl}</th>
                               </tr>
@@ -1026,7 +1116,15 @@ export default function Teacher() {
                                           {t.submissionsBtn}
                                         </button>
                                       </td>
-                                      <td>{a.submissionsCount}</td>
+                                      <td>
+                                        <AssignmentSubmissionStats
+                                          studentCount={a.studentCount}
+                                          submittedCount={a.submittedCount}
+                                          missingCount={a.missingCount}
+                                          submittedLabel={t.submittedCountLabel}
+                                          missingLabel={t.missingCountLabel}
+                                        />
+                                      </td>
                                       <td>
                                         {a.archived ? (
                                           <button
@@ -1055,13 +1153,13 @@ export default function Teacher() {
                                       <td>
                                         <button
                                           type="button"
-                                          className="btn btn-sm btn-outline-danger"
+                                          className="btn btn-sm teacher-delete-button"
                                           disabled={deleteBusyId === a.id}
                                           onClick={() => deleteAssignment(a.id)}
+                                          aria-label={t.deleteAssignmentAria || "Aufgabe löschen"}
+                                          title={t.deleteAssignmentAria || "Aufgabe löschen"}
                                         >
-                                          {deleteBusyId === a.id
-                                            ? t.saving || "Saving..."
-                                            : t.deleteLbl || "Delete"}
+                                          <span aria-hidden="true">🗑</span>
                                         </button>
                                       </td>
                                     </tr>
@@ -1108,20 +1206,46 @@ export default function Teacher() {
                       {submissionsError && <div className="text-danger">{submissionsError}</div>}
 
                       {!submissionsLoading && !submissionsError && submissions.length === 0 && (
-                        <div className="text-muted">{t.noSubmissions || "No submissions"}</div>
+                        <div className="text-muted">{t.noStudentsInClass || "No students in this class"}</div>
                       )}
 
                       {!submissionsLoading && !submissionsError && submissions.length > 0 && (
                         <>
+                          <div className="submission-filter-bar" role="group" aria-label={t.submissionFilterLabel || "Filter submissions"}>
+                            {[
+                              ["all", t.submissionFilterAll || "All", submissionRosterCounts.all],
+                              ["submitted", t.submittedCountLabel || "Submitted", submissionRosterCounts.submitted],
+                              ["missing", t.missingCountLabel || "Not submitted", submissionRosterCounts.missing],
+                            ].map(([value, label, count]) => (
+                              <button
+                                key={value}
+                                type="button"
+                                className={`btn btn-sm ${submissionFilter === value ? "btn-primary" : "btn-outline-primary"}`}
+                                onClick={() => setSubmissionFilter(value)}
+                              >
+                                {label} ({count})
+                              </button>
+                            ))}
+                          </div>
                           <div className="submission-top-actions">
                             <div className="submission-selection-summary">
                               {selectedDownloadableCount > 0
                                 ? allDownloadableSelected
-                                  ? "Alle ausgewählt"
-                                  : `${selectedDownloadableCount} ausgewählt`
-                                : "Keine Auswahl"}
+                                  ? t.allSelected || "All selected"
+                                  : `${selectedDownloadableCount} ${t.selectedCount || "selected"}`
+                                : t.noSelection || "No selection"}
                             </div>
                             <div className="submission-top-buttons">
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger"
+                                disabled={selectedMissingCount === 0 || reminderBusy}
+                                onClick={sendSelectedReminders}
+                              >
+                                {reminderBusy
+                                  ? t.loading || "Loading..."
+                                  : `${t.sendReminderEmail || "Send reminder by email"} (${selectedMissingCount})`}
+                              </button>
                               <button
                                 type="button"
                                 className="btn btn-sm btn-success"
@@ -1129,29 +1253,50 @@ export default function Teacher() {
                                 onClick={downloadCurrentSelectionZip}
                                 title={
                                   allDownloadableSelected
-                                    ? "Ganze Klasse als ZIP herunterladen"
-                                    : "Ausgewählte Schüler als ZIP herunterladen"
+                                    ? t.downloadWholeClassZip || "Download whole class as ZIP"
+                                    : t.downloadSelectionZip || "Download selected students as ZIP"
                                 }
                               >
                                 {downloadBusyMode === "selection"
                                   ? t.loading || "Loading..."
                                   : allDownloadableSelected
-                                  ? "Ganze Klasse als ZIP"
-                                  : "Auswahl als ZIP"}
+                                  ? t.wholeClassZip || "Whole class as ZIP"
+                                  : t.selectionZip || "Selection as ZIP"}
                               </button>
                             </div>
                           </div>
+                          {reminderResult ? (
+                            <div className={`alert py-2 ${reminderResult.success ? "alert-success" : "alert-danger"}`} role="status">
+                              {reminderResult.success
+                                ? <>
+                                    <div>{`${t.remindersSent || "Reminders sent"}: ${reminderResult.sentCount || 0}. ${t.remindersFailed || "Failed"}: ${reminderResult.failedCount || 0}.`}</div>
+                                    {Array.isArray(reminderResult.failed) && reminderResult.failed.length > 0 ? (
+                                      <div className="small mt-1">
+                                        {t.failedRecipients || "Failed recipients"}: {reminderResult.failed.map((item) => {
+                                          const row = submissions.find((submission) => submission.studentId === item.userId);
+                                          return row ? getSubmissionStudentDisplayName(row) : `#${item.userId}`;
+                                        }).join(", ")}
+                                      </div>
+                                    ) : null}
+                                  </>
+                                : reminderResult.error || t.reminderSendFailed || "Reminder could not be sent"}
+                            </div>
+                          ) : null}
+                          {filteredSubmissions.length === 0 ? (
+                            <div className="text-muted mb-3">{t.noStudentsForFilter || "No students match this filter"}</div>
+                          ) : null}
                           <div className="table-responsive submissions-table-responsive">
                             <table className="table table-sm table-bordered align-middle submission-feedback-table">
                               <colgroup>
                                 <col className="submission-col-select" />
                                 <col className="submission-col-student" />
-                                <col className="submission-col-time" style={{ minWidth: '110px', width: '120px' }} />
+                                <col className="submission-col-status" />
+                                <col className="submission-col-time" />
                                 <col className="submission-col-files" />
-                                <col className="submission-col-text" style={{ minWidth: '180px', width: '220px' }} />
+                                <col className="submission-col-text" />
                                 <col className="submission-col-feedback" />
                                 <col className="submission-col-grade" />
-                                <col className="submission-col-save" style={{ width: '1px', minWidth: '1px', maxWidth: '60px' }} />
+                                <col className="submission-col-save" />
                               </colgroup>
                               <thead>
                                 <tr>
@@ -1159,24 +1304,35 @@ export default function Teacher() {
                                     <input
                                       className="form-check-input submission-select-checkbox"
                                       type="checkbox"
-                                      checked={allDownloadableSelected}
-                                      disabled={downloadableSubmissions.length === 0}
-                                      onChange={(e) => setAllSubmissionSelection(e.target.checked)}
-                                      title="Alle Schüler mit Dateien auswählen"
-                                      aria-label="Alle Schüler mit Dateien auswählen"
+                                      checked={submissionFilter === "missing" ? allMissingSelected : allDownloadableSelected}
+                                      disabled={submissionFilter === "missing" ? missingStudents.length === 0 : downloadableSubmissions.length === 0}
+                                      onChange={(e) => submissionFilter === "missing"
+                                        ? setAllMissingStudentSelection(e.target.checked)
+                                        : setAllSubmissionSelection(e.target.checked)}
+                                      title={submissionFilter === "missing"
+                                        ? t.selectAllForReminder || "Select all for reminders"
+                                        : t.selectAllWithFiles || "Select all students with files"}
+                                      aria-label={submissionFilter === "missing"
+                                        ? t.selectAllForReminder || "Select all for reminders"
+                                        : t.selectAllWithFiles || "Select all students with files"}
                                     />
                                   </th>
                                   <th>{t.student}</th>
+                                  <th>{t.status}</th>
                                   <th>{t.time}</th>
                                   <th>{t.filesLbl}</th>
                                   <th>{t.textLbl}</th>
                                   <th>{t.feedback}</th>
                                   <th>{t.grade}</th>
-                                  <th>{t.save}</th>
+                                  <th scope="col" title={t.save} aria-label={t.save}>
+                                    <span aria-hidden="true">✓</span>
+                                    <span className="visually-hidden">{t.save}</span>
+                                  </th>
                                 </tr>
                               </thead>
                             <tbody>
-                              {submissions.map((s) => {
+                              {filteredSubmissions.map((s) => {
+                                const isSubmitted = s.hasSubmitted === true;
                                 const draft = gradeDrafts[s.id] || {
                                   grade: "",
                                   feedback: "",
@@ -1188,24 +1344,37 @@ export default function Teacher() {
                                 const studentName = getSubmissionStudentDisplayName(s);
                                 const studentEmail = s.student?.email || "";
                                 const submissionIdKey = String(s.id);
+                                const initialGrade = typeof s.grade === "number" ? String(s.grade) : "";
+                                const initialFeedback = s.feedback || "";
+                                const hasUnsavedGradeChanges = isSubmitted && (
+                                  draft.grade !== initialGrade || draft.feedback !== initialFeedback
+                                );
                                 const hasDownloadableFiles = submissionHasDownloadableFiles(s);
+                                const rowKey = isSubmitted ? `submission-${s.id}` : `missing-${s.studentId}`;
 
                                 return (
-                                  <tr key={s.id}>
+                                  <tr key={rowKey} className={isSubmitted ? "" : "submission-row-missing"}>
                                     <td className="submission-select-cell">
-                                      <input
-                                        className="form-check-input submission-select-checkbox"
-                                        type="checkbox"
-                                        checked={selectedSubmissionIds.has(submissionIdKey)}
-                                        disabled={!hasDownloadableFiles}
-                                        onChange={(e) => toggleSubmissionSelection(s.id, e.target.checked)}
-                                        title={
-                                          hasDownloadableFiles
-                                            ? `${studentName} auswählen`
-                                            : "Keine Dateien zum Herunterladen"
-                                        }
-                                        aria-label={`${studentName} auswählen`}
-                                      />
+                                      {isSubmitted ? (
+                                        <input
+                                          className="form-check-input submission-select-checkbox"
+                                          type="checkbox"
+                                          checked={selectedSubmissionIds.has(submissionIdKey)}
+                                          disabled={!hasDownloadableFiles}
+                                          onChange={(e) => toggleSubmissionSelection(s.id, e.target.checked)}
+                                          title={hasDownloadableFiles ? `${studentName} ${t.select || "select"}` : t.noFilesToDownload || "No files to download"}
+                                          aria-label={`${studentName} ${t.select || "select"}`}
+                                        />
+                                      ) : (
+                                        <input
+                                          className="form-check-input submission-select-checkbox"
+                                          type="checkbox"
+                                          checked={selectedMissingStudentIds.has(String(s.studentId))}
+                                          onChange={(e) => toggleMissingStudentSelection(s.studentId, e.target.checked)}
+                                          title={`${t.selectForReminder || "Select for reminder"}: ${studentName}`}
+                                          aria-label={`${t.selectForReminder || "Select for reminder"}: ${studentName}`}
+                                        />
+                                      )}
                                     </td>
 
                                     <td className="submission-student-cell">
@@ -1219,6 +1388,12 @@ export default function Teacher() {
                                       ) : null}
                                     </td>
 
+                                    <td className="submission-status-cell">
+                                      <span className={`submission-status-badge ${isSubmitted ? "submission-status-submitted" : "submission-status-missing"}`}>
+                                        {isSubmitted ? t.submittedCountLabel || "Submitted" : t.missingCountLabel || "Not submitted"}
+                                      </span>
+                                    </td>
+
                                     <td className="submission-time-cell">
                                       {submittedAtParts.date ? (
                                         <>
@@ -1226,7 +1401,7 @@ export default function Teacher() {
                                           <div className="submission-time-clock">{submittedAtParts.time}</div>
                                         </>
                                       ) : (
-                                        ""
+                                        "—"
                                       )}
                                     </td>
 
@@ -1291,7 +1466,7 @@ export default function Teacher() {
                                       </div>
                                     </td>
                                     <td className="submission-feedback-cell">
-                                      <textarea
+                                      {isSubmitted ? <><textarea
                                         className="form-control form-control-sm"
                                         rows={2}
                                         value={draft.feedback}
@@ -1318,11 +1493,11 @@ export default function Teacher() {
                                         <div className="submission-grade-message text-success">
                                           {draft.feedbackOk}
                                         </div>
-                                      ) : null}
+                                      ) : null}</> : "—"}
                                     </td>
 
                                     <td className="submission-grade-cell">
-                                      <input
+                                      {isSubmitted ? <><input
                                         className="form-control form-control-sm submission-grade-input"
                                         type="number"
                                         min="0"
@@ -1360,18 +1535,29 @@ export default function Teacher() {
                                         <div className="submission-grade-message text-success">
                                           {draft.gradeOk}
                                         </div>
-                                      ) : null}
+                                      ) : null}</> : "—"}
                                     </td>
 
                                     <td className="submission-save-cell">
-                                      <button
+                                      {isSubmitted ? <button
                                         type="button"
-                                        className="btn btn-sm btn-primary"
-                                        disabled={draft.saving}
+                                        className="btn btn-sm btn-primary submission-save-button"
+                                        disabled={draft.saving || !hasUnsavedGradeChanges}
+                                        title={draft.saving
+                                          ? (t.saving || "Saving...")
+                                          : hasUnsavedGradeChanges
+                                            ? (t.saveChanges || t.save || "Save")
+                                            : (t.noChangesToSave || "No unsaved changes")}
+                                        aria-label={draft.saving
+                                          ? (t.saving || "Saving...")
+                                          : hasUnsavedGradeChanges
+                                            ? (t.saveChanges || t.save || "Save")
+                                            : (t.noChangesToSave || "No unsaved changes")}
                                         onClick={() => saveGrade(s.id)}
                                       >
-                                        {draft.saving ? t.saving || "Saving..." : t.save || "Save"}
-                                      </button>
+                                        <span aria-hidden="true">{draft.saving ? "…" : "✓"}</span>
+                                        <span className="visually-hidden">{draft.saving ? t.saving || "Saving..." : t.save || "Save"}</span>
+                                      </button> : "—"}
                                     </td>
                                   </tr>
                                 );

@@ -1,6 +1,7 @@
 // backend/src/app.email.js
 
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '..', '.env'), quiet: true });
 const nodemailer = require('nodemailer');
 
 const emailHost = process.env.EMAIL_HOST;
@@ -22,19 +23,79 @@ if (emailHost && emailUser && emailPassword) {
     }
   });
 } else {
-  console.warn('⚠️ Email service is not configured. Set EMAIL_HOST, EMAIL_USER, and EMAIL_PASSWORD in .env');
+  const missing = [
+    !emailHost && 'EMAIL_HOST',
+    !emailUser && 'EMAIL_USER',
+    !emailPassword && 'EMAIL_PASSWORD (or EMAIL_PASS)',
+  ].filter(Boolean);
+  console.warn(`⚠️ Email service is not configured. Missing: ${missing.join(', ')}`);
 }
 
-if (transporter) {
-  transporter.verify((error, success) => {
-    if (error) {
-      console.error('❌ Email service error:', error);
-    } else {
-      console.log('✅ Email service ready');
-    }
-  });
-} else {
-  console.warn('⚠️ Email transporter was not created due to missing email configuration.');
+function sanitizeSmtpMessage(value) {
+  let message = String(value || 'Unknown SMTP error').replace(/[\r\n]+/g, ' ').slice(0, 500);
+  if (emailPassword) message = message.split(emailPassword).join('[redacted]');
+  return message;
+}
+
+function getSafeSmtpError(error) {
+  return {
+    code: String(error?.code || 'SMTP_ERROR'),
+    command: String(error?.command || 'unknown'),
+    message: sanitizeSmtpMessage(error?.message),
+  };
+}
+
+function logSmtpError(context, error) {
+  const safeError = getSafeSmtpError(error);
+  console.error(`❌ ${context}:`, safeError);
+  return safeError;
+}
+
+async function verifyEmailTransport() {
+  if (!transporter) {
+    const result = {
+      success: false,
+      configured: false,
+      code: 'EMAIL_NOT_CONFIGURED',
+      command: 'CONFIG',
+      message: 'Email service is not configured',
+    };
+    console.warn('⚠️ SMTP verification skipped: email service is not configured.');
+    return result;
+  }
+
+  try {
+    await transporter.verify();
+    console.log(`✅ SMTP ready (${emailHost}:${emailPort}, secure=${emailSecure})`);
+    return { success: true, configured: true };
+  } catch (error) {
+    return { success: false, configured: true, ...logSmtpError('SMTP verification failed', error) };
+  }
+}
+
+async function sendWithTransport(mailOptions, emailType) {
+  if (!transporter) {
+    return {
+      success: false,
+      code: 'EMAIL_NOT_CONFIGURED',
+      command: 'CONFIG',
+      error: 'Email service is not configured',
+    };
+  }
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ ${emailType} sent:`, info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    const safeError = logSmtpError(`${emailType} failed`, error);
+    return {
+      success: false,
+      code: safeError.code,
+      command: safeError.command,
+      error: safeError.message,
+    };
+  }
 }
 
 /**
@@ -108,20 +169,7 @@ Your SmartSubmit Team
     `
   };
 
-  if (!transporter) {
-    const errorMessage = 'Email service is not configured';
-    console.warn('⚠️', errorMessage);
-    return { success: false, error: errorMessage };
-  }
-
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error('❌ Email error:', error);
-    return { success: false, error: error.message };
-  }
+  return sendWithTransport(mailOptions, 'Submission confirmation');
 }
 
 /**
@@ -188,23 +236,46 @@ Your SmartSubmit Team
     `
   };
 
-  if (!transporter) {
-    const errorMessage = 'Email service is not configured';
-    console.warn('⚠️', errorMessage);
-    return { success: false, error: errorMessage };
-  }
+  return sendWithTransport(mailOptions, 'Grade notification');
+}
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Grade notification sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error('❌ Email error:', error);
-    return { success: false, error: error.message };
-  }
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+async function sendAssignmentReminder(studentEmail, studentName, assignmentTitle, dueDate) {
+  const parsedDueDate = new Date(dueDate);
+  const due = Number.isNaN(parsedDueDate.getTime()) ? 'nicht angegeben' : parsedDueDate.toLocaleString('de-AT');
+  const subjectTitle = String(assignmentTitle ?? '').replace(/[\r\n]+/g, ' ').trim();
+  const safeName = escapeHtml(studentName);
+  const safeTitle = escapeHtml(assignmentTitle);
+  const mailOptions = {
+    from: emailFrom,
+    to: studentEmail,
+    subject: `Erinnerung: ${subjectTitle}`,
+    html: `
+      <div style="font-family:Arial,sans-serif;line-height:1.6;color:#333">
+        <h2>SmartSubmit</h2>
+        <p>Hallo ${safeName},</p>
+        <p>für die Aufgabe <strong>${safeTitle}</strong> ist noch keine Abgabe vorhanden.</p>
+        <p><strong>Abgabetermin:</strong> ${escapeHtml(due)}</p>
+        <p>Bitte reiche die Aufgabe rechtzeitig über SmartSubmit ein.</p>
+      </div>
+    `,
+    text: `Hallo ${studentName},\n\nfür die Aufgabe "${assignmentTitle}" ist noch keine Abgabe vorhanden.\nAbgabetermin: ${due}\n\nBitte reiche die Aufgabe rechtzeitig über SmartSubmit ein.`
+  };
+
+  return sendWithTransport(mailOptions, 'Assignment reminder');
 }
 
 module.exports = {
   sendSubmissionConfirmation,
-  sendGradeNotification
+  sendGradeNotification,
+  sendAssignmentReminder,
+  verifyEmailTransport,
 };

@@ -4,6 +4,7 @@ const { validateEmail } = require('../app.utils');
 const path = require('path');
 const fs = require('fs');
 const { logSubmission } = require('../app.submissionLog');
+const { getSubmissionIp } = require('../app.clientIp');
 
 async function handleSubmission(req, studentId, assignmentId, file) { // ADD req as parameter
   try {
@@ -20,14 +21,15 @@ async function handleSubmission(req, studentId, assignmentId, file) { // ADD req
     const savePath = path.join(SUBMISSIONS_DIR, uniqueFilename);
     fs.writeFileSync(savePath, file.buffer);
 
-    const clientIp = req.ip;
+    const clientIp = getSubmissionIp(req);
+    const submittedAt = new Date();
 
     const submission = await prisma.submission.create({
       data: {
         studentId,
         assignmentId,
         files: JSON.stringify([{ originalName: file.originalname, storedName: uniqueFilename }]),
-        submittedAt: new Date()
+        submittedAt
       },
       include: { assignment: true } // needed to access submission.assignment.title below
     });
@@ -36,10 +38,23 @@ async function handleSubmission(req, studentId, assignmentId, file) { // ADD req
       studentName: `${student.firstName} ${student.lastName}`,
       filename: file.originalname,
       ip: clientIp,
-      assignmentId
+      assignmentId,
+      timestamp: submittedAt
     });
 
-    await sendSubmissionConfirmation(student.email, `${student.firstName} ${student.lastName}`, submission.assignment.title, submission.submittedAt);
+    const emailResult = await sendSubmissionConfirmation(
+      student.email,
+      `${student.firstName} ${student.lastName}`,
+      submission.assignment.title,
+      submission.submittedAt
+    );
+    if (!emailResult.success) {
+      console.warn('Submission saved, but confirmation email was not sent:', {
+        code: emailResult.code,
+        command: emailResult.command,
+        message: emailResult.error,
+      });
+    }
 
     return { success: true, submissionId: submission.id };
   } catch (error) {
