@@ -36,6 +36,12 @@ const changePassword = async (req, res) => {
       });
     }
 
+    if (!user.passwordHash) {
+      return res.status(409).json({
+        error: 'This account does not have a local SmartSubmit password'
+      });
+    }
+
     // --- Verify old password ---
     const isOldPasswordValid = await bcrypt.compare(oldPassword, user.passwordHash);
     
