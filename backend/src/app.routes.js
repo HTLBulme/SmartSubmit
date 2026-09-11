@@ -8,12 +8,13 @@ const adminController = require('./controllers/admin.controller');
 const teacherController = require('./controllers/teacher.controller');
 const studentController = require('./controllers/student.controller');
 const changePasswordController = require('./controllers/changePassword.controller');//new
+const roleController = require('./controllers/role.controller');
+const oauthController = require('./controllers/oauth.controller');
 
 // --- Import middleware ---
 const { authenticateToken, authenticateAdmin } = require('./app.middleware');
 const { uploadMemory, uploadDisk, uploadSubmissionsDisk } = require('./app.config');
 const passport = require('../src/app.passport');
-const jwt = require('jsonwebtoken');
 
 // --- OAUTH 2.0 GOOGLE ROUTES ---
 // 1. Initiate Google Login
@@ -24,44 +25,7 @@ router.get('/auth/google',
 // 2. Google Callback (where Google redirects after successful/failed login)
 router.get('/auth/google/callback', 
   passport.authenticate('google', { failureRedirect: 'http://localhost:5173/?error=oauth_failed', session: false }),
-  (req, res) => {
-    try {
-      const user = req.user;
-      
-      // We need to determine the single role to pass, or pass all roles
-      // For simplicity, we just take the first role's name if it exists
-      let roleName = "Student";
-      if (user.userRoles && user.userRoles.length > 0) {
-        roleName = user.userRoles[0].role.name;
-      }
-
-// Create JWT token (Must match what app.utils.js does: 'userId')
-      const token = jwt.sign(
-        { 
-          userId: user.id 
-        },
-        process.env.JWT_SECRET || 'super_secret_jwt_key_123',
-        { expiresIn: '7d' }
-      );
-
-      // Redirect back to frontend frontend login page with the token
-      // You might need to change localhost:5173 to your production URL later
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-        
-        const userData = encodeURIComponent(JSON.stringify({
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          roles: user.userRoles ? user.userRoles.map(ur => ({ id: ur.roleId, name: ur.role.name })) : []
-        }));
-
-        res.redirect(`${frontendUrl}/?token=${token}&role=${roleName}&user=${userData}`);
-    } catch (error) {
-      console.error("OAuth callback error:", error);
-      res.redirect('http://localhost:5173/?error=token_generation_failed');
-    }
-  }
+  oauthController.googleCallback
 );
 
 
@@ -74,6 +38,7 @@ router.post('/register', registerController.register);
 // --- LOGIN PAGE ---
 router.post('/login', loginController.login);
 router.post('/logout', loginController.logout);
+router.post('/auth/select-role', authenticateToken, roleController.selectRole);
 
 // --- ADMIN PAGE (authenticated) ---
 router.post('/admin/import/students', authenticateAdmin, uploadMemory.single('file'), adminController.importStudents);
@@ -81,8 +46,12 @@ router.post('/admin/import/teachers', authenticateAdmin, uploadMemory.single('fi
 // NEW: routes for student/teacher management
 router.get('/admin/classes', authenticateAdmin, adminController.getClasses);
 router.get('/admin/students', authenticateAdmin, adminController.getStudentsByClass);
+router.post('/admin/students', authenticateAdmin, adminController.createStudent);
+router.patch('/admin/students/:id', authenticateAdmin, adminController.updateStudent);
 router.get('/admin/subjects', authenticateAdmin, adminController.getSubjects);
 router.get('/admin/teachers', authenticateAdmin, adminController.getTeachersBySubject);
+router.post('/admin/teachers', authenticateAdmin, adminController.createTeacher);
+router.patch('/admin/teachers/:id', authenticateAdmin, adminController.updateTeacher);
 router.delete('/admin/users/:id', authenticateAdmin, adminController.deleteUser);
 
 // --- TEACHER PAGE (authenticated) ---
@@ -91,6 +60,8 @@ router.get('/teacher/assignments', authenticateToken, teacherController.getTeach
 router.delete('/teacher/assignments/:assignmentId', authenticateToken, teacherController.deleteAssignment);
 router.get('/teacher/assignments/:assignmentId/submissions', authenticateToken, teacherController.getAssignmentSubmissions);
 router.get('/teacher/assignments/:assignmentId/submissions/download', authenticateToken, teacherController.downloadSubmissionsAsZip);
+router.get('/teacher/assignments/:assignmentId/submissions/log', authenticateToken, teacherController.downloadSubmissionLog);
+router.post('/teacher/assignments/:assignmentId/reminders', authenticateToken, teacherController.sendSubmissionReminders);
 router.patch('/teacher/assignments/:assignmentId/archive', authenticateToken, teacherController.setAssignmentArchived);//Partial update, only modifies the specified fields.
 router.patch('/teacher/submissions/:submissionId', authenticateToken, teacherController.gradeSubmission);
 
